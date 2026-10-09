@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { NativeSelect as Select } from "@/components/ui/native-select"
 import { Label } from "@/components/ui/label"
+import { mergeSetsAction } from "@/actions/sets"
 
 interface MergeSetsModalProps {
   open: boolean
@@ -34,7 +35,7 @@ export function MergeSetsModal({
   const [targetSetId, setTargetSetId] = React.useState(initialTargetSetId || "")
   const [selectedSourceIds, setSelectedSourceIds] = React.useState<string[]>([])
   const [deleteSources, setDeleteSources] = React.useState(false)
-  const [submitting, setSubmitting] = React.useState(false)
+  const [isPending, startTransition] = React.useTransition()
 
   React.useEffect(() => {
     if (open) {
@@ -66,7 +67,7 @@ export function MergeSetsModal({
     )
   }
 
-  const handleMerge = async () => {
+  const handleMerge = () => {
     if (!targetSetId) {
       toast.error("Vui lòng chọn bộ thẻ đích")
       return
@@ -76,35 +77,32 @@ export function MergeSetsModal({
       return
     }
 
-    setSubmitting(true)
-    try {
-      const res = await fetch("/api/sets/merge", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+    startTransition(async () => {
+      try {
+        const res = await mergeSetsAction({
           targetSetId,
           sourceSetIds: selectedSourceIds,
           deleteSources,
-        }),
-      })
+        })
 
-      const json = await res.json()
+        if (!res.success) {
+          toast.error(res.error || "Gộp bộ thẻ thất bại")
+          return
+        }
 
-      if (!res.ok) {
-        throw new Error(json.error || "Gộp bộ thẻ thất bại")
+        toast.success(
+          `Đã gộp thành công ${res.data?.mergedCardsCount || 0} thẻ vào bộ đích!`
+        )
+        onOpenChange(false)
+        onSuccess?.()
+      } catch (err: unknown) {
+        const message =
+          err instanceof Error ? err.message : "Đã xảy ra lỗi khi gộp bộ thẻ"
+        toast.error(message)
       }
-
-      toast.success(json.message || "Đã gộp các bộ thẻ thành công!")
-      onOpenChange(false)
-      onSuccess?.()
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : "Đã xảy ra lỗi khi gộp bộ thẻ"
-      toast.error(message)
-    } finally {
-      setSubmitting(false)
-    }
+    })
   }
+
 
   const availableSources = sets.filter((s) => s.id !== targetSetId)
 
@@ -206,16 +204,16 @@ export function MergeSetsModal({
             type="button"
             variant="outline"
             onClick={() => onOpenChange(false)}
-            disabled={submitting}
+            disabled={isPending}
           >
             Huỷ
           </Button>
           <Button
             type="button"
             onClick={handleMerge}
-            disabled={submitting || selectedSourceIds.length === 0}
+            disabled={isPending || selectedSourceIds.length === 0}
           >
-            {submitting ? "Đang gộp..." : "Xác nhận gộp"}
+            {isPending ? "Đang gộp..." : "Xác nhận gộp"}
           </Button>
         </DialogFooter>
       </DialogContent>

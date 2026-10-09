@@ -44,6 +44,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { EmptyState } from "@/components/ui/empty-state"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
+import { duplicateSetAction, deleteSetAction } from "@/actions/sets"
 
 interface StudySetItem {
   id: string
@@ -146,17 +147,12 @@ function LibraryContent() {
   // Actions
   const handleDuplicate = async (id: string, name: string) => {
     try {
-      const res = await fetch(`/api/sets/${id}/duplicate`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: `${name} (Bản sao)` }),
-      })
-      if (res.ok) {
+      const res = await duplicateSetAction(id, { name: `${name} (Bản sao)` })
+      if (res.success) {
         toast.success(`Đã nhân bản bộ thẻ "${name}"`)
         fetchSets()
       } else {
-        const json = await res.json()
-        toast.error(json.error || "Nhân bản thất bại")
+        toast.error(res.error || "Nhân bản thất bại")
       }
     } catch {
       toast.error("Lỗi khi nhân bản bộ thẻ")
@@ -168,13 +164,12 @@ function LibraryContent() {
     const { id, name } = setToDelete
 
     try {
-      const res = await fetch(`/api/sets/${id}`, { method: "DELETE" })
-      if (res.ok) {
+      const res = await deleteSetAction(id)
+      if (res.success) {
         toast.success(`Đã xoá bộ thẻ "${name}"`)
         fetchSets()
       } else {
-        const json = await res.json()
-        toast.error(json.error || "Xoá bộ thẻ thất bại")
+        toast.error(res.error || "Xoá bộ thẻ thất bại")
       }
     } catch {
       toast.error("Lỗi khi xoá bộ thẻ")

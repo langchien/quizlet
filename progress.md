@@ -61,6 +61,21 @@
 
 ---
 
+## ⚡ Tiến Độ Chuyển Đổi Sang Server Actions & Server-Side Rendering (RSC)
+
+|  #  | Phase | Nội dung chuyển đổi | Chi tiết triển khai | Trạng thái |
+| :-: | :---: | :------------------ | :------------------ | :--------: |
+| M.1 |   1   | Data Access Layer (DAL) Sets & Cards | Tạo `src/lib/dal/sets.ts` & `src/lib/dal/cards.ts` với `React.cache()` deduplication | ✅ |
+| M.2 |   1   | Server Actions Sets & Cards | Tạo `src/actions/sets.ts` (CRUD, duplicate, merge) & `src/actions/cards.ts` (CRUD, upload ảnh Sharp WebP, bulk tag, reorder) | ✅ |
+| M.3 |   2   | Chuyển đổi Modals sang Server Actions | `create-set-modal.tsx`, `create-card-modal.tsx`, `merge-sets-modal.tsx` chuyển sang `useTransition` + Server Actions | ✅ |
+| M.4 |   2   | Chuyển đổi Set Detail sang RSC | `sets/[id]/page.tsx` chuyển sang Server Component; tách `set-detail-client.tsx` (Client Island), loại bỏ `fetch` API | ✅ |
+| M.5 |   2   | Cập nhật Library actions | `library/page.tsx` sử dụng `deleteSetAction` & `duplicateSetAction` | ✅ |
+| M.6 |   3   | Dashboard & Stats SSR | Chuyển đổi `dashboard/page.tsx`, `stats/page.tsx`, `calendar/page.tsx` sang RSC | ⬜ |
+| M.7 |   4   | SRS & Study Actions | Chuyển đổi logic SRS & Study session sang Server Actions | ⬜ |
+| M.8 |   5   | Import Module & Cleanup | Chuyển đổi Import sang Server Actions, dọn dẹp các API Route Handlers thừa | ⬜ |
+
+---
+
 **Ký hiệu trạng thái:**
 
 - ⬜ Chưa bắt đầu
@@ -68,3 +83,4 @@
 - ✅ Hoàn thành
 - ⚠️ Có vấn đề cần xử lý
 - ⏭️ Bỏ qua
+

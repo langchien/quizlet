@@ -19,6 +19,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { CreateSetSchema, type CreateSetBody } from "@/schemas/set"
+import { createSetAction, updateSetAction } from "@/actions/sets"
 
 interface CreateSetModalProps {
   open: boolean
@@ -45,7 +46,7 @@ export function CreateSetModal({
   const [folders, setFolders] = React.useState<
     Array<{ id: string; name: string }>
   >([])
-  const [submitting, setSubmitting] = React.useState(false)
+  const [isPending, startTransition] = React.useTransition()
 
   const isEditing = !!editSet
 
@@ -100,42 +101,38 @@ export function CreateSetModal({
     }
   }, [open, editSet, defaultFolderId, reset])
 
-  const onSubmit = async (data: CreateSetBody) => {
-    setSubmitting(true)
-    try {
-      const url = isEditing ? `/api/sets/${editSet.id}` : "/api/sets"
-      const method = isEditing ? "PATCH" : "POST"
-
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+  const onSubmit = (data: CreateSetBody) => {
+    startTransition(async () => {
+      try {
+        const payload = {
           ...data,
           folderId:
             data.folderId === "none" || !data.folderId ? null : data.folderId,
-        }),
-      })
+        }
 
-      const json = await res.json()
+        const res = isEditing
+          ? await updateSetAction(editSet.id, payload)
+          : await createSetAction(payload)
 
-      if (!res.ok) {
-        throw new Error(json.error || "Thao tác thất bại")
+        if (!res.success) {
+          toast.error(res.error || "Thao tác thất bại")
+          return
+        }
+
+        toast.success(
+          isEditing
+            ? "Đã cập nhật bộ thẻ thành công!"
+            : "Đã tạo bộ thẻ mới thành công!"
+        )
+        onOpenChange(false)
+        onSuccess?.(res.data)
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "Đã xảy ra lỗi"
+        toast.error(message)
       }
-
-      toast.success(
-        isEditing
-          ? "Đã cập nhật bộ thẻ thành công!"
-          : "Đã tạo bộ thẻ mới thành công!"
-      )
-      onOpenChange(false)
-      onSuccess?.(json)
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Đã xảy ra lỗi"
-      toast.error(message)
-    } finally {
-      setSubmitting(false)
-    }
+    })
   }
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -232,12 +229,12 @@ export function CreateSetModal({
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
-              disabled={submitting}
+              disabled={isPending}
             >
               Huỷ
             </Button>
-            <Button type="submit" disabled={submitting}>
-              {submitting
+            <Button type="submit" disabled={isPending}>
+              {isPending
                 ? "Đang lưu..."
                 : isEditing
                   ? "Cập nhật bộ thẻ"

@@ -20,6 +20,11 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { CreateCardSchema, type CreateCardBody } from "@/schemas/card"
+import {
+  createCardAction,
+  updateCardAction,
+  uploadCardImageAction,
+} from "@/actions/cards"
 import { JLPT_LEVELS } from "@/types"
 import type { JLPTLevel, WordType } from "@/generated/prisma/client"
 
@@ -75,7 +80,7 @@ export function CreateCardModal({
   editCard,
 }: CreateCardModalProps) {
   const [activeTab, setActiveTab] = React.useState("basic")
-  const [submitting, setSubmitting] = React.useState(false)
+  const [isPending, startTransition] = React.useTransition()
   const [availableTags, setAvailableTags] = React.useState<TagItem[]>([])
   const [selectedTags, setSelectedTags] = React.useState<TagItem[]>([])
   const [tagInput, setTagInput] = React.useState("")
@@ -238,61 +243,54 @@ export function CreateCardModal({
     )
   }
 
-  const onSubmit = async (data: CreateCardBody) => {
-    setSubmitting(true)
-    try {
-      const url = isEditing
-        ? `/api/cards/${editCard.id}`
-        : `/api/sets/${studySetId}/cards`
-      const method = isEditing ? "PATCH" : "POST"
-
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+  const onSubmit = (data: CreateCardBody) => {
+    startTransition(async () => {
+      try {
+        const payload = {
           ...data,
+          studySetId,
           tagIds: selectedTags.map((t) => t.id),
           strokeCount:
             data.strokeCount === null || isNaN(Number(data.strokeCount))
               ? null
               : Number(data.strokeCount),
-        }),
-      })
-
-      const cardJson = await res.json()
-
-      if (!res.ok) {
-        throw new Error(cardJson.error || "Thao tác thất bại")
-      }
-
-      // Nếu có file ảnh mới tải lên
-      if (imageFile && cardJson.id) {
-        const formData = new FormData()
-        formData.append("file", imageFile)
-        const imgRes = await fetch(`/api/cards/${cardJson.id}/image`, {
-          method: "POST",
-          body: formData,
-        })
-        if (imgRes.ok) {
-          const imgData = await imgRes.json()
-          cardJson.imageUrl = imgData.imageUrl
         }
-      }
 
-      toast.success(
-        isEditing
-          ? "Đã cập nhật thẻ thành công!"
-          : "Đã thêm thẻ mới vào bộ thẻ!"
-      )
-      onOpenChange(false)
-      onSuccess?.(cardJson)
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Đã xảy ra lỗi"
-      toast.error(message)
-    } finally {
-      setSubmitting(false)
-    }
+        const res = isEditing
+          ? await updateCardAction(editCard.id, payload)
+          : await createCardAction(payload)
+
+        if (!res.success) {
+          toast.error(res.error || "Thao tác thất bại")
+          return
+        }
+
+        let cardData = res.data
+
+        // Nếu có file ảnh mới tải lên
+        if (imageFile && cardData?.id) {
+          const formData = new FormData()
+          formData.append("file", imageFile)
+          const imgRes = await uploadCardImageAction(cardData.id, formData)
+          if (imgRes.success) {
+            cardData = { ...cardData, imageUrl: imgRes.data.imageUrl }
+          }
+        }
+
+        toast.success(
+          isEditing
+            ? "Đã cập nhật thẻ thành công!"
+            : "Đã thêm thẻ mới vào bộ thẻ!"
+        )
+        onOpenChange(false)
+        onSuccess?.(cardData)
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "Đã xảy ra lỗi"
+        toast.error(message)
+      }
+    })
   }
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -653,12 +651,12 @@ export function CreateCardModal({
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
-                disabled={submitting}
+                disabled={isPending}
               >
                 Huỷ
               </Button>
-              <Button type="submit" disabled={submitting}>
-                {submitting
+              <Button type="submit" disabled={isPending}>
+                {isPending
                   ? "Đang lưu..."
                   : isEditing
                     ? "Lưu thay đổi"
