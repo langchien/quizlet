@@ -49,7 +49,25 @@ export async function GET(
       )
     }
 
-    const safeFilename = `${studySet.name.replace(/[^a-zA-Z0-9\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\u00C0-\u1EF9]/g, "_")}`
+    // Loại bỏ các ký tự không hợp lệ trên tên file hệ điều hành
+    const sanitizedTitle =
+      studySet.name.replace(/[\\/:*?"<>|]/g, "_").trim() || "study-set"
+
+    // Tạo fallback ASCII an toàn (bỏ dấu tiếng Việt và ký tự ngoài ASCII) để header HTTP không bị lỗi ByteString
+    const asciiFallback =
+      sanitizedTitle
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-zA-Z0-9._-]/g, "_")
+        .replace(/_+/g, "_")
+        .replace(/^_+|_+$/g, "") || "study-set"
+
+    // Tạo header Content-Disposition tuân thủ RFC 5987 / RFC 6266
+    const getContentDisposition = (ext: "csv" | "json") => {
+      const fallback = `${asciiFallback}.${ext}`
+      const encoded = encodeURIComponent(`${sanitizedTitle}.${ext}`)
+      return `attachment; filename="${fallback}"; filename*=UTF-8''${encoded}`
+    }
 
     // 1. Xuất định dạng CSV
     if (format === "csv") {
@@ -91,7 +109,7 @@ export async function GET(
       return new NextResponse(csvContent, {
         headers: {
           "Content-Type": "text/csv; charset=utf-8",
-          "Content-Disposition": `attachment; filename="${safeFilename}.csv"`,
+          "Content-Disposition": getContentDisposition("csv"),
         },
       })
     }
@@ -135,7 +153,7 @@ export async function GET(
     return new NextResponse(JSON.stringify(exportData, null, 2), {
       headers: {
         "Content-Type": "application/json; charset=utf-8",
-        "Content-Disposition": `attachment; filename="${safeFilename}.json"`,
+        "Content-Disposition": getContentDisposition("json"),
       },
     })
   } catch (error) {
