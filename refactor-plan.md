@@ -250,7 +250,7 @@ apps/src/
      - `stats-export-menu.tsx`: Menu xuất báo cáo thống kê CSV/JSON.
   3. Tinh gọn `stats-client.tsx`: Giảm từ **966 dòng xuống dưới 100 dòng**.
 
-#### Nhiệm vụ 2.2: Refactor Trang Cài Đặt Hệ Thống (`src/app/(dashboard)/settings/page.tsx` — 926 dòng)
+#### Nhiệm vụ 2.2: Refactor Trang Cài Đặt Hệ Thống (`src/app/(dashboard)/settings/page.tsx` — 926 dòng) [ĐÃ HOÀN THÀNH ✅]
 - **Vấn đề**: Quản lý nhiều form độc lập (hồ sơ, mật khẩu, font, SRS, mục tiêu ngày, âm thanh, danger zone) trong một component duy nhất.
 - **Giải pháp**:
   1. Tạo thư mục `src/hooks/settings/`:
@@ -259,11 +259,11 @@ apps/src/
      - `use-learning-preferences.ts`: Quản lý SRS algorithm, daily goals, auto-play, TTS rate & voice preview.
   2. Tạo thư mục `src/components/settings/`:
      - `settings-profile-tab.tsx`: Card cập nhật thông tin + Card đổi mật khẩu.
-     - `settings-appearance-tab.tsx`: Chọn theme (Dark/Light/System), cỡ chữ và phông chữ tiếng Nhật (Noto Sans, Klee One, Zen Maru).
-     - `settings-learning-tab.tsx`: Cấu hình thuật toán SRS (Auto/Simple/Advanced), thanh trượt mục tiêu ngày, giọng đọc & tốc độ TTS.
+     - `settings-appearance-tab.tsx`: Chọn theme (Dark/Light/System), cỡ chữ và phông chữ tiếng Nhật (Noto Sans, Zen Kaku, Kosugi Maru).
+     - `settings-learning-tab.tsx`: Cấu hình thuật toán SRS (Auto/Simple/Advanced), mục tiêu ngày, giọng đọc & tốc độ TTS.
      - `settings-shortcuts-tab.tsx`: Toggle phím tắt và bảng cheatsheet phím tắt toàn hệ thống.
-     - `settings-danger-tab.tsx`: Nút xuất dữ liệu, nút xoá lịch sử học tập, nút xoá tài khoản kèm AlertDialog bảo mật.
-  3. Tinh gọn `settings/page.tsx`: Giảm từ **926 dòng xuống dưới 110 dòng**.
+     - `settings-data-tab.tsx`: Tải file Full Backup JSON và điều hướng sang trang Nhập/Xuất.
+  3. Tinh gọn `settings/page.tsx`: Giảm từ **926 dòng xuống còn 142 dòng**.
 
 ---
 

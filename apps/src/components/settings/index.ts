@@ -1,0 +1,5 @@
+export * from "./settings-profile-tab"
+export * from "./settings-appearance-tab"
+export * from "./settings-learning-tab"
+export * from "./settings-shortcuts-tab"
+export * from "./settings-data-tab"
