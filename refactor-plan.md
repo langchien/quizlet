@@ -372,14 +372,15 @@ apps/src/
 
 ### 🔹 GIAI ĐOẠN 5: Tái Cấu Trúc Thư Viện, Lịch, Form Modal & Layout (200 - 670 dòng)
 
-#### Nhiệm vụ 5.1: Refactor Modal Tạo & Sửa Thẻ (`src/components/modals/create-card-modal.tsx` — 670 dòng)
+#### Nhiệm vụ 5.1: Refactor Modal Tạo & Sửa Thẻ (`src/components/modals/create-card-modal.tsx` — 670 dòng) [ĐÃ HOÀN THÀNH ✅]
 - **Giải pháp**:
-  - Tách hook `src/hooks/sets/use-card-form.ts`: Quản lý react-hook-form + zod resolver, fetch available tags, preview/upload ảnh thẻ học, submit create/update.
+  - Tách types `src/types/card-form.ts`: Định nghĩa kiểu dữ liệu `TagItem`, `EditCardItem` và danh sách hằng số `WORD_TYPES`.
+  - Tách hook `src/hooks/sets/use-card-form.ts`: Quản lý react-hook-form với zod resolver (`CreateCardSchema`), fetch tags có sẵn, tạo tag mới ngay trong modal, chọn/xóa tags, upload ảnh minh họa và nén WebP, submit create/update thẻ qua Server Actions (`createCardAction`, `updateCardAction`, `uploadCardImageAction`).
   - Tách Sub-components `src/components/modals/card-form/`:
-    - `card-form-basic-tab.tsx`: Các trường cơ bản (Term, Reading, Definition, Example, Translation, Note).
-    - `card-form-kanji-tab.tsx`: Các trường nâng cao (JLPT level, Word type, Radicals, Stroke count, On/Kun reading, Compounds).
-    - `card-form-media-tab.tsx`: Upload & xem trước hình ảnh, Multi-select tags với khả năng tạo tag mới ngay trong modal.
-  - Tinh gọn `create-card-modal.tsx`: Giảm từ **670 dòng xuống dưới 100 dòng**.
+    - `card-form-basic-tab.tsx`: Các trường cơ bản (Term, Reading, Definition, JLPT level, Word type, Tags selector với tạo nhãn nhanh).
+    - `card-form-details-tab.tsx`: Câu ví dụ tiếng Nhật, dịch nghĩa, ghi chú bổ sung và dropzone upload/xóa ảnh minh họa.
+    - `card-form-kanji-tab.tsx`: Bộ thủ (Radicals), số nét (Stroke count), âm On/Kun reading và từ ghép (Compounds).
+  - Tinh gọn `create-card-modal.tsx`: Giảm từ **670 dòng xuống còn 138 dòng**.
 
 #### Nhiệm vụ 5.2: Refactor Trang Thư Viện (`src/app/(dashboard)/library/page.tsx` — 603 dòng)
 - **Giải pháp**:
