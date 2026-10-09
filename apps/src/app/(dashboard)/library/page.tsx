@@ -28,6 +28,16 @@ import {
   DropdownMenuContent,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { CreateSetModal } from "@/components/modals/create-set-modal"
 import { MergeSetsModal } from "@/components/modals/merge-sets-modal"
 import { toast } from "sonner"
@@ -77,6 +87,7 @@ function LibraryContent() {
   const [createModalOpen, setCreateModalOpen] = React.useState(false)
   const [editingSet, setEditingSet] = React.useState<StudySetItem | null>(null)
   const [mergeModalOpen, setMergeModalOpen] = React.useState(false)
+  const [setToDelete, setSetToDelete] = React.useState<StudySetItem | null>(null)
 
   // Sync folderParam
   React.useEffect(() => {
@@ -148,14 +159,9 @@ function LibraryContent() {
     }
   }
 
-  const handleDelete = async (id: string, name: string) => {
-    if (
-      !confirm(
-        `Bạn có chắc chắn muốn xoá bộ thẻ "${name}"? Thao tác này sẽ xoá toàn bộ các thẻ bên trong.`
-      )
-    ) {
-      return
-    }
+  const confirmDelete = async () => {
+    if (!setToDelete) return
+    const { id, name } = setToDelete
 
     try {
       const res = await fetch(`/api/sets/${id}`, { method: "DELETE" })
@@ -168,6 +174,8 @@ function LibraryContent() {
       }
     } catch {
       toast.error("Lỗi khi xoá bộ thẻ")
+    } finally {
+      setSetToDelete(null)
     }
   }
 
@@ -378,7 +386,7 @@ function LibraryContent() {
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           destructive
-                          onClick={() => handleDelete(set.id, set.name)}
+                          onClick={() => setSetToDelete(set)}
                           className="gap-2"
                         >
                           <Trash2 className="size-3.5" />
@@ -505,7 +513,7 @@ function LibraryContent() {
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
                         destructive
-                        onClick={() => handleDelete(set.id, set.name)}
+                        onClick={() => setSetToDelete(set)}
                         className="gap-2"
                       >
                         <Trash2 className="size-3.5" />
@@ -533,6 +541,29 @@ function LibraryContent() {
         onOpenChange={setMergeModalOpen}
         onSuccess={() => fetchSets()}
       />
+
+      {/* Delete Confirmation Alert Dialog */}
+      <AlertDialog
+        open={!!setToDelete}
+        onOpenChange={(open) => !open && setSetToDelete(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xác nhận xoá bộ thẻ</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn có chắc chắn muốn xoá bộ thẻ &ldquo;{setToDelete?.name}&rdquo;? Thao tác này sẽ xoá vĩnh viễn toàn bộ các thẻ bên trong và không thể hoàn tác.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setSetToDelete(null)}>
+              Huỷ
+            </AlertDialogCancel>
+            <AlertDialogAction variant="destructive" onClick={confirmDelete}>
+              Xoá bộ thẻ
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

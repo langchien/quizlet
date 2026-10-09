@@ -19,6 +19,16 @@ import {
   DropdownMenuContent,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { CreateTagModal } from "@/components/modals/create-tag-modal"
 import { toast } from "sonner"
 
@@ -37,6 +47,7 @@ export default function TagsPage() {
   const [search, setSearch] = React.useState("")
   const [createModalOpen, setCreateModalOpen] = React.useState(false)
   const [editingTag, setEditingTag] = React.useState<TagItem | null>(null)
+  const [tagToDelete, setTagToDelete] = React.useState<TagItem | null>(null)
 
   const fetchTags = React.useCallback(async () => {
     try {
@@ -64,14 +75,9 @@ export default function TagsPage() {
     return () => window.removeEventListener("refresh-tags", handleRefresh)
   }, [fetchTags])
 
-  const handleDelete = async (id: string, name: string) => {
-    if (
-      !confirm(
-        `Bạn có chắc muốn xoá nhãn "${name}"? Nhãn sẽ được gỡ khỏi các thẻ nhưng nội dung thẻ vẫn được giữ nguyên.`
-      )
-    ) {
-      return
-    }
+  const confirmDelete = async () => {
+    if (!tagToDelete) return
+    const { id, name } = tagToDelete
 
     try {
       const res = await fetch(`/api/tags/${id}`, { method: "DELETE" })
@@ -83,6 +89,8 @@ export default function TagsPage() {
       }
     } catch {
       toast.error("Lỗi khi xoá nhãn")
+    } finally {
+      setTagToDelete(null)
     }
   }
 
@@ -200,7 +208,7 @@ export default function TagsPage() {
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       destructive
-                      onClick={() => handleDelete(tag.id, tag.name)}
+                      onClick={() => setTagToDelete(tag)}
                       className="gap-2"
                     >
                       <Trash2 className="size-3.5" />
@@ -233,6 +241,29 @@ export default function TagsPage() {
         editTag={editingTag}
         onSuccess={() => fetchTags()}
       />
+
+      {/* Delete Confirmation Alert Dialog */}
+      <AlertDialog
+        open={!!tagToDelete}
+        onOpenChange={(open) => !open && setTagToDelete(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xác nhận xoá nhãn</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn có chắc muốn xoá nhãn &ldquo;{tagToDelete?.name}&rdquo;? Nhãn sẽ được gỡ khỏi các thẻ nhưng nội dung thẻ vẫn được giữ nguyên.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setTagToDelete(null)}>
+              Huỷ
+            </AlertDialogCancel>
+            <AlertDialogAction variant="destructive" onClick={confirmDelete}>
+              Xoá nhãn
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

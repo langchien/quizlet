@@ -33,6 +33,16 @@ import {
   DropdownMenuContent,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { toast } from "sonner"
 import type { FolderNode } from "@/app/api/folders/route"
 
@@ -62,6 +72,10 @@ export function Sidebar({
     new Set()
   )
   const [loadingFolders, setLoadingFolders] = React.useState(true)
+  const [folderToDelete, setFolderToDelete] = React.useState<{
+    id: string
+    name: string
+  } | null>(null)
 
   const fetchFolders = React.useCallback(async () => {
     try {
@@ -95,14 +109,9 @@ export function Sidebar({
     })
   }
 
-  const handleDeleteFolder = async (id: string, name: string) => {
-    if (
-      !confirm(
-        `Bạn có chắc chắn muốn xoá thư mục "${name}"? Các bộ thẻ bên trong sẽ được chuyển ra thư mục gốc.`
-      )
-    ) {
-      return
-    }
+  const confirmDeleteFolder = async () => {
+    if (!folderToDelete) return
+    const { id, name } = folderToDelete
 
     try {
       const res = await fetch(`/api/folders/${id}`, { method: "DELETE" })
@@ -115,6 +124,8 @@ export function Sidebar({
       }
     } catch {
       toast.error("Lỗi kết nối máy chủ")
+    } finally {
+      setFolderToDelete(null)
     }
   }
 
@@ -241,7 +252,9 @@ export function Sidebar({
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   destructive
-                  onClick={() => handleDeleteFolder(node.id, node.name)}
+                  onClick={() =>
+                    setFolderToDelete({ id: node.id, name: node.name })
+                  }
                   className="gap-2"
                 >
                   <Trash2 className="size-3.5" />
@@ -397,6 +410,32 @@ export function Sidebar({
           </button>
         </div>
       )}
+
+      {/* Delete Folder Alert Dialog */}
+      <AlertDialog
+        open={!!folderToDelete}
+        onOpenChange={(open) => !open && setFolderToDelete(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xác nhận xoá thư mục</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn có chắc chắn muốn xoá thư mục &ldquo;{folderToDelete?.name}&rdquo;? Các bộ thẻ bên trong sẽ được tự động chuyển ra thư mục gốc.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setFolderToDelete(null)}>
+              Huỷ
+            </AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={confirmDeleteFolder}
+            >
+              Xoá thư mục
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </aside>
   )
 }

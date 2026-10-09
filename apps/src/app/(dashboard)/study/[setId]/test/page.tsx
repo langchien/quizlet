@@ -34,6 +34,16 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { useTTS } from "@/hooks/useTTS"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
@@ -100,6 +110,7 @@ export default function TestStudyPage() {
     null
   )
   const [confirmSubmitOpen, setConfirmSubmitOpen] = React.useState(false)
+  const [exitConfirmOpen, setExitConfirmOpen] = React.useState(false)
 
   // Thống kê kết quả
   const [totalDuration, setTotalDuration] = React.useState(0)
@@ -663,13 +674,7 @@ export default function TestStudyPage() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => {
-                if (
-                  confirm("Bạn có chắc muốn thoát? Kết quả bài thi sẽ bị huỷ.")
-                ) {
-                  setTestPhase("config")
-                }
-              }}
+              onClick={() => setExitConfirmOpen(true)}
               className="text-muted-foreground hover:text-foreground h-8 gap-1 px-2 text-xs"
             >
               <ChevronLeft className="size-4" />
@@ -998,6 +1003,32 @@ export default function TestStudyPage() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* Dialog Xác nhận thoát bài thi */}
+        <AlertDialog open={exitConfirmOpen} onOpenChange={setExitConfirmOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Xác nhận thoát bài thi</AlertDialogTitle>
+              <AlertDialogDescription>
+                Bạn có chắc muốn thoát khỏi bài thi hiện tại? Tiến trình và kết quả làm bài sẽ bị huỷ.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setExitConfirmOpen(false)}>
+                Tiếp tục làm bài
+              </AlertDialogCancel>
+              <AlertDialogAction
+                variant="destructive"
+                onClick={() => {
+                  setExitConfirmOpen(false)
+                  setTestPhase("config")
+                }}
+              >
+                Thoát bài thi
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     )
   }

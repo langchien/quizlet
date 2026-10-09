@@ -33,6 +33,16 @@ import {
   TableHead,
   TableCell,
 } from "@/components/ui/table"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { CreateCardModal } from "@/components/modals/create-card-modal"
 import { CreateSetModal } from "@/components/modals/create-set-modal"
 import { toast } from "sonner"
@@ -100,6 +110,8 @@ export default function SetDetailPage() {
   const [cardModalOpen, setCardModalOpen] = React.useState(false)
   const [editingCard, setEditingCard] = React.useState<CardItem | null>(null)
   const [editSetModalOpen, setEditSetModalOpen] = React.useState(false)
+  const [cardToDelete, setCardToDelete] = React.useState<CardItem | null>(null)
+  const [bulkDeleteOpen, setBulkDeleteOpen] = React.useState(false)
 
   // Bulk tag state
   const [bulkTagModalOpen, setBulkTagModalOpen] = React.useState(false)
@@ -171,10 +183,12 @@ export default function SetDetailPage() {
   }
 
   // Actions on Card
-  const handleDeleteCard = async (id: string) => {
-    if (!confirm("Bạn có chắc muốn xoá thẻ này?")) return
+  const confirmDeleteCard = async () => {
+    if (!cardToDelete) return
     try {
-      const res = await fetch(`/api/cards/${id}`, { method: "DELETE" })
+      const res = await fetch(`/api/cards/${cardToDelete.id}`, {
+        method: "DELETE",
+      })
       if (res.ok) {
         toast.success("Đã xoá thẻ thành công")
         fetchSet()
@@ -183,6 +197,8 @@ export default function SetDetailPage() {
       }
     } catch {
       toast.error("Lỗi khi xoá thẻ")
+    } finally {
+      setCardToDelete(null)
     }
   }
 
@@ -201,15 +217,7 @@ export default function SetDetailPage() {
   }
 
   // Bulk Actions
-  const handleBulkDelete = async () => {
-    if (
-      !confirm(
-        `Bạn có chắc muốn xoá ${selectedCardIds.size} thẻ đã chọn không?`
-      )
-    ) {
-      return
-    }
-
+  const confirmBulkDelete = async () => {
     try {
       const ids = Array.from(selectedCardIds)
       await Promise.all(
@@ -220,6 +228,8 @@ export default function SetDetailPage() {
       fetchSet()
     } catch {
       toast.error("Lỗi khi xoá hàng loạt")
+    } finally {
+      setBulkDeleteOpen(false)
     }
   }
 
@@ -539,7 +549,7 @@ export default function SetDetailPage() {
                 <Button
                   variant="destructive"
                   size="sm"
-                  onClick={handleBulkDelete}
+                  onClick={() => setBulkDeleteOpen(true)}
                   className="h-8 gap-1 text-xs"
                 >
                   <Trash2 className="size-3.5" />
@@ -737,7 +747,7 @@ export default function SetDetailPage() {
                           </button>
                           <button
                             type="button"
-                            onClick={() => handleDeleteCard(card.id)}
+                            onClick={() => setCardToDelete(card)}
                             className="text-destructive hover:bg-destructive/10 rounded-lg p-1.5 transition-colors"
                             title="Xoá thẻ"
                           >
@@ -815,6 +825,52 @@ export default function SetDetailPage() {
           </div>
         </div>
       )}
+
+      {/* Delete Single Card Alert Dialog */}
+      <AlertDialog
+        open={!!cardToDelete}
+        onOpenChange={(open) => !open && setCardToDelete(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xác nhận xoá thẻ</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn có chắc chắn muốn xoá thẻ từ &ldquo;{cardToDelete?.term}&rdquo;? Thao tác này không thể hoàn tác.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setCardToDelete(null)}>
+              Huỷ
+            </AlertDialogCancel>
+            <AlertDialogAction variant="destructive" onClick={confirmDeleteCard}>
+              Xoá thẻ
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete Bulk Cards Alert Dialog */}
+      <AlertDialog
+        open={bulkDeleteOpen}
+        onOpenChange={setBulkDeleteOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xác nhận xoá hàng loạt</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn có chắc chắn muốn xoá {selectedCardIds.size} thẻ đã chọn? Thao tác này sẽ xoá vĩnh viễn và không thể hoàn tác.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setBulkDeleteOpen(false)}>
+              Huỷ
+            </AlertDialogCancel>
+            <AlertDialogAction variant="destructive" onClick={confirmBulkDelete}>
+              Xoá {selectedCardIds.size} thẻ
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
