@@ -835,14 +835,18 @@ export default function SetDetailPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Xác nhận xoá thẻ</AlertDialogTitle>
             <AlertDialogDescription>
-              Bạn có chắc chắn muốn xoá thẻ từ &ldquo;{cardToDelete?.term}&rdquo;? Thao tác này không thể hoàn tác.
+              Bạn có chắc chắn muốn xoá thẻ từ &ldquo;{cardToDelete?.term}
+              &rdquo;? Thao tác này không thể hoàn tác.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => setCardToDelete(null)}>
               Huỷ
             </AlertDialogCancel>
-            <AlertDialogAction variant="destructive" onClick={confirmDeleteCard}>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={confirmDeleteCard}
+            >
               Xoá thẻ
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -850,22 +854,23 @@ export default function SetDetailPage() {
       </AlertDialog>
 
       {/* Delete Bulk Cards Alert Dialog */}
-      <AlertDialog
-        open={bulkDeleteOpen}
-        onOpenChange={setBulkDeleteOpen}
-      >
+      <AlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Xác nhận xoá hàng loạt</AlertDialogTitle>
             <AlertDialogDescription>
-              Bạn có chắc chắn muốn xoá {selectedCardIds.size} thẻ đã chọn? Thao tác này sẽ xoá vĩnh viễn và không thể hoàn tác.
+              Bạn có chắc chắn muốn xoá {selectedCardIds.size} thẻ đã chọn? Thao
+              tác này sẽ xoá vĩnh viễn và không thể hoàn tác.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => setBulkDeleteOpen(false)}>
               Huỷ
             </AlertDialogCancel>
-            <AlertDialogAction variant="destructive" onClick={confirmBulkDelete}>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={confirmBulkDelete}
+            >
               Xoá {selectedCardIds.size} thẻ
             </AlertDialogAction>
           </AlertDialogFooter>

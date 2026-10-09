@@ -30,6 +30,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog"
 import { useTTS } from "@/hooks/useTTS"
+import { Skeleton } from "@/components/ui/skeleton"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 
@@ -303,14 +304,34 @@ export default function ReviewMistakesPage() {
           </TableHeader>
           <TableBody>
             {loading ? (
-              <TableRow>
-                <TableCell
-                  colSpan={7}
-                  className="text-muted-foreground h-32 text-center text-xs"
-                >
-                  Đang tải danh sách lỗi sai...
-                </TableCell>
-              </TableRow>
+              Array.from({ length: 5 }).map((_, i) => (
+                <TableRow key={i}>
+                  <TableCell className="text-center">
+                    <Skeleton className="mx-auto size-4 rounded" />
+                  </TableCell>
+                  <TableCell>
+                    <div className="space-y-1">
+                      <Skeleton className="h-4 w-28 rounded" />
+                      <Skeleton className="h-3 w-16 rounded" />
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-4 w-44 rounded" />
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell">
+                    <Skeleton className="h-4 w-24 rounded" />
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <Skeleton className="mx-auto h-5 w-10 rounded-full" />
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <Skeleton className="mx-auto h-2 w-16 rounded-full" />
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Skeleton className="ml-auto size-7 rounded-lg" />
+                  </TableCell>
+                </TableRow>
+              ))
             ) : items.length === 0 ? (
               <TableRow>
                 <TableCell

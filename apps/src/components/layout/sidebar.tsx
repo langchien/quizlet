@@ -420,7 +420,9 @@ export function Sidebar({
           <AlertDialogHeader>
             <AlertDialogTitle>Xác nhận xoá thư mục</AlertDialogTitle>
             <AlertDialogDescription>
-              Bạn có chắc chắn muốn xoá thư mục &ldquo;{folderToDelete?.name}&rdquo;? Các bộ thẻ bên trong sẽ được tự động chuyển ra thư mục gốc.
+              Bạn có chắc chắn muốn xoá thư mục &ldquo;{folderToDelete?.name}
+              &rdquo;? Các bộ thẻ bên trong sẽ được tự động chuyển ra thư mục
+              gốc.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

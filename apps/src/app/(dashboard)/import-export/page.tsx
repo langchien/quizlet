@@ -703,7 +703,7 @@ export default function ImportExportPage() {
                     if (f) handleAnkiFileChange(f)
                   }}
                 />
-                <div className="from-primary/10 to-primary/5 group-hover:scale-110 mb-3 flex size-12 items-center justify-center rounded-2xl bg-gradient-to-br text-primary transition-transform">
+                <div className="from-primary/10 to-primary/5 text-primary mb-3 flex size-12 items-center justify-center rounded-2xl bg-gradient-to-br transition-transform group-hover:scale-110">
                   <UploadCloud className="size-6" />
                 </div>
                 <div className="text-sm font-semibold">
@@ -803,7 +803,7 @@ export default function ImportExportPage() {
                   </div>
 
                   {/* Field Mapping */}
-                  <div className="border-border/60 bg-muted/30 rounded-2xl border p-4 space-y-3">
+                  <div className="border-border/60 bg-muted/30 space-y-3 rounded-2xl border p-4">
                     <div className="flex items-center justify-between">
                       <div className="text-muted-foreground flex items-center gap-1.5 text-xs font-bold tracking-wider uppercase">
                         <Layers className="text-primary size-3.5" />
@@ -937,7 +937,7 @@ export default function ImportExportPage() {
                             <TableBody>
                               {selectedAnkiDeck.sampleCards.map((sc, i) => (
                                 <TableRow key={i}>
-                                  <TableCell className="text-muted-foreground font-mono text-center text-xs">
+                                  <TableCell className="text-muted-foreground text-center font-mono text-xs">
                                     {i + 1}
                                   </TableCell>
                                   <TableCell className="text-xs font-semibold">
@@ -1033,7 +1033,7 @@ export default function ImportExportPage() {
                     if (f) handleCsvFileChange(f)
                   }}
                 />
-                <div className="from-primary/10 to-primary/5 group-hover:scale-110 mb-2 flex size-10 items-center justify-center rounded-xl bg-gradient-to-br text-primary transition-transform">
+                <div className="from-primary/10 to-primary/5 text-primary mb-2 flex size-10 items-center justify-center rounded-xl bg-gradient-to-br transition-transform group-hover:scale-110">
                   <UploadCloud className="size-5" />
                 </div>
                 <div className="text-sm font-semibold">
@@ -1162,7 +1162,7 @@ export default function ImportExportPage() {
                   </div>
 
                   {/* Column mapping selectors */}
-                  <div className="border-border/60 bg-muted/30 rounded-2xl border p-4 space-y-3">
+                  <div className="border-border/60 bg-muted/30 space-y-3 rounded-2xl border p-4">
                     <div className="text-muted-foreground flex items-center gap-1.5 text-xs font-bold tracking-wider uppercase">
                       <Layers className="text-primary size-3.5" />
                       Ánh xạ các cột CSV
@@ -1300,7 +1300,7 @@ export default function ImportExportPage() {
                           <TableBody>
                             {csvPreviewRows.map((row, rIdx) => (
                               <TableRow key={rIdx}>
-                                <TableCell className="text-muted-foreground font-mono text-center text-xs">
+                                <TableCell className="text-muted-foreground text-center font-mono text-xs">
                                   {rIdx + 1}
                                 </TableCell>
                                 {row.map((cell, cIdx) => (
@@ -1440,8 +1440,16 @@ export default function ImportExportPage() {
                       handleTextChange(textContent)
                     }}
                   >
-                    <option value="&#10;">Xuống dòng ( \n )</option>
-                    <option value="&#10;&#10;">Hai dòng trống ( \n\n )</option>
+                    <option
+                      value="&#10;"
+                    >
+                      Xuống dòng ( \n )
+                    </option>
+                    <option
+                      value="&#10;&#10;"
+                    >
+                      Hai dòng trống ( \n\n )
+                    </option>
                     <option value=";">Dấu chấm phẩy ( ; )</option>
                   </Select>
                 </div>
@@ -1492,7 +1500,7 @@ export default function ImportExportPage() {
                       <TableBody>
                         {textPreviewCards.map((c, idx) => (
                           <TableRow key={idx}>
-                            <TableCell className="text-muted-foreground font-mono text-center text-xs">
+                            <TableCell className="text-muted-foreground text-center font-mono text-xs">
                               {idx + 1}
                             </TableCell>
                             <TableCell className="text-xs font-semibold">
@@ -1568,7 +1576,7 @@ export default function ImportExportPage() {
                     if (f) handleJsonFileChange(f)
                   }}
                 />
-                <div className="from-primary/10 to-primary/5 group-hover:scale-110 mb-2 flex size-10 items-center justify-center rounded-xl bg-gradient-to-br text-primary transition-transform">
+                <div className="from-primary/10 to-primary/5 text-primary mb-2 flex size-10 items-center justify-center rounded-xl bg-gradient-to-br transition-transform group-hover:scale-110">
                   <FileJson className="size-5" />
                 </div>
                 <div className="text-sm font-semibold">
@@ -1613,7 +1621,7 @@ export default function ImportExportPage() {
               </div>
 
               {jsonParsedSets && jsonParsedSets.length > 0 && (
-                <div className="border-border/60 bg-muted/30 rounded-xl border p-4 space-y-2">
+                <div className="border-border/60 bg-muted/30 space-y-2 rounded-xl border p-4">
                   <div className="text-foreground flex items-center gap-2 text-xs font-semibold">
                     <CheckCircle2 className="size-4 text-emerald-500" />
                     Đã nhận diện hợp lệ {jsonParsedSets.length} bộ thẻ:
@@ -1783,7 +1791,7 @@ export default function ImportExportPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="border-amber-500/30 bg-amber-500/10 text-amber-800 dark:text-amber-200 flex items-start gap-2.5 rounded-xl border p-4 text-xs">
+              <div className="flex items-start gap-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs text-amber-800 dark:text-amber-200">
                 <AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400" />
                 <div>
                   <span className="font-semibold">Lưu ý quan trọng:</span> Quá
@@ -1817,7 +1825,7 @@ export default function ImportExportPage() {
               </div>
 
               {restoreSummary && (
-                <div className="border-emerald-500/30 bg-emerald-500/10 text-emerald-800 dark:text-emerald-200 space-y-2 rounded-xl border p-4 text-xs">
+                <div className="space-y-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-xs text-emerald-800 dark:text-emerald-200">
                   <div className="flex items-center gap-1.5 text-sm font-bold">
                     <CheckCircle2 className="size-4 text-emerald-600 dark:text-emerald-400" />
                     Kết quả phục hồi dữ liệu:

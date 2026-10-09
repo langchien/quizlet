@@ -48,11 +48,11 @@
 | 6.3 |   6   | Export & Backup API             | Route Handler: Export set JSON, full backup, restore từ backup                                     |     ✅     |
 | 6.4 |   6   | Import/Export UI                | Upload drag & drop, preview bảng, field mapping, progress bar                                      |     ✅     |
 |     |       | **✅ Checkpoint 6**             | **Import .apkg/JSON/CSV OK, Export JSON OK, Backup/Restore OK**                                    |     ✅     |
-| 7.1 |   7   | Settings Page (UI)              | Hồ sơ, giao diện, SRS mode, goals, phím tắt, dữ liệu                                               |     ⬜     |
-| 7.2 |   7   | Keyboard Shortcuts              | Default shortcuts + tuỳ chỉnh trong Settings + cheatsheet modal                                    |     ⬜     |
-| 7.3 |   7   | TTS hoàn chỉnh                  | Web Speech API, voice ja-JP, tốc độ tuỳ chỉnh, auto-play                                           |     ⬜     |
-| 7.4 |   7   | UI/UX Polish                    | Skeletons, empty states, error states, toasts, confirm dialogs, optimistic updates                 |     ⬜     |
-|     |       | **✅ Checkpoint 7**             | **Settings + Shortcuts + TTS + UX mượt mà**                                                        |     ⬜     |
+| 7.1 |   7   | Settings Page (UI)              | Hồ sơ, giao diện, SRS mode, goals, phím tắt, dữ liệu                                               |     ✅     |
+| 7.2 |   7   | Keyboard Shortcuts              | Default shortcuts + tuỳ chỉnh trong Settings + cheatsheet modal                                    |     ✅     |
+| 7.3 |   7   | TTS hoàn chỉnh                  | Web Speech API, voice ja-JP, tốc độ tuỳ chỉnh, auto-play                                           |     ✅     |
+| 7.4 |   7   | UI/UX Polish                    | Skeletons, empty states, error states, toasts, confirm dialogs, optimistic updates                 |     ✅     |
+|     |       | **✅ Checkpoint 7**             | **Settings + Shortcuts + TTS + UX mượt mà**                                                        |     ✅     |
 | 8.1 |   8   | Seed Data                       | Minna no Nihongo N5-N4 mẫu, SRS data, sessions, stats 30 ngày                                      |     ⬜     |
 | 8.2 |   8   | Unit Tests                      | Vitest cho APIs, SRS algorithms, Import parsers — Coverage ≥ 80%                                   |     ⬜     |
 | 8.3 |   8   | E2E Tests                       | Playwright: Auth flow, Study flow, Import flow, Stats flow                                         |     ⬜     |

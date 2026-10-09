@@ -11,6 +11,7 @@ import {
   LogOut,
   Settings,
   Menu,
+  Keyboard,
 } from "lucide-react"
 import { ModeToggle } from "@/components/mode-toggle"
 import { Button } from "@/components/ui/button"
@@ -31,6 +32,7 @@ interface TopbarProps {
   onOpenCreateFolder: () => void
   onOpenCreateTag: () => void
   onToggleMobileSidebar: () => void
+  onOpenShortcuts?: () => void
 }
 
 export function Topbar({
@@ -39,6 +41,7 @@ export function Topbar({
   onOpenCreateFolder,
   onOpenCreateTag,
   onToggleMobileSidebar,
+  onOpenShortcuts,
 }: TopbarProps) {
   const router = useRouter()
   const { user, logout } = useAuthStore()
@@ -115,6 +118,19 @@ export function Topbar({
 
         <ModeToggle />
 
+        {onOpenShortcuts && (
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={onOpenShortcuts}
+            title="Bảng phím tắt (?)"
+            className="text-muted-foreground hover:text-foreground hidden sm:inline-flex"
+          >
+            <Keyboard className="size-4" />
+            <span className="sr-only">Phím tắt</span>
+          </Button>
+        )}
+
         {/* User Profile Menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -144,6 +160,12 @@ export function Topbar({
               <Settings className="size-4" />
               <span>Cài đặt tài khoản</span>
             </DropdownMenuItem>
+            {onOpenShortcuts && (
+              <DropdownMenuItem onClick={onOpenShortcuts} className="gap-2">
+                <Keyboard className="size-4" />
+                <span>Bảng phím tắt (?)</span>
+              </DropdownMenuItem>
+            )}
             <DropdownMenuSeparator />
             <DropdownMenuItem
               destructive

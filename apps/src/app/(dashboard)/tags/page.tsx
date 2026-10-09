@@ -251,7 +251,8 @@ export default function TagsPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Xác nhận xoá nhãn</AlertDialogTitle>
             <AlertDialogDescription>
-              Bạn có chắc muốn xoá nhãn &ldquo;{tagToDelete?.name}&rdquo;? Nhãn sẽ được gỡ khỏi các thẻ nhưng nội dung thẻ vẫn được giữ nguyên.
+              Bạn có chắc muốn xoá nhãn &ldquo;{tagToDelete?.name}&rdquo;? Nhãn
+              sẽ được gỡ khỏi các thẻ nhưng nội dung thẻ vẫn được giữ nguyên.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

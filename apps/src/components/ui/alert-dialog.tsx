@@ -10,7 +10,11 @@ interface AlertDialogProps {
   children: React.ReactNode
 }
 
-export function AlertDialog({ open, onOpenChange, children }: AlertDialogProps) {
+export function AlertDialog({
+  open,
+  onOpenChange,
+  children,
+}: AlertDialogProps) {
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && open) {
@@ -125,7 +129,8 @@ export function AlertDialogAction({
   onClick,
   ...props
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link"
+  variant?:
+    "default" | "destructive" | "outline" | "secondary" | "ghost" | "link"
 }) {
   return (
     <button

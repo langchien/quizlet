@@ -1010,7 +1010,8 @@ export default function TestStudyPage() {
             <AlertDialogHeader>
               <AlertDialogTitle>Xác nhận thoát bài thi</AlertDialogTitle>
               <AlertDialogDescription>
-                Bạn có chắc muốn thoát khỏi bài thi hiện tại? Tiến trình và kết quả làm bài sẽ bị huỷ.
+                Bạn có chắc muốn thoát khỏi bài thi hiện tại? Tiến trình và kết
+                quả làm bài sẽ bị huỷ.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

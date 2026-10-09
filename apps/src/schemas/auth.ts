@@ -52,18 +52,31 @@ export const RefreshTokenBodySchema = z.object({
 export type RefreshTokenBody = z.infer<typeof RefreshTokenBodySchema>
 
 /**
- * Schema cập nhật thông tin cá nhân
+ * Schema cập nhật thông tin cá nhân và cài đặt
  */
 export const UpdateProfileSchema = z.object({
   name: z.string().trim().min(2, "Họ tên phải có ít nhất 2 ký tự").optional(),
-  avatar: z.string().url("URL ảnh đại diện không hợp lệ").nullable().optional(),
+  avatar: z.string().nullable().optional(),
+  currentPassword: z.string().optional(),
+  newPassword: z
+    .string()
+    .min(6, "Mật khẩu mới phải có ít nhất 6 ký tự")
+    .optional(),
   settings: z
     .object({
       theme: z.enum(["light", "dark", "system"]).optional(),
+      fontSize: z.enum(["sm", "md", "lg"]).optional(),
+      japaneseFont: z.string().optional(),
       srsMode: z.enum(["auto", "simple", "advanced"]).optional(),
       dailyGoal: z.number().int().positive().optional(),
+      dailyTimeTarget: z.number().int().positive().optional(),
       keyboardShortcuts: z.boolean().optional(),
+      autoPlayAudio: z.boolean().optional(),
+      ttsRate: z.number().min(0.5).max(2.0).optional(),
+      ttsVoice: z.string().optional(),
+      customShortcuts: z.record(z.string(), z.string()).optional(),
     })
+    .passthrough()
     .optional(),
 })
 

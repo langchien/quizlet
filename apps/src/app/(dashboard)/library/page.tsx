@@ -40,6 +40,8 @@ import {
 } from "@/components/ui/alert-dialog"
 import { CreateSetModal } from "@/components/modals/create-set-modal"
 import { MergeSetsModal } from "@/components/modals/merge-sets-modal"
+import { Skeleton } from "@/components/ui/skeleton"
+import { EmptyState } from "@/components/ui/empty-state"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 
@@ -87,7 +89,9 @@ function LibraryContent() {
   const [createModalOpen, setCreateModalOpen] = React.useState(false)
   const [editingSet, setEditingSet] = React.useState<StudySetItem | null>(null)
   const [mergeModalOpen, setMergeModalOpen] = React.useState(false)
-  const [setToDelete, setSetToDelete] = React.useState<StudySetItem | null>(null)
+  const [setToDelete, setSetToDelete] = React.useState<StudySetItem | null>(
+    null
+  )
 
   // Sync folderParam
   React.useEffect(() => {
@@ -307,32 +311,35 @@ function LibraryContent() {
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <div
               key={i}
-              className="border-border bg-card/40 h-44 animate-pulse rounded-2xl border"
-            />
+              className="border-border/60 bg-card space-y-4 rounded-2xl border p-5"
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-4 w-24 rounded-md" />
+                  <Skeleton className="h-5 w-3/4 rounded-md" />
+                </div>
+                <Skeleton className="size-8 rounded-lg" />
+              </div>
+              <Skeleton className="h-3 w-1/2 rounded-md" />
+              <div className="pt-2">
+                <Skeleton className="h-2 w-full rounded-full" />
+              </div>
+            </div>
           ))}
         </div>
       ) : sets.length === 0 ? (
-        <div className="border-border flex flex-col items-center justify-center rounded-2xl border border-dashed py-16 text-center">
-          <div className="bg-primary/10 text-primary mb-3 flex size-12 items-center justify-center rounded-2xl">
-            <BookOpen className="size-6" />
-          </div>
-          <h3 className="text-foreground text-base font-semibold">
-            Chưa tìm thấy bộ thẻ nào
-          </h3>
-          <p className="text-muted-foreground mt-1 max-w-sm text-xs">
-            {search || selectedFolder !== "all"
+        <EmptyState
+          icon={BookOpen}
+          title="Chưa tìm thấy bộ thẻ nào"
+          description={
+            search || selectedFolder !== "all"
               ? "Không có bộ thẻ nào khớp với bộ lọc tìm kiếm hiện tại."
-              : "Bắt đầu tạo bộ thẻ đầu tiên để ôn luyện từ vựng tiếng Nhật hiệu quả!"}
-          </p>
-          <Button
-            size="sm"
-            onClick={() => setCreateModalOpen(true)}
-            className="mt-4 gap-1.5"
-          >
-            <Plus className="size-4" />
-            <span>Tạo bộ thẻ ngay</span>
-          </Button>
-        </div>
+              : "Bắt đầu tạo bộ thẻ đầu tiên để ôn luyện từ vựng tiếng Nhật hiệu quả!"
+          }
+          actionLabel="Tạo bộ thẻ ngay"
+          actionIcon={Plus}
+          onAction={() => setCreateModalOpen(true)}
+        />
       ) : viewMode === "grid" ? (
         /* GRID VIEW */
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -551,7 +558,9 @@ function LibraryContent() {
           <AlertDialogHeader>
             <AlertDialogTitle>Xác nhận xoá bộ thẻ</AlertDialogTitle>
             <AlertDialogDescription>
-              Bạn có chắc chắn muốn xoá bộ thẻ &ldquo;{setToDelete?.name}&rdquo;? Thao tác này sẽ xoá vĩnh viễn toàn bộ các thẻ bên trong và không thể hoàn tác.
+              Bạn có chắc chắn muốn xoá bộ thẻ &ldquo;{setToDelete?.name}
+              &rdquo;? Thao tác này sẽ xoá vĩnh viễn toàn bộ các thẻ bên trong
+              và không thể hoàn tác.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

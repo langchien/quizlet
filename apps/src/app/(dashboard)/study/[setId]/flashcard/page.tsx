@@ -20,11 +20,15 @@ import {
   Layers,
   ChevronLeft,
   RotateCcw,
+  Keyboard,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { StudySummary } from "@/components/study/study-summary"
 import { useTTS } from "@/hooks/useTTS"
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts"
+import { ShortcutsCheatsheetModal } from "@/components/modals/shortcuts-cheatsheet-modal"
+import { useAuthStore } from "@/stores/useAuthStore"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 
@@ -60,12 +64,29 @@ export default function FlashcardStudyPage() {
   const router = useRouter()
   const setId = params.id as string
 
-  const { speak } = useTTS()
+  const { user } = useAuthStore()
+  const userSettings =
+    user?.settings && typeof user.settings === "object"
+      ? (user.settings as Record<string, unknown>)
+      : {}
+
+  const defaultTtsRate = userSettings.ttsRate
+    ? Number(userSettings.ttsRate)
+    : 0.9
+  const defaultVoiceURI = userSettings.ttsVoice
+    ? String(userSettings.ttsVoice)
+    : undefined
+
+  const { speak } = useTTS({
+    defaultRate: defaultTtsRate,
+    defaultVoiceURI: defaultVoiceURI,
+  })
 
   const [cards, setCards] = React.useState<CardItem[]>([])
   const [setName, setSetName] = React.useState("")
   const [sessionId, setSessionId] = React.useState<string | null>(null)
   const [loading, setLoading] = React.useState(true)
+  const [cheatsheetOpen, setCheatsheetOpen] = React.useState(false)
 
   // Study state
   const [currentIndex, setCurrentIndex] = React.useState(0)
@@ -280,49 +301,21 @@ export default function FlashcardStudyPage() {
     cards.length,
   ])
 
-  // Keyboard Shortcuts
-  React.useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (
-        e.target instanceof HTMLInputElement ||
-        e.target instanceof HTMLTextAreaElement
-      ) {
-        return
-      }
-
-      switch (e.code) {
-        case "Space":
-          e.preventDefault()
-          handleFlip()
-          break
-        case "ArrowLeft":
-          e.preventDefault()
-          handlePrev()
-          break
-        case "ArrowRight":
-          e.preventDefault()
-          handleNext()
-          break
-        case "Digit1":
-        case "Numpad1":
-          e.preventDefault()
-          handleAnswer(false)
-          break
-        case "Digit2":
-        case "Numpad2":
-          e.preventDefault()
-          handleAnswer(true)
-          break
-        case "KeyA":
-          e.preventDefault()
-          handleSpeak()
-          break
-      }
-    }
-
-    window.addEventListener("keydown", handleKeyDown)
-    return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [handleFlip, handlePrev, handleNext, handleAnswer, handleSpeak])
+  // Keyboard Shortcuts chuẩn hoá
+  useKeyboardShortcuts(
+    {
+      onFlip: handleFlip,
+      onPrev: handlePrev,
+      onNext: handleNext,
+      onAnswerAgain: () => handleAnswer(false),
+      onAnswerGood: () => handleAnswer(true),
+      onShuffle: () => setIsShuffle((prev) => !prev),
+      onReverse: () => setIsReverse((prev) => !prev),
+      onSpeak: handleSpeak,
+      onOpenCheatsheet: () => setCheatsheetOpen(true),
+    },
+    { enabled: !isCompleted && !loading }
+  )
 
   // Ôn lại các thẻ làm sai
   const handleReviewMistakes = () => {
@@ -471,6 +464,15 @@ export default function FlashcardStudyPage() {
             ) : (
               <Play className="size-4" />
             )}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setCheatsheetOpen(true)}
+            className="text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-2 transition-colors"
+            title="Bảng phím tắt (?)"
+          >
+            <Keyboard className="size-4" />
           </button>
 
           <button
@@ -750,6 +752,11 @@ export default function FlashcardStudyPage() {
           Phát âm
         </span>
       </div>
+
+      <ShortcutsCheatsheetModal
+        open={cheatsheetOpen}
+        onOpenChange={setCheatsheetOpen}
+      />
     </div>
   )
 }

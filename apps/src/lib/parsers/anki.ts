@@ -263,9 +263,8 @@ export async function previewAnkiPackage(
 
   try {
     // 1. Đọc models và decks từ bảng col
-    const colRow = db
-      .prepare("SELECT models, decks FROM col LIMIT 1")
-      .get() as { models?: string; decks?: string } | undefined
+    const colRow = db.prepare("SELECT models, decks FROM col LIMIT 1").get() as
+      { models?: string; decks?: string } | undefined
 
     if (!colRow || !colRow.models || !colRow.decks) {
       throw new Error("Không thể đọc thông tin cấu trúc bộ thẻ Anki.")
@@ -442,9 +441,8 @@ export async function parseFullAnkiPackage(
   const db = new Database(dbData)
 
   try {
-    const colRow = db
-      .prepare("SELECT models, decks FROM col LIMIT 1")
-      .get() as { models?: string; decks?: string } | undefined
+    const colRow = db.prepare("SELECT models, decks FROM col LIMIT 1").get() as
+      { models?: string; decks?: string } | undefined
 
     if (!colRow || !colRow.models || !colRow.decks) {
       throw new Error("Không thể đọc thông tin cấu trúc bộ thẻ Anki.")
