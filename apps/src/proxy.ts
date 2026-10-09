@@ -14,7 +14,7 @@ const refreshSecret = new TextEncoder().encode(
     "default_super_secret_refresh_jwt_key_32bytes"
 )
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Bỏ qua các file tĩnh và API không cần auth
