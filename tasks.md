@@ -436,14 +436,14 @@ Yêu cầu:
 
 ```
 Kiểm tra:
-- [ ] CRUD Sets hoạt động đầy đủ
-- [ ] CRUD Cards hoạt động (bao gồm upload ảnh webp)
-- [ ] Folder tree hiển thị đúng, tạo/sửa/xoá/di chuyển
-- [ ] Tags: tạo, gán cho card, lọc theo tag, auto-complete
-- [ ] Sidebar navigation hoạt động trơn tru
-- [ ] Search toàn cục (Ctrl+K) tìm được sets + cards + tags
-- [ ] Duplicate set, merge sets hoạt động
-- [ ] Responsive layout mượt mà trên desktop
+- [x] CRUD Sets hoạt động đầy đủ
+- [x] CRUD Cards hoạt động (bao gồm upload ảnh webp)
+- [x] Folder tree hiển thị đúng, tạo/sửa/xoá/di chuyển
+- [x] Tags: tạo, gán cho card, lọc theo tag, auto-complete
+- [x] Sidebar navigation hoạt động trơn tru
+- [x] Search toàn cục (Ctrl+K) tìm được sets + cards + tags
+- [x] Duplicate set, merge sets hoạt động
+- [x] Responsive layout mượt mà trên desktop
 ```
 
 ---

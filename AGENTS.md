@@ -2,9 +2,18 @@
 
 Tất cả AI Agents khi phát triển tính năng, sửa lỗi hoặc refactor trong repository này **BẮT BUỘC** phải đọc và tuân thủ các tài liệu kỹ thuật sau:
 
+## This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->
+
 ---
 
 ## 📌 1. Tài Liệu Dự Án Tham Chiếu
+
 - [Tài liệu chức năng tổng quan](file:///p:/Nodejs/quizlet/func.md): Phân tích toàn bộ nghiệp vụ, màn hình, luồng học Flashcard & SRS.
 - [Kế hoạch và danh sách nhiệm vụ](file:///p:/Nodejs/quizlet/tasks.md): Chi tiết từng Phase và Task cần thực hiện.
 - [Tiến độ phát triển](file:///p:/Nodejs/quizlet/progress.md): Trạng thái hoàn thành của từng task.
@@ -31,6 +40,7 @@ Tất cả AI Agents khi phát triển tính năng, sửa lỗi hoặc refactor 
 ---
 
 ## 🛠️ 3. Quy Chuẩn Chung
+
 1. **Giao tiếp**: Lên kế hoạch, báo cáo và comment code bằng tiếng Việt.
 2. **TypeScript**: Strict mode, typing rõ ràng, Zod validation cho dữ liệu vào/ra.
 3. **UI / Styling**: Shadcn UI + Tailwind CSS v4, luôn hỗ trợ cả Dark Mode và Light Mode.

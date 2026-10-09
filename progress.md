@@ -17,13 +17,13 @@
 |     |       | **✅ Checkpoint 1**             | **Đăng ký → Đăng nhập → Protected routes → Auto refresh token**                                    |     ✅     |
 | 2.1 |   2   | Study Sets API (Route Handlers) | GET/POST/PATCH/DELETE sets + duplicate + merge                                                     |     ✅     |
 | 2.2 |   2   | Cards API (Route Handlers)      | GET/POST/PATCH/DELETE cards + upload ảnh (Sharp → webp) + bulk tag + reorder                       |     ✅     |
-| 2.3 |   2   | Folders API (Route Handlers)    | Tree structure, nested folders, move                                                               |     ⬜     |
-| 2.4 |   2   | Tags API (Route Handlers)       | CRUD tags + auto-complete search + cards by tag                                                    |     ⬜     |
-| 2.5 |   2   | Sidebar & Navigation (UI)       | App layout, collapsible sidebar, folder tree, top bar search, theme toggle                         |     ⬜     |
-| 2.6 |   2   | Sets Management (UI)            | Library page (grid/list), Set detail (TanStack Table), Create/Edit card modal                      |     ⬜     |
-| 2.7 |   2   | Folders & Tags (UI)             | Folder CRUD trong sidebar, Tag management, gán tag nhanh                                           |     ⬜     |
-| 2.8 |   2   | Tìm kiếm toàn cục               | API: search xuyên sets/cards/tags — UI: Command palette (Ctrl+K)                                   |     ⬜     |
-|     |       | **✅ Checkpoint 2**             | **CRUD Sets/Cards/Folders/Tags OK, Search OK, Sidebar OK**                                         |     ⬜     |
+| 2.3 |   2   | Folders API (Route Handlers)    | Tree structure, nested folders, move                                                               |     ✅     |
+| 2.4 |   2   | Tags API (Route Handlers)       | CRUD tags + auto-complete search + cards by tag                                                    |     ✅     |
+| 2.5 |   2   | Sidebar & Navigation (UI)       | App layout, collapsible sidebar, folder tree, top bar search, theme toggle                         |     ✅     |
+| 2.6 |   2   | Sets Management (UI)            | Library page (grid/list), Set detail (TanStack Table), Create/Edit card modal                      |     ✅     |
+| 2.7 |   2   | Folders & Tags (UI)             | Folder CRUD trong sidebar, Tag management, gán tag nhanh                                           |     ✅     |
+| 2.8 |   2   | Tìm kiếm toàn cục               | API: search xuyên sets/cards/tags — UI: Command palette (Ctrl+K)                                   |     ✅     |
+|     |       | **✅ Checkpoint 2**             | **CRUD Sets/Cards/Folders/Tags OK, Search OK, Sidebar OK**                                         |     ✅     |
 | 3.1 |   3   | Study Session API               | Route Handlers: Start/Answer/End session, Mistakes pool, Review mistakes                           |     ⬜     |
 | 3.2 |   3   | SRS Engine                      | Core logic: 3 chế độ Auto / Simple (Quizlet) / Advanced (SM-2) + Due cards API                     |     ⬜     |
 | 3.3 |   3   | Flashcard Mode (UI)             | Flip 3D, shuffle, reverse, TTS, keyboard shortcuts, auto-play, summary                             |     ⬜     |

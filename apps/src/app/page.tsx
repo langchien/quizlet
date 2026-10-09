@@ -167,12 +167,36 @@ export default function HomePage() {
           {/* Auth Action Callout */}
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
             {isAuthenticated ? (
-              <div className="flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-600 dark:text-emerald-400">
-                <CheckCircle2 className="size-4" />
-                <span>
-                  Xin chào, <strong>{user?.name}</strong> ({user?.email})! Bạn
-                  đã sẵn sàng học tập.
-                </span>
+              <div className="flex flex-col items-center gap-3">
+                <div className="flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-600 dark:text-emerald-400">
+                  <CheckCircle2 className="size-4" />
+                  <span>
+                    Xin chào, <strong>{user?.name}</strong> ({user?.email})! Bạn
+                    đã sẵn sàng học tập.
+                  </span>
+                </div>
+                <div className="mt-2 flex flex-wrap gap-2.5">
+                  <Link
+                    href="/dashboard"
+                    className={cn(
+                      buttonVariants({ size: "default" }),
+                      "shadow-primary/20 gap-2 shadow-xs"
+                    )}
+                  >
+                    <span>Vào Bảng điều khiển</span>
+                    <ArrowRight className="size-4" />
+                  </Link>
+                  <Link
+                    href="/library"
+                    className={cn(
+                      buttonVariants({ variant: "outline", size: "default" }),
+                      "gap-2"
+                    )}
+                  >
+                    <BookOpen className="size-4" />
+                    <span>Thư viện bộ thẻ</span>
+                  </Link>
+                </div>
               </div>
             ) : (
               <div className="flex flex-wrap gap-2">
