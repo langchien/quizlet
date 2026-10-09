@@ -212,7 +212,7 @@ apps/src/
      - `restore-summary-dialog.tsx`: Bảng kết quả tổng số cards/sets/tags đã khôi phục.
   3. Tinh gọn `page.tsx`: Chỉ đóng vai trò điều hướng các Tab (`Tabs`, `TabsList`, `TabsContent`), giảm từ **1,880 dòng xuống dưới 120 dòng**.
 
-#### Nhiệm vụ 1.2: Refactor Chế Độ Kiểm Tra (`src/app/(dashboard)/study/[setId]/test/page.tsx` — 1,255 dòng)
+#### Nhiệm vụ 1.2: Refactor Chế Độ Kiểm Tra (`src/app/(dashboard)/study/[setId]/test/page.tsx` — 1,255 dòng ➔ 128 dòng) [ĐÃ HOÀN THÀNH ✅]
 - **Vấn đề**: State machine bài thi (cấu hình -> làm bài -> kết quả) cùng toàn bộ logic sinh câu hỏi, timer đếm ngược, render 3 loại câu hỏi bị nhồi nhét vào 1 file.
 - **Giải pháp**:
   1. Tạo hook `src/hooks/study/use-test-engine.ts`:
