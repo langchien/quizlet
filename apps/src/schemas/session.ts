@@ -10,7 +10,7 @@ export const StartSessionSchema = z.object({
   studySetId: z.string().optional().nullable(),
   mode: StudyModeEnum,
   shuffle: z.boolean().default(false),
-  reverse: z.boolean().default(false),
+  reverse: z.boolean().optional().default(false),
   filterByStatus: z
     .enum(["New", "Learning", "Review", "Mastered", "All"])
     .default("All"),
@@ -18,7 +18,7 @@ export const StartSessionSchema = z.object({
   limit: z.number().int().positive().optional(),
 })
 
-export type StartSessionBody = z.infer<typeof StartSessionSchema>
+export type StartSessionBody = z.input<typeof StartSessionSchema>
 
 /**
  * Schema ghi nhận câu trả lời cho một thẻ

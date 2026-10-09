@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { useParams, useRouter } from "next/navigation"
+import { useParams, useRouter, useSearchParams } from "next/navigation"
 import {
   Sparkles,
   Timer,
@@ -18,6 +18,7 @@ import { Badge } from "@/components/ui/badge"
 import { useTTS } from "@/hooks/useTTS"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
+import { startStudySessionAction, endStudySessionAction } from "@/actions/study"
 
 interface CardItem {
   id: string
@@ -76,16 +77,31 @@ export default function MatchStudyPage() {
   const startTimeRef = React.useRef<number>(0)
   const penaltyRef = React.useRef<number>(0)
 
+  const searchParams = useSearchParams()
+  const statusParam = searchParams.get("status") || "All"
+  const tagParam = searchParams.get("tag")
+
   // Tải dữ liệu bộ thẻ
   const loadCards = React.useCallback(async () => {
     setLoading(true)
     try {
-      const res = await fetch(`/api/sets/${setId}`)
-      if (res.ok) {
-        const data = await res.json()
-        const cards: CardItem[] = data.cards || []
+      const res = await startStudySessionAction({
+        studySetId: setId,
+        mode: "Match",
+        shuffle: true,
+        reverse: false,
+        filterByStatus:
+          (statusParam as "New" | "Learning" | "Review" | "Mastered" | "All") ||
+          "All",
+        filterByTags: tagParam ? [tagParam] : [],
+      })
+      if (res.success && res.data) {
+        const cards: CardItem[] = res.data.cards as unknown as CardItem[]
         setAllCards(cards)
-        setSetName(data.name || "")
+        setSessionId(res.data.session.id)
+        if (cards.length > 0 && cards[0].studySet?.name) {
+          setSetName(cards[0].studySet.name)
+        }
 
         // Đọc Personal Best từ localStorage
         const storedPB = localStorage.getItem(`nihomemo_match_pb_${setId}`)
@@ -93,7 +109,7 @@ export default function MatchStudyPage() {
           setPersonalBestSecs(parseFloat(storedPB))
         }
       } else {
-        toast.error("Không tìm thấy bộ thẻ.")
+        toast.error(res.error || "Không tìm thấy bộ thẻ.")
         router.push("/library")
       }
     } catch (err) {
@@ -102,84 +118,61 @@ export default function MatchStudyPage() {
     } finally {
       setLoading(false)
     }
-  }, [setId, router])
+  }, [setId, router, statusParam, tagParam])
 
   React.useEffect(() => {
     loadCards()
   }, [loadCards])
 
   // Khởi động màn chơi ghép đôi
-  const startNewGame = React.useCallback(
-    async (cardList: CardItem[]) => {
-      if (cardList.length < 2) {
-        toast.error("Cần ít nhất 2 thẻ từ vựng để chơi ghép đôi.")
-        return
-      }
+  const startNewGame = React.useCallback(async (cardList: CardItem[]) => {
+    if (cardList.length < 2) {
+      toast.error("Cần ít nhất 2 thẻ từ vựng để chơi ghép đôi.")
+      return
+    }
 
-      // Chọn tối đa 6 cặp thẻ để giao diện vừa vặn và mượt mà nhất
-      const shuffled = [...cardList].sort(() => 0.5 - Math.random())
-      const gameCards = shuffled.slice(0, Math.min(6, shuffled.length))
-      setTotalPairs(gameCards.length)
-      setMatchedPairsCount(0)
-      setSelectedTileId(null)
-      setIsCompleted(false)
-      setIsNewRecord(false)
-      setPenaltyCount(0)
-      penaltyRef.current = 0
+    // Chọn tối đa 6 cặp thẻ để giao diện vừa vặn và mượt mà nhất
+    const shuffled = [...cardList].sort(() => 0.5 - Math.random())
+    const gameCards = shuffled.slice(0, Math.min(6, shuffled.length))
+    setTotalPairs(gameCards.length)
+    setMatchedPairsCount(0)
+    setSelectedTileId(null)
+    setIsCompleted(false)
+    setIsNewRecord(false)
+    setPenaltyCount(0)
+    penaltyRef.current = 0
 
-      // Tạo các ô tile (1 ô tiếng Nhật, 1 ô tiếng Việt)
-      const newTiles: MatchTile[] = []
-      gameCards.forEach((c) => {
-        newTiles.push({
-          tileId: `term_${c.id}`,
-          cardId: c.id,
-          type: "term",
-          text: c.term,
-          subText: c.reading,
-          isMatched: false,
-          isWrong: false,
-        })
-        newTiles.push({
-          tileId: `def_${c.id}`,
-          cardId: c.id,
-          type: "definition",
-          text: c.definition,
-          isMatched: false,
-          isWrong: false,
-        })
+    // Tạo các ô tile (1 ô tiếng Nhật, 1 ô tiếng Việt)
+    const newTiles: MatchTile[] = []
+    gameCards.forEach((c) => {
+      newTiles.push({
+        tileId: `term_${c.id}`,
+        cardId: c.id,
+        type: "term",
+        text: c.term,
+        subText: c.reading,
+        isMatched: false,
+        isWrong: false,
       })
+      newTiles.push({
+        tileId: `def_${c.id}`,
+        cardId: c.id,
+        type: "definition",
+        text: c.definition,
+        isMatched: false,
+        isWrong: false,
+      })
+    })
 
-      // Xáo trộn vị trí của toàn bộ tiles
-      const randomizedTiles = newTiles.sort(() => 0.5 - Math.random())
-      setTiles(randomizedTiles)
+    // Xáo trộn vị trí của toàn bộ tiles
+    const randomizedTiles = newTiles.sort(() => 0.5 - Math.random())
+    setTiles(randomizedTiles)
 
-      // Khởi động đồng hồ bấm giờ
-      startTimeRef.current = Date.now()
-      setElapsedTimeMs(0)
-      setIsPlaying(true)
-
-      // Bắt đầu session trên server
-      try {
-        const res = await fetch("/api/study/start", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            studySetId: setId,
-            mode: "Match",
-            shuffle: true,
-            limit: gameCards.length,
-          }),
-        })
-        if (res.ok) {
-          const data = await res.json()
-          setSessionId(data.session?.id || null)
-        }
-      } catch (err) {
-        console.error("Lỗi khởi tạo session Match:", err)
-      }
-    },
-    [setId]
-  )
+    // Khởi động đồng hồ bấm giờ
+    startTimeRef.current = Date.now()
+    setElapsedTimeMs(0)
+    setIsPlaying(true)
+  }, [])
 
   React.useEffect(() => {
     if (allCards.length > 0 && !isPlaying && !isCompleted) {
@@ -223,24 +216,16 @@ export default function MatchStudyPage() {
     setIsCompleted(true)
 
     // Gửi session về server
-    try {
-      await fetch("/api/study/end", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sessionId,
-          studySetId: setId,
-          mode: "Match",
-          duration: Math.round(finalSecs),
-          totalCards: totalPairs,
-          correctCards: totalPairs,
-          incorrectCards: penaltyRef.current,
-          score: 100,
-        }),
-      })
-    } catch (err) {
-      console.error("Lỗi gửi kết quả session Match:", err)
-    }
+    endStudySessionAction({
+      sessionId: sessionId || undefined,
+      studySetId: setId,
+      mode: "Match",
+      duration: Math.round(finalSecs),
+      totalCards: totalPairs,
+      correctCards: totalPairs,
+      incorrectCards: penaltyRef.current,
+      score: 100,
+    }).catch((err) => console.error("Lỗi gửi kết quả session Match:", err))
   }, [personalBestSecs, sessionId, setId, totalPairs])
 
   // Xử lý khi click vào 1 ô tile

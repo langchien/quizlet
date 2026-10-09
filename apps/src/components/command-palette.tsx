@@ -15,6 +15,7 @@ import {
   Layers,
   ArrowRight,
 } from "lucide-react"
+import { globalSearchAction } from "@/actions/search"
 
 interface SearchResults {
   sets: Array<{
@@ -101,12 +102,9 @@ export function CommandPalette({
     const timer = setTimeout(async () => {
       setLoading(true)
       try {
-        const res = await fetch(
-          `/api/search?q=${encodeURIComponent(query.trim())}&limit=5`
-        )
-        if (res.ok) {
-          const data = await res.json()
-          setResults(data.results)
+        const res = await globalSearchAction(query.trim(), 5)
+        if (res.success && res.data) {
+          setResults(res.data.results as unknown as SearchResults)
         }
       } catch (err) {
         console.error("Search error:", err)

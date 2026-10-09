@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { useParams, useRouter } from "next/navigation"
+import { useParams, useRouter, useSearchParams } from "next/navigation"
 import {
   Headphones,
   Volume2,
@@ -22,6 +22,11 @@ import { useTTS } from "@/hooks/useTTS"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { isStudyAnswerCorrect } from "@/lib/study-matcher"
+import {
+  startStudySessionAction,
+  answerCardAction,
+  endStudySessionAction,
+} from "@/actions/study"
 
 interface CardItem {
   id: string
@@ -70,6 +75,12 @@ export default function ListenStudyPage() {
   const cardStartTimeRef = React.useRef<number>(0)
   const inputRef = React.useRef<HTMLInputElement>(null)
 
+  const searchParams = useSearchParams()
+  const isReverseParam = searchParams.get("reverse") === "true"
+  const isShuffleParam = searchParams.get("shuffle") !== "false"
+  const statusParam = searchParams.get("status") || "All"
+  const tagParam = searchParams.get("tag")
+
   // Tải danh sách thẻ và bắt đầu session
   const initSession = React.useCallback(async () => {
     setLoading(true)
@@ -84,25 +95,26 @@ export default function ListenStudyPage() {
     cardStartTimeRef.current = Date.now()
 
     try {
-      const res = await fetch("/api/study/start", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          studySetId: setId,
-          mode: "Listen",
-          shuffle: true,
-        }),
+      const res = await startStudySessionAction({
+        studySetId: setId,
+        mode: "Listen",
+        shuffle: isShuffleParam,
+        reverse: isReverseParam,
+        filterByStatus:
+          (statusParam as "New" | "Learning" | "Review" | "Mastered" | "All") ||
+          "All",
+        filterByTags: tagParam ? [tagParam] : [],
       })
 
-      if (res.ok) {
-        const data = await res.json()
-        setCards(data.cards || [])
-        setSessionId(data.session?.id || null)
-        if (data.cards?.length > 0 && data.cards[0].studySet?.name) {
-          setSetName(data.cards[0].studySet.name)
+      if (res.success && res.data) {
+        const cardsData = (res.data.cards || []) as unknown as CardItem[]
+        setCards(cardsData)
+        setSessionId(res.data.session.id)
+        if (cardsData.length > 0 && cardsData[0].studySet?.name) {
+          setSetName(cardsData[0].studySet.name)
         }
       } else {
-        toast.error("Không thể tải danh sách thẻ nghe.")
+        toast.error(res.error || "Không thể tải danh sách thẻ nghe.")
         router.push(`/sets/${setId}`)
       }
     } catch (err) {
@@ -112,7 +124,7 @@ export default function ListenStudyPage() {
       setLoading(false)
       cardStartTimeRef.current = Date.now()
     }
-  }, [setId, router])
+  }, [setId, router, isReverseParam, isShuffleParam, statusParam, tagParam])
 
   React.useEffect(() => {
     initSession()
@@ -167,16 +179,12 @@ export default function ListenStudyPage() {
       handlePlayAudio()
 
       try {
-        await fetch("/api/study/answer", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            sessionId,
-            cardId: currentCard.id,
-            isCorrect: true,
-            userAnswer: userTyped,
-            timeTaken,
-          }),
+        await answerCardAction({
+          sessionId: sessionId || undefined,
+          cardId: currentCard.id,
+          isCorrect: true,
+          userAnswer: userTyped,
+          timeTaken,
         })
       } catch (err) {
         console.error("Lỗi ghi nhận câu trả lời:", err)
@@ -191,16 +199,12 @@ export default function ListenStudyPage() {
         handlePlayAudio()
 
         try {
-          await fetch("/api/study/answer", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              sessionId,
-              cardId: currentCard.id,
-              isCorrect: false,
-              userAnswer: userTyped,
-              timeTaken,
-            }),
+          await answerCardAction({
+            sessionId: sessionId || undefined,
+            cardId: currentCard.id,
+            isCorrect: false,
+            userAnswer: userTyped,
+            timeTaken,
           })
         } catch (err) {
           console.error("Lỗi ghi nhận câu trả lời sai:", err)
@@ -220,16 +224,12 @@ export default function ListenStudyPage() {
     handlePlayAudio()
 
     try {
-      await fetch("/api/study/answer", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sessionId,
-          cardId: currentCard.id,
-          isCorrect: false,
-          userAnswer: userTyped || "(Bỏ qua)",
-          timeTaken: 1,
-        }),
+      await answerCardAction({
+        sessionId: sessionId || undefined,
+        cardId: currentCard.id,
+        isCorrect: false,
+        userAnswer: userTyped || "(Bỏ qua)",
+        timeTaken: 1,
       })
     } catch (err) {
       console.error("Lỗi khi bỏ qua câu hỏi:", err)
@@ -254,19 +254,15 @@ export default function ListenStudyPage() {
       const incorrectCount = incorrectCards.length
       const score = Math.round((correctCount / cards.length) * 100)
 
-      fetch("/api/study/end", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sessionId,
-          studySetId: setId,
-          mode: "Listen",
-          duration: totalSecs,
-          totalCards: cards.length,
-          correctCards: correctCount,
-          incorrectCards: incorrectCount,
-          score,
-        }),
+      endStudySessionAction({
+        sessionId: sessionId || undefined,
+        studySetId: setId,
+        mode: "Listen",
+        duration: totalSecs,
+        totalCards: cards.length,
+        correctCards: correctCount,
+        incorrectCards: incorrectCount,
+        score,
       }).catch((err) => console.error("Lỗi kết thúc session Listen:", err))
 
       setIsCompleted(true)

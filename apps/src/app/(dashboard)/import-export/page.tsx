@@ -17,6 +17,7 @@ import {
   Loader2,
 } from "lucide-react"
 import { toast } from "sonner"
+import { getUserSetsAction } from "@/actions/sets"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -51,7 +52,18 @@ import type {
   AnkiFieldMapping,
   ColumnMapping,
 } from "@/schemas/import-export"
-import type { FolderNode } from "@/app/api/folders/route"
+import type { FolderNode } from "@/lib/dal/folders"
+import { getFoldersTreeAction } from "@/actions/folders"
+import {
+  previewAnkiAction,
+  importAnkiAction,
+  previewCSVAction,
+  importCSVAction,
+  previewTextAction,
+  importTextAction,
+  importJSONAction,
+  restoreBackupAction,
+} from "@/actions/import"
 
 interface ParsedJsonSet {
   setName?: string
@@ -152,17 +164,15 @@ export default function ImportExportPage() {
   const loadInitialData = React.useCallback(async () => {
     try {
       setLoadingSets(true)
-      const [fRes, sRes] = await Promise.all([
-        fetch("/api/folders"),
-        fetch("/api/sets?limit=100"),
+      const [fRes, setsRes] = await Promise.all([
+        getFoldersTreeAction(),
+        getUserSetsAction({ limit: 100 }),
       ])
-      if (fRes.ok) {
-        const fData = await fRes.json()
-        setFolders(fData)
+      if (fRes.success && fRes.data) {
+        setFolders(fRes.data)
       }
-      if (sRes.ok) {
-        const sData = await sRes.json()
-        setUserSets(sData.items || [])
+      if (setsRes.success && setsRes.data) {
+        setUserSets(setsRes.data.items || [])
       }
     } catch (err) {
       console.error("Error loading folders/sets:", err)
@@ -204,18 +214,14 @@ export default function ImportExportPage() {
     formData.append("file", file)
 
     try {
-      const res = await fetch("/api/import/anki/preview", {
-        method: "POST",
-        body: formData,
-      })
-      const data = await res.json()
-
-      if (!res.ok) {
-        toast.error(data.error || "Không thể đọc file Anki .apkg")
+      const res = await previewAnkiAction(formData)
+      if (!res.success) {
+        toast.error(res.error || "Không thể đọc file Anki .apkg")
         return
       }
 
-      const decks: AnkiPreviewDeck[] = data.decks || []
+      const decks: AnkiPreviewDeck[] =
+        (res.data?.decks as AnkiPreviewDeck[]) || []
       setAnkiDecks(decks)
       if (decks.length > 0) {
         const firstDeck = decks[0]
@@ -269,17 +275,13 @@ export default function ImportExportPage() {
     formData.append("fieldMapping", JSON.stringify(ankiFieldMapping))
 
     try {
-      const res = await fetch("/api/import/anki", {
-        method: "POST",
-        body: formData,
-      })
-      const data = await res.json()
-
-      if (!res.ok) {
-        toast.error(data.error || "Nhập bộ thẻ Anki thất bại")
+      const res = await importAnkiAction(formData)
+      if (!res.success || !res.data) {
+        toast.error(res.error || "Nhập bộ thẻ Anki thất bại")
         return
       }
 
+      const data = res.data
       toast.success(
         `Đã tạo thành công bộ thẻ "${data.setName}" với ${data.cardCount} thẻ!`
       )
@@ -306,24 +308,22 @@ export default function ImportExportPage() {
     formData.append("delimiter", csvDelimiter)
 
     try {
-      const res = await fetch("/api/import/csv/preview", {
-        method: "POST",
-        body: formData,
-      })
-      const data = await res.json()
-
-      if (!res.ok) {
-        toast.error(data.error || "Không thể xem trước CSV")
+      const res = await previewCSVAction(formData)
+      if (!res.success || !res.data) {
+        toast.error(res.error || "Không thể xem trước CSV")
         return
       }
 
-      const prev = data.preview
+      const prev = res.data
       setCsvDelimiter(prev.detectedDelimiter || ",")
       setCsvHasHeader(prev.hasHeader)
       setCsvPreviewHeaders(prev.headers || [])
       setCsvPreviewRows(prev.sampleRows || [])
       setCsvColumnMapping(
-        prev.suggestedMapping || { termIndex: 0, definitionIndex: 1 }
+        (prev.suggestedMapping as ColumnMapping) || {
+          termIndex: 0,
+          definitionIndex: 1,
+        }
       )
       setCsvSetName(file.name.replace(/\.[^/.]+$/, ""))
       toast.success(`Đã phân tích ${prev.totalRows} dòng từ CSV!`)
@@ -341,18 +341,19 @@ export default function ImportExportPage() {
 
     setCsvLoadingPreview(true)
     try {
-      const res = await fetch("/api/import/csv/preview", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: text, delimiter: csvDelimiter }),
+      const res = await previewCSVAction({
+        content: text,
+        delimiter: csvDelimiter,
       })
-      const data = await res.json()
-      if (res.ok && data.preview) {
-        const prev = data.preview
+      if (res.success && res.data) {
+        const prev = res.data
         setCsvPreviewHeaders(prev.headers || [])
         setCsvPreviewRows(prev.sampleRows || [])
         setCsvColumnMapping(
-          prev.suggestedMapping || { termIndex: 0, definitionIndex: 1 }
+          (prev.suggestedMapping as ColumnMapping) || {
+            termIndex: 0,
+            definitionIndex: 1,
+          }
         )
         if (!csvSetName) setCsvSetName("Bộ thẻ CSV")
       }
@@ -375,7 +376,11 @@ export default function ImportExportPage() {
 
     setCsvImporting(true)
     try {
-      let res: Response
+      let res: {
+        success: boolean
+        data?: { setId: string; setName: string; cardCount: number }
+        error?: string
+      }
       if (csvFile) {
         const formData = new FormData()
         formData.append("file", csvFile)
@@ -388,36 +393,29 @@ export default function ImportExportPage() {
         formData.append("columnMapping", JSON.stringify(csvColumnMapping))
         if (csvTags.trim()) formData.append("tags", csvTags.trim())
 
-        res = await fetch("/api/import/csv", {
-          method: "POST",
-          body: formData,
-        })
+        res = await importCSVAction(formData)
       } else {
-        res = await fetch("/api/import/csv", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            setName: csvSetName.trim(),
-            description: csvDescription.trim() || undefined,
-            folderId: csvFolderId || undefined,
-            content: csvRawContent,
-            delimiter: csvDelimiter,
-            hasHeader: csvHasHeader,
-            columnMapping: csvColumnMapping,
-            tags: csvTags
-              .split(/[,;\s]+/)
-              .map((t) => t.trim())
-              .filter(Boolean),
-          }),
+        res = await importCSVAction({
+          setName: csvSetName.trim(),
+          description: csvDescription.trim() || undefined,
+          folderId: csvFolderId || undefined,
+          content: csvRawContent,
+          delimiter: csvDelimiter,
+          hasHeader: csvHasHeader,
+          columnMapping: csvColumnMapping,
+          tags: csvTags
+            .split(/[,;\s]+/)
+            .map((t) => t.trim())
+            .filter(Boolean),
         })
       }
 
-      const data = await res.json()
-      if (!res.ok) {
-        toast.error(data.error || "Import CSV thất bại")
+      if (!res.success || !res.data) {
+        toast.error(res.error || "Import CSV thất bại")
         return
       }
 
+      const data = res.data
       toast.success(
         `Đã tạo bộ thẻ "${data.setName}" với ${data.cardCount} thẻ!`
       )
@@ -444,18 +442,13 @@ export default function ImportExportPage() {
     }
 
     try {
-      const res = await fetch("/api/import/text/preview", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          content: val,
-          termSeparator,
-          cardSeparator,
-        }),
+      const res = await previewTextAction({
+        content: val,
+        termSeparator,
+        cardSeparator,
       })
-      const data = await res.json()
-      if (res.ok && data.preview) {
-        setTextPreviewCards(data.preview.sampleCards || [])
+      if (res.success && res.data) {
+        setTextPreviewCards(res.data.sampleCards || [])
         if (!textSetName) setTextSetName("Bộ thẻ nhập từ văn bản")
       }
     } catch (e) {
@@ -475,29 +468,25 @@ export default function ImportExportPage() {
 
     setTextImporting(true)
     try {
-      const res = await fetch("/api/import/text", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          setName: textSetName.trim(),
-          description: textDescription.trim() || undefined,
-          folderId: textFolderId || undefined,
-          content: textContent,
-          termDefSeparator: termSeparator,
-          cardSeparator,
-          tags: textTags
-            .split(/[,;\s]+/)
-            .map((t) => t.trim())
-            .filter(Boolean),
-        }),
+      const res = await importTextAction({
+        setName: textSetName.trim(),
+        description: textDescription.trim() || undefined,
+        folderId: textFolderId || undefined,
+        content: textContent,
+        termDefSeparator: termSeparator,
+        cardSeparator,
+        tags: textTags
+          .split(/[,;\s]+/)
+          .map((t) => t.trim())
+          .filter(Boolean),
       })
-      const data = await res.json()
 
-      if (!res.ok) {
-        toast.error(data.error || "Nhập văn bản thất bại")
+      if (!res.success || !res.data) {
+        toast.error(res.error || "Nhập văn bản thất bại")
         return
       }
 
+      const data = res.data
       toast.success(
         `Đã tạo bộ thẻ "${data.setName}" với ${data.cardCount} thẻ!`
       )
@@ -555,18 +544,13 @@ export default function ImportExportPage() {
         return
       }
 
-      const res = await fetch("/api/import/json", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(parsed),
-      })
-      const data = await res.json()
-
-      if (!res.ok) {
-        toast.error(data.error || "Import JSON thất bại")
+      const res = await importJSONAction(parsed)
+      if (!res.success || !res.data) {
+        toast.error(res.error || "Import JSON thất bại")
         return
       }
 
+      const data = res.data
       toast.success(`Đã import thành công ${data.importedCount || 1} bộ thẻ!`)
       loadInitialData()
       if (data.setId) {
@@ -594,18 +578,13 @@ export default function ImportExportPage() {
     formData.append("file", restoreFile)
 
     try {
-      const res = await fetch("/api/import/restore", {
-        method: "POST",
-        body: formData,
-      })
-      const data = await res.json()
-
-      if (!res.ok) {
-        toast.error(data.error || "Khôi phục dữ liệu thất bại")
+      const res = await restoreBackupAction(formData)
+      if (!res.success || !res.data) {
+        toast.error(res.error || "Khôi phục dữ liệu thất bại")
         return
       }
 
-      setRestoreSummary(data.summary)
+      setRestoreSummary(res.data.summary as RestoreSummaryResult)
       setRestoreConfirmOpen(false)
       toast.success("Khôi phục toàn bộ dữ liệu thành công!")
       loadInitialData()

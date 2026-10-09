@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { NativeSelect as Select } from "@/components/ui/native-select"
 import { Label } from "@/components/ui/label"
-import { mergeSetsAction } from "@/actions/sets"
+import { mergeSetsAction, getUserSetsAction } from "@/actions/sets"
 
 interface MergeSetsModalProps {
   open: boolean
@@ -40,11 +40,10 @@ export function MergeSetsModal({
   React.useEffect(() => {
     if (open) {
       let isMounted = true
-      fetch("/api/sets?limit=100")
-        .then((res) => (res.ok ? res.json() : { items: [] }))
-        .then((data) => {
+      getUserSetsAction({ limit: 100 })
+        .then((res) => {
           if (!isMounted) return
-          const items = data.items || []
+          const items = res.success && res.data ? res.data.items : []
           setSets(items)
           setSelectedSourceIds([])
           if (initialTargetSetId) {
@@ -102,7 +101,6 @@ export function MergeSetsModal({
       }
     })
   }
-
 
   const availableSources = sets.filter((s) => s.id !== targetSetId)
 

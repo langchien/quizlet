@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { useParams, useRouter } from "next/navigation"
+import { useParams, useRouter, useSearchParams } from "next/navigation"
 import {
   CheckSquare,
   Volume2,
@@ -48,6 +48,7 @@ import { useTTS } from "@/hooks/useTTS"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { isStudyAnswerCorrect } from "@/lib/study-matcher"
+import { startStudySessionAction, endStudySessionAction } from "@/actions/study"
 
 interface CardItem {
   id: string
@@ -125,17 +126,33 @@ export default function TestStudyPage() {
   const startTimeRef = React.useRef<number>(0)
   const timerRef = React.useRef<NodeJS.Timeout | null>(null)
 
+  const searchParams = useSearchParams()
+  const statusParam = searchParams.get("status") || "All"
+  const tagParam = searchParams.get("tag")
+
   // Tải danh sách thẻ ban đầu
   const loadInitialCards = React.useCallback(async () => {
     setLoading(true)
     try {
-      const res = await fetch(`/api/sets/${setId}`)
-      if (res.ok) {
-        const data = await res.json()
-        setAllCards(data.cards || [])
-        setSetName(data.name || "")
-        if (data.cards && data.cards.length > 0) {
-          setQuestionCount(Math.min(20, data.cards.length))
+      const res = await startStudySessionAction({
+        studySetId: setId,
+        mode: "Test",
+        shuffle: true,
+        reverse: false,
+        filterByStatus:
+          (statusParam as "New" | "Learning" | "Review" | "Mastered" | "All") ||
+          "All",
+        filterByTags: tagParam ? [tagParam] : [],
+      })
+      if (res.success && res.data) {
+        const cards = (res.data.cards || []) as unknown as CardItem[]
+        setAllCards(cards)
+        setSessionId(res.data.session.id)
+        if (cards.length > 0 && cards[0].studySet?.name) {
+          setSetName(cards[0].studySet.name)
+        }
+        if (cards.length > 0) {
+          setQuestionCount(Math.min(20, cards.length))
         }
 
         // Đọc Personal Best từ localStorage
@@ -144,7 +161,7 @@ export default function TestStudyPage() {
           setPersonalBestScore(Number(storedPB))
         }
       } else {
-        toast.error("Không tìm thấy bộ thẻ.")
+        toast.error(res.error || "Không tìm thấy bộ thẻ.")
         router.push("/library")
       }
     } catch (err) {
@@ -153,7 +170,7 @@ export default function TestStudyPage() {
     } finally {
       setLoading(false)
     }
-  }, [setId, router])
+  }, [setId, router, statusParam, tagParam])
 
   React.useEffect(() => {
     loadInitialCards()
@@ -283,27 +300,6 @@ export default function TestStudyPage() {
       setTimeLeftSeconds(null)
     }
 
-    // Khởi tạo phiên học trên server
-    try {
-      const res = await fetch("/api/study/start", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          studySetId: setId,
-          mode: "Test",
-          shuffle: true,
-          limit: actualCount,
-        }),
-      })
-
-      if (res.ok) {
-        const data = await res.json()
-        setSessionId(data.session?.id || null)
-      }
-    } catch (err) {
-      console.error("Lỗi tạo session:", err)
-    }
-
     setTestPhase("testing")
   }
 
@@ -361,24 +357,16 @@ export default function TestStudyPage() {
     }
 
     // Gửi kết quả về server
-    try {
-      await fetch("/api/study/end", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sessionId,
-          studySetId: setId,
-          mode: "Test",
-          duration,
-          totalCards: questions.length,
-          correctCards: correct,
-          incorrectCards: incorrect,
-          score: finalScore,
-        }),
-      })
-    } catch (err) {
-      console.error("Lỗi gửi kết quả bài test:", err)
-    }
+    endStudySessionAction({
+      sessionId: sessionId || undefined,
+      studySetId: setId,
+      mode: "Test",
+      duration,
+      totalCards: questions.length,
+      correctCards: correct,
+      incorrectCards: incorrect,
+      score: finalScore,
+    }).catch((err) => console.error("Lỗi gửi kết quả bài test:", err))
 
     setConfirmSubmitOpen(false)
     setTestPhase("result")

@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { useParams, useRouter } from "next/navigation"
+import { useParams, useRouter, useSearchParams } from "next/navigation"
 import {
   Pencil,
   Volume2,
@@ -20,6 +20,11 @@ import { useTTS } from "@/hooks/useTTS"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { isStudyAnswerCorrect } from "@/lib/study-matcher"
+import {
+  startStudySessionAction,
+  answerCardAction,
+  endStudySessionAction,
+} from "@/actions/study"
 
 interface CardItem {
   id: string
@@ -66,6 +71,12 @@ export default function WriteStudyPage() {
   const cardStartTimeRef = React.useRef<number>(0)
   const inputRef = React.useRef<HTMLInputElement>(null)
 
+  const searchParams = useSearchParams()
+  const isReverseParam = searchParams.get("reverse") === "true"
+  const isShuffleParam = searchParams.get("shuffle") !== "false"
+  const statusParam = searchParams.get("status") || "All"
+  const tagParam = searchParams.get("tag")
+
   // Bắt đầu session
   const initSession = React.useCallback(async () => {
     setLoading(true)
@@ -80,25 +91,25 @@ export default function WriteStudyPage() {
     cardStartTimeRef.current = Date.now()
 
     try {
-      const res = await fetch("/api/study/start", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          studySetId: setId,
-          mode: "Write",
-          shuffle: true,
-        }),
+      const res = await startStudySessionAction({
+        studySetId: setId,
+        mode: "Write",
+        shuffle: isShuffleParam,
+        reverse: isReverseParam,
+        filterByStatus:
+          (statusParam as "New" | "Learning" | "Review" | "Mastered" | "All") ||
+          "All",
+        filterByTags: tagParam ? [tagParam] : [],
       })
 
-      if (res.ok) {
-        const data = await res.json()
-        setCards(data.cards)
-        setSessionId(data.session?.id || null)
-        if (data.cards.length > 0 && data.cards[0].studySet?.name) {
-          setSetName(data.cards[0].studySet.name)
+      if (res.success && res.data) {
+        setCards(res.data.cards as unknown as CardItem[])
+        setSessionId(res.data.session.id)
+        if (res.data.cards.length > 0 && res.data.cards[0].studySet?.name) {
+          setSetName(res.data.cards[0].studySet.name)
         }
       } else {
-        toast.error("Không thể tải danh sách thẻ.")
+        toast.error(res.error || "Không thể tải danh sách thẻ.")
         router.push(`/sets/${setId}`)
       }
     } catch (err) {
@@ -108,7 +119,7 @@ export default function WriteStudyPage() {
       setLoading(false)
       cardStartTimeRef.current = Date.now()
     }
-  }, [setId, router])
+  }, [setId, router, isReverseParam, isShuffleParam, statusParam, tagParam])
 
   React.useEffect(() => {
     initSession()
@@ -142,16 +153,12 @@ export default function WriteStudyPage() {
       speak(currentCard.term)
 
       try {
-        await fetch("/api/study/answer", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            sessionId,
-            cardId: currentCard.id,
-            isCorrect: true,
-            userAnswer: userTyped,
-            timeTaken,
-          }),
+        await answerCardAction({
+          sessionId: sessionId || undefined,
+          cardId: currentCard.id,
+          isCorrect: true,
+          userAnswer: userTyped,
+          timeTaken,
         })
       } catch (err) {
         console.error("Error submitting answer:", err)
@@ -165,16 +172,12 @@ export default function WriteStudyPage() {
         setIncorrectCards((prev) => [...prev, currentCard])
 
         try {
-          await fetch("/api/study/answer", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              sessionId,
-              cardId: currentCard.id,
-              isCorrect: false,
-              userAnswer: userTyped,
-              timeTaken,
-            }),
+          await answerCardAction({
+            sessionId: sessionId || undefined,
+            cardId: currentCard.id,
+            isCorrect: false,
+            userAnswer: userTyped,
+            timeTaken,
           })
         } catch (err) {
           console.error("Error submitting answer:", err)
@@ -194,16 +197,12 @@ export default function WriteStudyPage() {
     toast.success("Đã đánh dấu là đúng!")
 
     try {
-      await fetch("/api/study/answer", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sessionId,
-          cardId: currentCard.id,
-          isCorrect: true,
-          userAnswer: userTyped,
-          timeTaken: 1,
-        }),
+      await answerCardAction({
+        sessionId: sessionId || undefined,
+        cardId: currentCard.id,
+        isCorrect: true,
+        userAnswer: userTyped,
+        timeTaken: 1,
       })
     } catch (err) {
       console.error("Error overriding answer:", err)
@@ -228,19 +227,15 @@ export default function WriteStudyPage() {
       const incorrectCount = incorrectCards.length
       const score = Math.round((correctCount / cards.length) * 100)
 
-      fetch("/api/study/end", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sessionId,
-          studySetId: setId,
-          mode: "Write",
-          duration: totalSecs,
-          totalCards: cards.length,
-          correctCards: correctCount,
-          incorrectCards: incorrectCount,
-          score,
-        }),
+      endStudySessionAction({
+        sessionId: sessionId || undefined,
+        studySetId: setId,
+        mode: "Write",
+        duration: totalSecs,
+        totalCards: cards.length,
+        correctCards: correctCount,
+        incorrectCards: incorrectCount,
+        score,
       }).catch((err) => console.error("Error ending session:", err))
 
       setIsCompleted(true)

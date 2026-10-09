@@ -22,7 +22,8 @@ export async function generateMetadata({
   return {
     title: `${set.name} | NihoMemo`,
     description:
-      set.description || `Bộ thẻ học tiếng Nhật ${set.name} với ${set.cardCount} thẻ.`,
+      set.description ||
+      `Bộ thẻ học tiếng Nhật ${set.name} với ${set.cardCount} thẻ.`,
   }
 }
 

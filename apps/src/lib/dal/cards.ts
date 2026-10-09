@@ -1,6 +1,11 @@
 import { cache } from "react"
 import { prisma } from "@/lib/prisma"
-import type { Prisma, JLPTLevel, WordType, CardStatus } from "@/generated/prisma/client"
+import type {
+  Prisma,
+  JLPTLevel,
+  WordType,
+  CardStatus,
+} from "@/generated/prisma/client"
 
 export interface GetCardsOptions {
   search?: string

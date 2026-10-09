@@ -25,14 +25,18 @@ export async function createCardAction(
   try {
     const user = await getCurrentUser()
     if (!user) {
-      return { success: false, error: "Vui lòng đăng nhập để thực hiện thao tác này." }
+      return {
+        success: false,
+        error: "Vui lòng đăng nhập để thực hiện thao tác này.",
+      }
     }
 
     const validation = CreateCardSchema.safeParse(input)
     if (!validation.success) {
       return {
         success: false,
-        error: validation.error.issues[0]?.message || "Dữ liệu thẻ không hợp lệ.",
+        error:
+          validation.error.issues[0]?.message || "Dữ liệu thẻ không hợp lệ.",
       }
     }
 
@@ -75,7 +79,8 @@ export async function createCardAction(
       if (existingTagsCount !== tagIds.length) {
         return {
           success: false,
-          error: "Một hoặc nhiều nhãn (tags) không tồn tại hoặc không thuộc quyền của bạn.",
+          error:
+            "Một hoặc nhiều nhãn (tags) không tồn tại hoặc không thuộc quyền của bạn.",
         }
       }
     }
@@ -154,14 +159,19 @@ export async function updateCardAction(
   try {
     const user = await getCurrentUser()
     if (!user) {
-      return { success: false, error: "Vui lòng đăng nhập để thực hiện thao tác này." }
+      return {
+        success: false,
+        error: "Vui lòng đăng nhập để thực hiện thao tác này.",
+      }
     }
 
     const validation = UpdateCardSchema.safeParse(input)
     if (!validation.success) {
       return {
         success: false,
-        error: validation.error.issues[0]?.message || "Dữ liệu cập nhật thẻ không hợp lệ.",
+        error:
+          validation.error.issues[0]?.message ||
+          "Dữ liệu cập nhật thẻ không hợp lệ.",
       }
     }
 
@@ -215,7 +225,9 @@ export async function updateCardAction(
           ...(data.jlptLevel !== undefined && { jlptLevel: data.jlptLevel }),
           ...(data.wordType !== undefined && { wordType: data.wordType }),
           ...(data.radicals !== undefined && { radicals: data.radicals }),
-          ...(data.strokeCount !== undefined && { strokeCount: data.strokeCount }),
+          ...(data.strokeCount !== undefined && {
+            strokeCount: data.strokeCount,
+          }),
           ...(data.onReading !== undefined && { onReading: data.onReading }),
           ...(data.kunReading !== undefined && { kunReading: data.kunReading }),
           ...(data.compounds !== undefined && { compounds: data.compounds }),
@@ -255,7 +267,10 @@ export async function deleteCardAction(
   try {
     const user = await getCurrentUser()
     if (!user) {
-      return { success: false, error: "Vui lòng đăng nhập để thực hiện thao tác này." }
+      return {
+        success: false,
+        error: "Vui lòng đăng nhập để thực hiện thao tác này.",
+      }
     }
 
     const card = await prisma.card.findFirst({
@@ -303,14 +318,19 @@ export async function reorderCardsAction(
   try {
     const user = await getCurrentUser()
     if (!user) {
-      return { success: false, error: "Vui lòng đăng nhập để thực hiện thao tác này." }
+      return {
+        success: false,
+        error: "Vui lòng đăng nhập để thực hiện thao tác này.",
+      }
     }
 
     const validation = ReorderCardsSchema.safeParse(input)
     if (!validation.success) {
       return {
         success: false,
-        error: validation.error.issues[0]?.message || "Dữ liệu sắp xếp không hợp lệ.",
+        error:
+          validation.error.issues[0]?.message ||
+          "Dữ liệu sắp xếp không hợp lệ.",
       }
     }
 
@@ -328,7 +348,8 @@ export async function reorderCardsAction(
     if (existingCards.length !== cardIds.length) {
       return {
         success: false,
-        error: "Một hoặc nhiều thẻ không tồn tại hoặc không thuộc quyền sở hữu của bạn.",
+        error:
+          "Một hoặc nhiều thẻ không tồn tại hoặc không thuộc quyền sở hữu của bạn.",
       }
     }
 
@@ -349,7 +370,10 @@ export async function reorderCardsAction(
     return { success: true, data: { count: items.length } }
   } catch (error) {
     console.error("❌ Lỗi reorderCardsAction:", error)
-    return { success: false, error: "Đã xảy ra lỗi máy chủ khi sắp xếp thứ tự thẻ." }
+    return {
+      success: false,
+      error: "Đã xảy ra lỗi máy chủ khi sắp xếp thứ tự thẻ.",
+    }
   }
 }
 
@@ -362,14 +386,19 @@ export async function bulkTagCardsAction(
   try {
     const user = await getCurrentUser()
     if (!user) {
-      return { success: false, error: "Vui lòng đăng nhập để thực hiện thao tác này." }
+      return {
+        success: false,
+        error: "Vui lòng đăng nhập để thực hiện thao tác này.",
+      }
     }
 
     const validation = BulkTagCardsSchema.safeParse(input)
     if (!validation.success) {
       return {
         success: false,
-        error: validation.error.issues[0]?.message || "Dữ liệu gắn nhãn không hợp lệ.",
+        error:
+          validation.error.issues[0]?.message ||
+          "Dữ liệu gắn nhãn không hợp lệ.",
       }
     }
 
@@ -386,7 +415,8 @@ export async function bulkTagCardsAction(
     if (cards.length !== cardIds.length) {
       return {
         success: false,
-        error: "Một hoặc nhiều thẻ không tồn tại hoặc không thuộc quyền sở hữu của bạn.",
+        error:
+          "Một hoặc nhiều thẻ không tồn tại hoặc không thuộc quyền sở hữu của bạn.",
       }
     }
 
@@ -401,7 +431,8 @@ export async function bulkTagCardsAction(
     if (tags.length !== tagIds.length) {
       return {
         success: false,
-        error: "Một hoặc nhiều nhãn không tồn tại hoặc không thuộc quyền sở hữu của bạn.",
+        error:
+          "Một hoặc nhiều nhãn không tồn tại hoặc không thuộc quyền sở hữu của bạn.",
       }
     }
 
@@ -436,7 +467,10 @@ export async function bulkTagCardsAction(
     return { success: true, data: { success: true } }
   } catch (error) {
     console.error("❌ Lỗi bulkTagCardsAction:", error)
-    return { success: false, error: "Đã xảy ra lỗi máy chủ khi cập nhật nhãn hàng loạt." }
+    return {
+      success: false,
+      error: "Đã xảy ra lỗi máy chủ khi cập nhật nhãn hàng loạt.",
+    }
   }
 }
 
@@ -449,7 +483,10 @@ export async function duplicateCardAction(
   try {
     const user = await getCurrentUser()
     if (!user) {
-      return { success: false, error: "Vui lòng đăng nhập để thực hiện thao tác này." }
+      return {
+        success: false,
+        error: "Vui lòng đăng nhập để thực hiện thao tác này.",
+      }
     }
 
     const card = await prisma.card.findFirst({
@@ -465,7 +502,8 @@ export async function duplicateCardAction(
     if (!card) {
       return {
         success: false,
-        error: "Không tìm thấy thẻ cần nhân bản hoặc bạn không có quyền truy cập.",
+        error:
+          "Không tìm thấy thẻ cần nhân bản hoặc bạn không có quyền truy cập.",
       }
     }
 
@@ -548,7 +586,10 @@ export async function uploadCardImageAction(
   try {
     const user = await getCurrentUser()
     if (!user) {
-      return { success: false, error: "Vui lòng đăng nhập để thực hiện thao tác này." }
+      return {
+        success: false,
+        error: "Vui lòng đăng nhập để thực hiện thao tác này.",
+      }
     }
 
     const card = await prisma.card.findFirst({
@@ -568,18 +609,25 @@ export async function uploadCardImageAction(
 
     const file = formData.get("file") as File | null
     if (!file || typeof file === "string") {
-      return { success: false, error: "Vui lòng chọn một tệp hình ảnh hợp lệ để tải lên." }
+      return {
+        success: false,
+        error: "Vui lòng chọn một tệp hình ảnh hợp lệ để tải lên.",
+      }
     }
 
     if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
       return {
         success: false,
-        error: "Định dạng tệp không được hỗ trợ. Vui lòng tải lên ảnh JPEG, PNG, WebP, GIF hoặc AVIF.",
+        error:
+          "Định dạng tệp không được hỗ trợ. Vui lòng tải lên ảnh JPEG, PNG, WebP, GIF hoặc AVIF.",
       }
     }
 
     if (file.size > MAX_IMAGE_SIZE) {
-      return { success: false, error: "Kích thước ảnh vượt quá giới hạn (Tối đa 5MB)." }
+      return {
+        success: false,
+        error: "Kích thước ảnh vượt quá giới hạn (Tối đa 5MB).",
+      }
     }
 
     const path = await import("path")
@@ -630,7 +678,9 @@ export async function uploadCardImageAction(
     }
   } catch (error) {
     console.error("❌ Lỗi uploadCardImageAction:", error)
-    return { success: false, error: "Đã xảy ra lỗi khi xử lý và lưu trữ hình ảnh." }
+    return {
+      success: false,
+      error: "Đã xảy ra lỗi khi xử lý và lưu trữ hình ảnh.",
+    }
   }
 }
-

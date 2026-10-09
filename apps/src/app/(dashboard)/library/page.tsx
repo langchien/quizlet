@@ -44,7 +44,12 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { EmptyState } from "@/components/ui/empty-state"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
-import { duplicateSetAction, deleteSetAction } from "@/actions/sets"
+import {
+  duplicateSetAction,
+  deleteSetAction,
+  getUserSetsAction,
+} from "@/actions/sets"
+import { getFoldersFlatAction } from "@/actions/folders"
 
 interface StudySetItem {
   id: string
@@ -103,9 +108,12 @@ function LibraryContent() {
 
   // Fetch Folders
   React.useEffect(() => {
-    fetch("/api/folders?flat=true")
-      .then((res) => (res.ok ? res.json() : []))
-      .then((data) => setFolders(data))
+    getFoldersFlatAction()
+      .then((res) => {
+        if (res.success && res.data) {
+          setFolders(res.data)
+        }
+      })
       .catch((err) => console.error("Error loading folders:", err))
   }, [])
 
@@ -113,17 +121,18 @@ function LibraryContent() {
   const fetchSets = React.useCallback(async () => {
     setLoading(true)
     try {
-      const params = new URLSearchParams()
-      if (search.trim()) params.set("search", search.trim())
-      if (selectedFolder !== "all") params.set("folderId", selectedFolder)
-      params.set("sortBy", sortBy)
-      params.set("sortOrder", sortOrder)
-      params.set("limit", "100")
+      const res = await getUserSetsAction({
+        search: search.trim() || undefined,
+        folderId: selectedFolder !== "all" ? selectedFolder : undefined,
+        sortBy: sortBy as "updatedAt" | "createdAt" | "name" | "cardCount",
+        sortOrder: sortOrder as "asc" | "desc",
+        limit: 100,
+      })
 
-      const res = await fetch(`/api/sets?${params.toString()}`)
-      if (res.ok) {
-        const data = await res.json()
-        setSets(data.items || [])
+      if (res.success && res.data) {
+        setSets(res.data.items as unknown as StudySetItem[])
+      } else {
+        toast.error(res.error || "Không thể tải danh sách bộ thẻ")
       }
     } catch (err) {
       console.error("Error fetching sets:", err)

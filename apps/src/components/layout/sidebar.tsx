@@ -44,7 +44,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { toast } from "sonner"
-import type { FolderNode } from "@/app/api/folders/route"
+import type { FolderNode } from "@/lib/dal/folders"
+import { getFoldersTreeAction, deleteFolderAction } from "@/actions/folders"
 
 interface SidebarProps {
   collapsed: boolean
@@ -79,10 +80,9 @@ export function Sidebar({
 
   const fetchFolders = React.useCallback(async () => {
     try {
-      const res = await fetch("/api/folders")
-      if (res.ok) {
-        const data = await res.json()
-        setFolders(data)
+      const res = await getFoldersTreeAction()
+      if (res.success && res.data) {
+        setFolders(res.data)
       }
     } catch (err) {
       console.error("Error fetching folders:", err)
@@ -114,13 +114,12 @@ export function Sidebar({
     const { id, name } = folderToDelete
 
     try {
-      const res = await fetch(`/api/folders/${id}`, { method: "DELETE" })
-      if (res.ok) {
+      const res = await deleteFolderAction(id)
+      if (res.success) {
         toast.success(`Đã xoá thư mục "${name}"`)
         fetchFolders()
       } else {
-        const json = await res.json()
-        toast.error(json.error || "Xoá thư mục thất bại")
+        toast.error(res.error || "Xoá thư mục thất bại")
       }
     } catch {
       toast.error("Lỗi kết nối máy chủ")

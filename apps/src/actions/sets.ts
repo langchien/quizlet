@@ -13,6 +13,7 @@ import {
   type DuplicateSetBody,
   type MergeSetsBody,
 } from "@/schemas/set"
+import { getSets, type GetSetsOptions } from "@/lib/dal/sets"
 
 export type ActionResponse<T = unknown> =
   | { success: true; data: T; error?: never }
@@ -23,18 +24,34 @@ export type ActionResponse<T = unknown> =
  */
 export async function createSetAction(
   input: CreateSetBody
-): Promise<ActionResponse<StudySet & { progress: { mastered: number; learning: number; new: number; percentage: number } }>> {
+): Promise<
+  ActionResponse<
+    StudySet & {
+      progress: {
+        mastered: number
+        learning: number
+        new: number
+        percentage: number
+      }
+    }
+  >
+> {
   try {
     const user = await getCurrentUser()
     if (!user) {
-      return { success: false, error: "Vui lòng đăng nhập để thực hiện thao tác này." }
+      return {
+        success: false,
+        error: "Vui lòng đăng nhập để thực hiện thao tác này.",
+      }
     }
 
     const validation = CreateSetSchema.safeParse(input)
     if (!validation.success) {
       return {
         success: false,
-        error: validation.error.issues[0]?.message || "Dữ liệu tạo bộ thẻ không hợp lệ.",
+        error:
+          validation.error.issues[0]?.message ||
+          "Dữ liệu tạo bộ thẻ không hợp lệ.",
       }
     }
 
@@ -48,7 +65,8 @@ export async function createSetAction(
       if (!folder) {
         return {
           success: false,
-          error: "Thư mục đã chọn không tồn tại hoặc không thuộc quyền sở hữu của bạn.",
+          error:
+            "Thư mục đã chọn không tồn tại hoặc không thuộc quyền sở hữu của bạn.",
         }
       }
     }
@@ -104,14 +122,19 @@ export async function updateSetAction(
   try {
     const user = await getCurrentUser()
     if (!user) {
-      return { success: false, error: "Vui lòng đăng nhập để thực hiện thao tác này." }
+      return {
+        success: false,
+        error: "Vui lòng đăng nhập để thực hiện thao tác này.",
+      }
     }
 
     const validation = UpdateSetSchema.safeParse(input)
     if (!validation.success) {
       return {
         success: false,
-        error: validation.error.issues[0]?.message || "Dữ liệu cập nhật bộ thẻ không hợp lệ.",
+        error:
+          validation.error.issues[0]?.message ||
+          "Dữ liệu cập nhật bộ thẻ không hợp lệ.",
       }
     }
 
@@ -135,7 +158,8 @@ export async function updateSetAction(
       if (!folder) {
         return {
           success: false,
-          error: "Thư mục chỉ định không tồn tại hoặc không thuộc quyền sở hữu của bạn.",
+          error:
+            "Thư mục chỉ định không tồn tại hoặc không thuộc quyền sở hữu của bạn.",
         }
       }
     }
@@ -166,7 +190,10 @@ export async function updateSetAction(
     return { success: true, data: updatedSet }
   } catch (error) {
     console.error("❌ Lỗi updateSetAction:", error)
-    return { success: false, error: "Đã xảy ra lỗi máy chủ khi cập nhật bộ thẻ." }
+    return {
+      success: false,
+      error: "Đã xảy ra lỗi máy chủ khi cập nhật bộ thẻ.",
+    }
   }
 }
 
@@ -179,7 +206,10 @@ export async function deleteSetAction(
   try {
     const user = await getCurrentUser()
     if (!user) {
-      return { success: false, error: "Vui lòng đăng nhập để thực hiện thao tác này." }
+      return {
+        success: false,
+        error: "Vui lòng đăng nhập để thực hiện thao tác này.",
+      }
     }
 
     const existingSet = await prisma.studySet.findFirst({
@@ -216,7 +246,10 @@ export async function duplicateSetAction(
   try {
     const user = await getCurrentUser()
     if (!user) {
-      return { success: false, error: "Vui lòng đăng nhập để thực hiện thao tác này." }
+      return {
+        success: false,
+        error: "Vui lòng đăng nhập để thực hiện thao tác này.",
+      }
     }
 
     const originalSet = await prisma.studySet.findFirst({
@@ -233,12 +266,12 @@ export async function duplicateSetAction(
     if (!originalSet) {
       return {
         success: false,
-        error: "Không tìm thấy bộ thẻ cần nhân bản hoặc bạn không có quyền truy cập.",
+        error:
+          "Không tìm thấy bộ thẻ cần nhân bản hoặc bạn không có quyền truy cập.",
       }
     }
 
-    const targetName =
-      input?.name?.trim() || `${originalSet.name} (Bản sao)`
+    const targetName = input?.name?.trim() || `${originalSet.name} (Bản sao)`
 
     const duplicatedSet = await prisma.$transaction(async (tx) => {
       const newSet = await tx.studySet.create({
@@ -308,7 +341,10 @@ export async function duplicateSetAction(
     return { success: true, data: duplicatedSet }
   } catch (error) {
     console.error("❌ Lỗi duplicateSetAction:", error)
-    return { success: false, error: "Đã xảy ra lỗi máy chủ khi nhân bản bộ thẻ." }
+    return {
+      success: false,
+      error: "Đã xảy ra lỗi máy chủ khi nhân bản bộ thẻ.",
+    }
   }
 }
 
@@ -321,14 +357,19 @@ export async function mergeSetsAction(
   try {
     const user = await getCurrentUser()
     if (!user) {
-      return { success: false, error: "Vui lòng đăng nhập để thực hiện thao tác này." }
+      return {
+        success: false,
+        error: "Vui lòng đăng nhập để thực hiện thao tác này.",
+      }
     }
 
     const validation = MergeSetsSchema.safeParse(input)
     if (!validation.success) {
       return {
         success: false,
-        error: validation.error.issues[0]?.message || "Dữ liệu gộp bộ thẻ không hợp lệ.",
+        error:
+          validation.error.issues[0]?.message ||
+          "Dữ liệu gộp bộ thẻ không hợp lệ.",
       }
     }
 
@@ -337,7 +378,8 @@ export async function mergeSetsAction(
     if (sourceSetIds.includes(targetSetId)) {
       return {
         success: false,
-        error: "Bộ thẻ đích không được nằm trong danh sách các bộ thẻ nguồn cần gộp.",
+        error:
+          "Bộ thẻ đích không được nằm trong danh sách các bộ thẻ nguồn cần gộp.",
       }
     }
 
@@ -377,7 +419,8 @@ export async function mergeSetsAction(
     if (sourceSets.length !== sourceSetIds.length) {
       return {
         success: false,
-        error: "Một hoặc nhiều bộ thẻ nguồn không tồn tại hoặc không thuộc quyền sở hữu của bạn.",
+        error:
+          "Một hoặc nhiều bộ thẻ nguồn không tồn tại hoặc không thuộc quyền sở hữu của bạn.",
       }
     }
 
@@ -456,5 +499,28 @@ export async function mergeSetsAction(
   } catch (error) {
     console.error("❌ Lỗi mergeSetsAction:", error)
     return { success: false, error: "Đã xảy ra lỗi máy chủ khi gộp bộ thẻ." }
+  }
+}
+
+/**
+ * Server Action: Lấy danh sách bộ thẻ kèm phân trang và tìm kiếm
+ */
+export async function getUserSetsAction(
+  options: Omit<GetSetsOptions, "userId"> = {}
+) {
+  try {
+    const user = await getCurrentUser()
+    if (!user) {
+      return {
+        success: false,
+        error: "Vui lòng đăng nhập để xem danh sách bộ thẻ.",
+      }
+    }
+
+    const data = await getSets({ ...options, userId: user.id })
+    return { success: true, data }
+  } catch (error) {
+    console.error("❌ Lỗi getUserSetsAction:", error)
+    return { success: false, error: "Đã xảy ra lỗi khi tải danh sách bộ thẻ." }
   }
 }

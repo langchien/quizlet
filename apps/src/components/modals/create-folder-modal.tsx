@@ -19,6 +19,11 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { CreateFolderSchema, type CreateFolderBody } from "@/schemas/folder"
+import {
+  getFoldersFlatAction,
+  createFolderAction,
+  updateFolderAction,
+} from "@/actions/folders"
 
 interface CreateFolderModalProps {
   open: boolean
@@ -67,14 +72,16 @@ export function CreateFolderModal({
   // Load danh sách folders để chọn parent
   React.useEffect(() => {
     if (open) {
-      fetch("/api/folders?flat=true")
-        .then((res) => (res.ok ? res.json() : []))
-        .then((data: Array<{ id: string; name: string }>) => {
-          // Lọc không hiển thị chính nó nếu đang edit
-          const filtered = isEditing
-            ? data.filter((f) => f.id !== editFolder?.id)
-            : data
-          setFolders(filtered)
+      getFoldersFlatAction()
+        .then((res) => {
+          if (res.success && res.data) {
+            const data = res.data
+            // Lọc không hiển thị chính nó nếu đang edit
+            const filtered = isEditing
+              ? data.filter((f) => f.id !== editFolder?.id)
+              : data
+            setFolders(filtered)
+          }
         })
         .catch((err) => console.error("Error fetching folders:", err))
     }
@@ -103,23 +110,19 @@ export function CreateFolderModal({
   const onSubmit = async (data: CreateFolderBody) => {
     setSubmitting(true)
     try {
-      const url = isEditing ? `/api/folders/${editFolder.id}` : "/api/folders"
-      const method = isEditing ? "PATCH" : "POST"
+      const payload = {
+        ...data,
+        parentId:
+          data.parentId === "none" || !data.parentId ? null : data.parentId,
+      }
 
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...data,
-          parentId:
-            data.parentId === "none" || !data.parentId ? null : data.parentId,
-        }),
-      })
+      const res =
+        isEditing && editFolder
+          ? await updateFolderAction(editFolder.id, payload)
+          : await createFolderAction(payload)
 
-      const json = await res.json()
-
-      if (!res.ok) {
-        throw new Error(json.error || "Thao tác thất bại")
+      if (!res.success) {
+        throw new Error(res.error || "Thao tác thất bại")
       }
 
       toast.success(
@@ -128,7 +131,7 @@ export function CreateFolderModal({
           : "Đã tạo thư mục mới thành công!"
       )
       onOpenChange(false)
-      onSuccess?.(json)
+      onSuccess?.(res.data)
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Đã xảy ra lỗi"
       toast.error(message)

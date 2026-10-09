@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { useParams, useRouter } from "next/navigation"
+import { useParams, useRouter, useSearchParams } from "next/navigation"
 import {
   BrainCircuit,
   Volume2,
@@ -22,6 +22,11 @@ import { useTTS } from "@/hooks/useTTS"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { isStudyAnswerCorrect } from "@/lib/study-matcher"
+import {
+  startStudySessionAction,
+  answerCardAction,
+  endStudySessionAction,
+} from "@/actions/study"
 
 interface CardItem {
   id: string
@@ -89,8 +94,11 @@ export default function LearnStudyPage() {
   const startTimeRef = React.useRef<number>(0)
   const cardStartTimeRef = React.useRef<number>(0)
 
-  // Reverse mode toggle
-  const [isReverse] = React.useState(false)
+  const searchParams = useSearchParams()
+  const isReverse = searchParams.get("reverse") === "true"
+  const isShuffleParam = searchParams.get("shuffle") !== "false"
+  const statusParam = searchParams.get("status") || "All"
+  const tagParam = searchParams.get("tag")
 
   // Tạo câu hỏi ngẫu nhiên từ thẻ hiện tại
   const generateQuestion = React.useCallback(
@@ -181,22 +189,23 @@ export default function LearnStudyPage() {
     cardStartTimeRef.current = Date.now()
 
     try {
-      const res = await fetch("/api/study/start", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          studySetId: setId,
-          mode: "Learn",
-          shuffle: true,
-        }),
+      const res = await startStudySessionAction({
+        studySetId: setId,
+        mode: "Learn",
+        shuffle: isShuffleParam,
+        reverse: isReverse,
+        filterByStatus:
+          (statusParam as "New" | "Learning" | "Review" | "Mastered" | "All") ||
+          "All",
+        filterByTags: tagParam ? [tagParam] : [],
       })
 
-      if (res.ok) {
-        const data = await res.json()
-        const cardsData: CardItem[] = data.cards || []
+      if (res.success && res.data) {
+        const cardsData: CardItem[] = (res.data.cards ||
+          []) as unknown as CardItem[]
         setAllCards(cardsData)
         setQueue([...cardsData])
-        setSessionId(data.session?.id || null)
+        setSessionId(res.data.session.id)
 
         if (cardsData.length > 0) {
           if (cardsData[0].studySet?.name) {
@@ -206,7 +215,7 @@ export default function LearnStudyPage() {
           setCurrentQuestion(firstQ)
         }
       } else {
-        toast.error("Không thể tải danh sách câu hỏi.")
+        toast.error(res.error || "Không thể tải danh sách câu hỏi.")
         router.push(`/sets/${setId}`)
       }
     } catch (err) {
@@ -216,7 +225,15 @@ export default function LearnStudyPage() {
       setLoading(false)
       cardStartTimeRef.current = Date.now()
     }
-  }, [setId, router, isReverse, generateQuestion])
+  }, [
+    setId,
+    router,
+    isReverse,
+    generateQuestion,
+    isShuffleParam,
+    statusParam,
+    tagParam,
+  ])
 
   React.useEffect(() => {
     initSession()
@@ -245,16 +262,12 @@ export default function LearnStudyPage() {
       }
 
       try {
-        await fetch("/api/study/answer", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            sessionId,
-            cardId: card.id,
-            isCorrect: isCorrectAnswer,
-            userAnswer,
-            timeTaken,
-          }),
+        await answerCardAction({
+          sessionId: sessionId || undefined,
+          cardId: card.id,
+          isCorrect: isCorrectAnswer,
+          userAnswer,
+          timeTaken,
         })
       } catch (err) {
         console.error("Error recording answer:", err)
@@ -325,19 +338,15 @@ export default function LearnStudyPage() {
       const total = allCards.length
       const score = total > 0 ? Math.round((correctCount / total) * 100) : 0
 
-      fetch("/api/study/end", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sessionId,
-          studySetId: setId,
-          mode: "Learn",
-          duration: totalSecs,
-          totalCards: total,
-          correctCards: correctCount,
-          incorrectCards: incorrectCount,
-          score,
-        }),
+      endStudySessionAction({
+        sessionId: sessionId || undefined,
+        studySetId: setId,
+        mode: "Learn",
+        duration: totalSecs,
+        totalCards: total,
+        correctCards: correctCount,
+        incorrectCards: incorrectCount,
+        score,
       }).catch((err) => console.error("Error ending session:", err))
 
       setIsCompleted(true)

@@ -20,6 +20,7 @@ import { Select } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { CreateSetSchema, type CreateSetBody } from "@/schemas/set"
 import { createSetAction, updateSetAction } from "@/actions/sets"
+import { getFoldersFlatAction } from "@/actions/folders"
 
 interface CreateSetModalProps {
   open: boolean
@@ -71,9 +72,12 @@ export function CreateSetModal({
   // Load danh sách folders phẳng để hiển thị trong select
   React.useEffect(() => {
     if (open) {
-      fetch("/api/folders?flat=true")
-        .then((res) => (res.ok ? res.json() : []))
-        .then((data) => setFolders(data))
+      getFoldersFlatAction()
+        .then((res) => {
+          if (res.success && res.data) {
+            setFolders(res.data)
+          }
+        })
         .catch((err) => console.error("Error fetching folders:", err))
     }
   }, [open])
@@ -132,7 +136,6 @@ export function CreateSetModal({
       }
     })
   }
-
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

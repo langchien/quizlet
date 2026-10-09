@@ -25,6 +25,7 @@ import {
   updateCardAction,
   uploadCardImageAction,
 } from "@/actions/cards"
+import { getTagsAction, createTagAction } from "@/actions/tags"
 import { JLPT_LEVELS } from "@/types"
 import type { JLPTLevel, WordType } from "@/generated/prisma/client"
 
@@ -122,9 +123,12 @@ export function CreateCardModal({
   // Load danh sách tags
   React.useEffect(() => {
     if (open) {
-      fetch("/api/tags")
-        .then((res) => (res.ok ? res.json() : []))
-        .then((data: TagItem[]) => setAvailableTags(data))
+      getTagsAction()
+        .then((res) => {
+          if (res.success && res.data) {
+            setAvailableTags(res.data)
+          }
+        })
         .catch((err) => console.error("Error loading tags:", err))
     }
   }, [open])
@@ -216,18 +220,13 @@ export function CreateCardModal({
     if (!name) return
 
     try {
-      const res = await fetch("/api/tags", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name }),
-      })
-      const data = await res.json()
-      if (res.ok) {
-        setAvailableTags((prev) => [...prev, data])
-        handleAddTag(data)
+      const res = await createTagAction({ name })
+      if (res.success && res.data) {
+        setAvailableTags((prev) => [...prev, res.data])
+        handleAddTag(res.data)
         toast.success(`Đã tạo nhãn "${name}"`)
       } else {
-        toast.error(data.error || "Không thể tạo nhãn")
+        toast.error(res.error || "Không thể tạo nhãn")
       }
     } catch {
       toast.error("Lỗi khi tạo nhãn mới")
@@ -290,7 +289,6 @@ export function CreateCardModal({
       }
     })
   }
-
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

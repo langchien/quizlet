@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { CreateTagSchema, type CreateTagBody } from "@/schemas/tag"
+import { createTagAction, updateTagAction } from "@/actions/tags"
 
 const PRESET_COLORS = [
   "#3B82F6", // Blue
@@ -91,19 +92,13 @@ export function CreateTagModal({
   const onSubmit = async (data: CreateTagBody) => {
     setSubmitting(true)
     try {
-      const url = isEditing ? `/api/tags/${editTag.id}` : "/api/tags"
-      const method = isEditing ? "PATCH" : "POST"
+      const res =
+        isEditing && editTag
+          ? await updateTagAction(editTag.id, data)
+          : await createTagAction(data)
 
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      })
-
-      const json = await res.json()
-
-      if (!res.ok) {
-        throw new Error(json.error || "Thao tác thất bại")
+      if (!res.success) {
+        throw new Error(res.error || "Thao tác thất bại")
       }
 
       toast.success(
@@ -112,7 +107,7 @@ export function CreateTagModal({
           : "Đã tạo nhãn mới thành công!"
       )
       onOpenChange(false)
-      onSuccess?.(json)
+      onSuccess?.(res.data)
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Đã xảy ra lỗi"
       toast.error(message)

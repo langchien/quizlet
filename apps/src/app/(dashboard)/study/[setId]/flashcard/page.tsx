@@ -3,7 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { useParams, useRouter } from "next/navigation"
+import { useParams, useRouter, useSearchParams } from "next/navigation"
 import {
   Volume2,
   Rotate3D,
@@ -31,6 +31,11 @@ import { ShortcutsCheatsheetModal } from "@/components/modals/shortcuts-cheatshe
 import { useAuthStore } from "@/stores/useAuthStore"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
+import {
+  startStudySessionAction,
+  answerCardAction,
+  endStudySessionAction,
+} from "@/actions/study"
 
 interface CardItem {
   id: string
@@ -105,6 +110,11 @@ export default function FlashcardStudyPage() {
   const startTimeRef = React.useRef<number>(0)
   const cardStartTimeRef = React.useRef<number>(0)
 
+  const searchParams = useSearchParams()
+  const isReverseParam = searchParams.get("reverse") === "true"
+  const statusParam = searchParams.get("status") || "All"
+  const tagParam = searchParams.get("tag")
+
   // Tải danh sách thẻ và bắt đầu session
   const initSession = React.useCallback(
     async (shuffleMode = false) => {
@@ -118,25 +128,25 @@ export default function FlashcardStudyPage() {
       cardStartTimeRef.current = Date.now()
 
       try {
-        const res = await fetch("/api/study/start", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            studySetId: setId,
-            mode: "Flashcard",
-            shuffle: shuffleMode,
-          }),
+        const res = await startStudySessionAction({
+          studySetId: setId,
+          mode: "Flashcard",
+          shuffle: shuffleMode,
+          reverse: isReverseParam,
+          filterByStatus:
+            (statusParam as
+              "New" | "Learning" | "Review" | "Mastered" | "All") || "All",
+          filterByTags: tagParam ? [tagParam] : [],
         })
 
-        if (res.ok) {
-          const data = await res.json()
-          setCards(data.cards)
-          setSessionId(data.session?.id || null)
-          if (data.cards.length > 0 && data.cards[0].studySet?.name) {
-            setSetName(data.cards[0].studySet.name)
+        if (res.success && res.data) {
+          setCards(res.data.cards as unknown as CardItem[])
+          setSessionId(res.data.session.id)
+          if (res.data.cards.length > 0 && res.data.cards[0].studySet?.name) {
+            setSetName(res.data.cards[0].studySet.name)
           }
         } else {
-          toast.error("Không thể tải danh sách thẻ học.")
+          toast.error(res.error || "Không thể tải danh sách thẻ học.")
           router.push(`/sets/${setId}`)
         }
       } catch (err) {
@@ -147,7 +157,7 @@ export default function FlashcardStudyPage() {
         cardStartTimeRef.current = Date.now()
       }
     },
-    [setId, router]
+    [setId, router, isReverseParam, statusParam, tagParam]
   )
 
   React.useEffect(() => {
@@ -186,15 +196,11 @@ export default function FlashcardStudyPage() {
 
       // Gửi kết quả về server
       try {
-        await fetch("/api/study/answer", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            sessionId,
-            cardId: currentCard.id,
-            isCorrect,
-            timeTaken,
-          }),
+        await answerCardAction({
+          sessionId: sessionId || undefined,
+          cardId: currentCard.id,
+          isCorrect,
+          timeTaken,
         })
       } catch (err) {
         console.error("Error recording answer:", err)
@@ -217,19 +223,15 @@ export default function FlashcardStudyPage() {
         const score = Math.round((finalCorrect / cards.length) * 100)
 
         try {
-          await fetch("/api/study/end", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              sessionId,
-              studySetId: setId,
-              mode: "Flashcard",
-              duration: totalSecs,
-              totalCards: cards.length,
-              correctCards: finalCorrect,
-              incorrectCards: finalIncorrect,
-              score,
-            }),
+          await endStudySessionAction({
+            sessionId: sessionId || undefined,
+            studySetId: setId,
+            mode: "Flashcard",
+            duration: totalSecs,
+            totalCards: cards.length,
+            correctCards: finalCorrect,
+            incorrectCards: finalIncorrect,
+            score,
           })
         } catch (err) {
           console.error("Error ending session:", err)
@@ -239,6 +241,7 @@ export default function FlashcardStudyPage() {
         setIsAutoPlay(false)
       }
     },
+
     [
       currentCard,
       sessionId,
