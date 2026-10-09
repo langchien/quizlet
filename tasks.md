@@ -748,12 +748,12 @@ Yêu cầu:
 
 ```
 Kiểm tra:
-- [ ] Dashboard hiển thị đầy đủ thông số hôm nay
-- [ ] Heat map 365 ngày hoạt động chuẩn xác
-- [ ] Streak tracking tự động tính toán đúng
-- [ ] Biểu đồ Recharts render đẹp mắt, không lỗi layout
-- [ ] Calendar view hiển thị đúng due cards theo từng ngày
-- [ ] Daily goals cập nhật tiến độ real-time
+- [x] Dashboard hiển thị đầy đủ thông số hôm nay
+- [x] Heat map 365 ngày hoạt động chuẩn xác
+- [x] Streak tracking tự động tính toán đúng
+- [x] Biểu đồ Recharts render đẹp mắt, không lỗi layout
+- [x] Calendar view hiển thị đúng due cards theo từng ngày
+- [x] Daily goals cập nhật tiến độ real-time
 ```
 
 ---

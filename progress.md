@@ -36,13 +36,13 @@
 | 4.3 |   4   | Listening Mode (UI)             | TTS phát âm → gõ lại, tốc độ 0.5x/1x/1.5x, hint                                                    |     ✅     |
 | 4.4 |   4   | Mode Selection Screen           | 6 cards chọn mode, options chung (shuffle, reverse, filter)                                        |     ✅     |
 |     |       | **✅ Checkpoint 4**             | **Tất cả 6 study modes hoạt động, lưu session**                                                    |     ✅     |
-| 5.1 |   5   | Statistics API                  | Route Handlers: Dashboard, daily stats, heatmap, sessions history, export                          |     ⬜     |
-| 5.2 |   5   | Calendar API                    | Route Handlers: Due cards theo tháng, chi tiết cards cần ôn hôm nay                                |     ⬜     |
-| 5.3 |   5   | Daily Goals API                 | Route Handlers: CRUD goals, progress tracking, streak logic                                        |     ⬜     |
-| 5.4 |   5   | Dashboard Page (UI)             | Stats hôm nay, cần ôn tập, biểu đồ Recharts, mục tiêu, recent sessions                             |     ⬜     |
-| 5.5 |   5   | Statistics Page (UI)            | Heat map 365 ngày, biểu đồ chi tiết, lịch sử sessions (TanStack Table)                             |     ⬜     |
-| 5.6 |   5   | Calendar Page (UI)              | Calendar view tháng, due cards badge, click → chi tiết + bắt đầu ôn                                |     ⬜     |
-|     |       | **✅ Checkpoint 5**             | **Dashboard + Stats + Calendar + Goals + Heat map hoạt động**                                      |     ⬜     |
+| 5.1 |   5   | Statistics API                  | Route Handlers: Dashboard, daily stats, heatmap, sessions history, export                          |     ✅     |
+| 5.2 |   5   | Calendar API                    | Route Handlers: Due cards theo tháng, chi tiết cards cần ôn hôm nay                                |     ✅     |
+| 5.3 |   5   | Daily Goals API                 | Route Handlers: CRUD goals, progress tracking, streak logic                                        |     ✅     |
+| 5.4 |   5   | Dashboard Page (UI)             | Stats hôm nay, cần ôn tập, biểu đồ Recharts, mục tiêu, recent sessions                             |     ✅     |
+| 5.5 |   5   | Statistics Page (UI)            | Heat map 365 ngày, biểu đồ chi tiết, lịch sử sessions (TanStack Table)                             |     ✅     |
+| 5.6 |   5   | Calendar Page (UI)              | Calendar view tháng, due cards badge, click → chi tiết + bắt đầu ôn                                |     ✅     |
+|     |       | **✅ Checkpoint 5**             | **Dashboard + Stats + Calendar + Goals + Heat map hoạt động**                                      |     ✅     |
 | 6.1 |   6   | Anki Import API                 | Route Handler: Upload .apkg → giải nén ZIP → đọc SQLite → parse + mapping → tạo cards              |     ⬜     |
 | 6.2 |   6   | JSON & CSV Import API           | Route Handler: Import JSON/CSV/Text + auto-detect + field mapping + preview                        |     ⬜     |
 | 6.3 |   6   | Export & Backup API             | Route Handler: Export set JSON, full backup, restore từ backup                                     |     ⬜     |
