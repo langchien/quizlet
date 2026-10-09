@@ -313,15 +313,15 @@ apps/src/
     - `flashcard-action-bar.tsx`: Bộ nút điều hướng trước/sau/lật thẻ, nút đánh giá SRS (Chưa biết / Đã biết) với hotkey hints.
   - Tinh gọn `flashcard/page.tsx`: Giảm từ **766 dòng xuống còn 140 dòng**.
 
-#### Nhiệm vụ 4.2: Refactor Chế Độ Học Thích Ứng (`src/app/(dashboard)/study/[setId]/learn/page.tsx` — 699 dòng)
+#### Nhiệm vụ 4.2: Refactor Chế Độ Học Thích Ứng (`src/app/(dashboard)/study/[setId]/learn/page.tsx` — 699 dòng) [ĐÃ HOÀN THÀNH ✅]
 - **Giải pháp**:
-  - Tách hook `src/hooks/study/use-learn-session.ts`: Quản lý hàng đợi thẻ (queue), sinh câu hỏi thích ứng (MCQ/TF/Written), xử lý feedback đúng/sai, đưa thẻ sai về cuối hàng đợi, cập nhật SRS data.
+  - Tách hook `src/hooks/study/use-learn-session.ts`: Quản lý hàng đợi thẻ (queue), sinh câu hỏi thích ứng (MCQ/TF/Written), xử lý feedback đúng/sai, đưa thẻ sai về cuối hàng đợi để học lại, cập nhật SRS data qua Server Actions.
   - Tách Sub-components `src/components/study/learn/`:
-    - `learn-header.tsx`: Thanh tiến độ, số thẻ còn lại trong queue.
-    - `learn-question-card.tsx`: Prompt câu hỏi, âm thanh phát âm.
-    - `learn-mcq-options.tsx`, `learn-tf-options.tsx`, `learn-written-input.tsx`: Giao diện trả lời cho từng dạng câu hỏi.
-    - `learn-feedback-view.tsx`: Banner thông báo đúng/sai, hiển thị đáp án mẫu và nút Tiếp tục.
-  - Tinh gọn `learn/page.tsx`: Giảm từ **699 dòng xuống dưới 80 dòng**.
+    - `learn-header.tsx`: Thanh điều hướng, tiến độ học thuộc thẻ.
+    - `learn-question-card.tsx`: Khung câu hỏi, prompt câu hỏi, âm thanh phát âm TTS.
+    - `learn-mcq-options.tsx`, `learn-tf-options.tsx`, `learn-written-input.tsx`: Giao diện trả lời cho từng dạng câu hỏi (Trắc nghiệm 4 lựa chọn, Đúng/Sai, Tự gõ từ vựng tiếng Nhật).
+    - `learn-feedback-view.tsx`: Banner thông báo đúng/sai, hiển thị đáp án mẫu kèm câu ví dụ và nút Tiếp tục.
+  - Tinh gọn `learn/page.tsx`: Giảm từ **699 dòng xuống còn 145 dòng**.
 
 #### Nhiệm vụ 4.3: Refactor Chế Độ Luyện Nghe (`src/app/(dashboard)/study/[setId]/listen/page.tsx` — 583 dòng)
 - **Giải pháp**:
