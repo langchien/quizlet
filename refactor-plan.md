@@ -235,7 +235,7 @@ apps/src/
 
 ### 🔹 GIAI ĐOẠN 2: Tái Cấu Trúc Màn Hình Thống Kê & Cài Đặt (800 - 1,000 dòng)
 
-#### Nhiệm vụ 2.1: Refactor Màn Hình Thống Kê (`src/app/(dashboard)/stats/stats-client.tsx` — 966 dòng)
+#### Nhiệm vụ 2.1: Refactor Màn Hình Thống Kê (`src/app/(dashboard)/stats/stats-client.tsx` — 966 dòng ➔ 116 dòng) [ĐÃ HOÀN THÀNH ✅]
 - **Vấn đề**: 4 tab báo cáo cùng các biểu đồ Recharts nặng và ma trận Heatmap 52 tuần nằm chung, gây độ trễ khi chuyển tab hoặc thay đổi bộ lọc.
 - **Giải pháp**:
   1. Tạo hook `src/hooks/stats/use-stats-filter.ts`:
