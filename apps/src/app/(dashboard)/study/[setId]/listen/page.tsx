@@ -21,6 +21,7 @@ import { StudySummary } from "@/components/study/study-summary"
 import { useTTS } from "@/hooks/useTTS"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
+import { isStudyAnswerCorrect } from "@/lib/study-matcher"
 
 interface CardItem {
   id: string
@@ -136,13 +137,6 @@ export default function ListenStudyPage() {
     }
   }, [currentIndex, status])
 
-  // Chuẩn hoá chuỗi để so sánh
-  const normalize = (str: string) =>
-    str
-      .trim()
-      .toLowerCase()
-      .replace(/[\s\u3000]+/g, "")
-      .replace(/[、。，,.]/g, "")
 
   // Phát âm lại thẻ hiện tại
   const handlePlayAudio = React.useCallback(
@@ -162,11 +156,11 @@ export default function ListenStudyPage() {
       1,
       Math.round((Date.now() - cardStartTimeRef.current) / 1000)
     )
-    const typedClean = normalize(userTyped)
-    const termClean = normalize(currentCard.term)
-    const readingClean = normalize(currentCard.reading)
-
-    const isMatch = typedClean === termClean || typedClean === readingClean
+    const isMatch = isStudyAnswerCorrect({
+      userAnswer: userTyped,
+      card: currentCard,
+      isReverse: false,
+    })
 
     if (isMatch) {
       setStatus("correct")

@@ -19,6 +19,7 @@ import { StudySummary } from "@/components/study/study-summary"
 import { useTTS } from "@/hooks/useTTS"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
+import { isStudyAnswerCorrect } from "@/lib/study-matcher"
 
 interface CardItem {
   id: string
@@ -122,13 +123,6 @@ export default function WriteStudyPage() {
 
   const currentCard = cards[currentIndex]
 
-  // Chuẩn hoá chuỗi để so sánh chính xác
-  const normalize = (str: string) =>
-    str
-      .trim()
-      .toLowerCase()
-      .replace(/[\s\u3000]+/g, "")
-      .replace(/[、。，,.]/g, "")
 
   // Kiểm tra đáp án
   const handleCheckAnswer = async () => {
@@ -138,14 +132,11 @@ export default function WriteStudyPage() {
       1,
       Math.round((Date.now() - cardStartTimeRef.current) / 1000)
     )
-    const typedClean = normalize(userTyped)
-    const termClean = normalize(currentCard.term)
-    const readingClean = normalize(currentCard.reading)
-    const defClean = normalize(currentCard.definition)
-
-    const isMatch = isReverse
-      ? typedClean === defClean
-      : typedClean === termClean || typedClean === readingClean
+    const isMatch = isStudyAnswerCorrect({
+      userAnswer: userTyped,
+      card: currentCard,
+      isReverse,
+    })
 
     if (isMatch) {
       setStatus("correct")

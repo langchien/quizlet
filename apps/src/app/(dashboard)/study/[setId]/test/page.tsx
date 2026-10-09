@@ -47,6 +47,7 @@ import {
 import { useTTS } from "@/hooks/useTTS"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
+import { isStudyAnswerCorrect } from "@/lib/study-matcher"
 
 interface CardItem {
   id: string
@@ -292,13 +293,6 @@ export default function TestStudyPage() {
     setTestPhase("testing")
   }
 
-  // Chuẩn hoá chuỗi để so sánh
-  const normalize = (str: string) =>
-    str
-      .trim()
-      .toLowerCase()
-      .replace(/[\s\u3000]+/g, "")
-      .replace(/[、。，,.]/g, "")
 
   // Xử lý nộp bài thi
   const handleSubmitTest = React.useCallback(async () => {
@@ -327,11 +321,11 @@ export default function TestStudyPage() {
         const expected = q.tfPair?.isTrue ? "true" : "false"
         isCorrect = q.userAnswer === expected
       } else if (q.kind === "written") {
-        const inputNorm = normalize(q.userAnswer)
-        const targetNorm = normalize(q.correctAnswer)
-        const readingNorm = normalize(q.card.reading)
-        isCorrect =
-          inputNorm === targetNorm || (!isReverse && inputNorm === readingNorm)
+        isCorrect = isStudyAnswerCorrect({
+          userAnswer: q.userAnswer,
+          card: q.card,
+          isReverse,
+        })
       }
 
       if (isCorrect) correct++
