@@ -20,6 +20,7 @@ Tất cả AI Agents khi phát triển tính năng, sửa lỗi hoặc refactor 
 - [Kế hoạch và danh sách nhiệm vụ](file:///p:/Nodejs/quizlet/tasks.md): Chi tiết từng Phase và Task cần thực hiện.
 - [Tiến độ phát triển](file:///p:/Nodejs/quizlet/progress.md): Trạng thái hoàn thành của từng task.
 - [Hướng dẫn kỹ thuật Prisma 7](file:///p:/Nodejs/quizlet/docs/PRISMA_7_GUIDE.md): **BẮT BUỘC ĐỌC** khi thao tác với cơ sở dữ liệu, schema, migrations hoặc models.
+- [Quy chuẩn Shadcn UI Skill](file:///p:/Nodejs/quizlet/.agents/skills/shadcn/SKILL.md): **BẮT BUỘC TUÂN THỦ** khi xây dựng UI, thêm component hoặc styling giao diện (`.agents/skills/shadcn/`).
 
 ---
 
@@ -43,9 +44,31 @@ Dự án sử dụng **Prisma ORM v7** với các quy chuẩn kỹ thuật mới
 
 ---
 
-## 🛠️ 3. Quy Chuẩn Chung
+## 🎨 3. Quy Chuẩn Giao Diện & Shadcn UI (Tuân thủ Shadcn Skill)
+
+Toàn bộ quá trình phát triển UI phải tuân thủ nghiêm ngặt **Shadcn UI Skill** tại `.agents/skills/shadcn/SKILL.md`:
+
+1. **Sử dụng CLI & Component có sẵn**:
+   - Dùng `pnpm dlx shadcn@latest add <component>` hoặc `pnpm dlx shadcn@latest search` trước khi tự viết custom UI.
+   - Tra cứu tài liệu và ví dụ: `pnpm dlx shadcn@latest docs <component>`.
+2. **Composition & Cấu trúc Component**:
+   - Bố cục: dùng `flex` kết hợp `gap-*` (không dùng `space-y-*` hay `space-x-*`).
+   - Kích thước bằng nhau: dùng `size-*` thay vì `w-* h-*`.
+   - Rút gọn text: dùng `truncate`.
+   - Ghép class động: luôn dùng hàm `cn()`.
+   - Dialog, Sheet, Drawer luôn bắt buộc có `Title` (dùng `className="sr-only"` nếu ẩn).
+   - Card: Sử dụng đầy đủ `CardHeader`, `CardTitle`, `CardDescription`, `CardContent`, `CardFooter`.
+   - Empty states: Ưu tiên dùng `Empty` component.
+   - Loading: Sử dụng `Skeleton` component thay vì custom animate-pulse.
+3. **Màu sắc ngữ nghĩa (Semantic Tokens)**:
+   - Luôn dùng semantic tokens: `bg-primary`, `text-muted-foreground`, `bg-background`, `border-border`, `bg-card`, v.v. Không hardcode mã màu hoặc raw classes (như `bg-blue-500`, trừ trường hợp badge phân loại cố định).
+   - Luôn hỗ trợ hoàn hảo cả **Dark Mode** và **Light Mode** thông qua theme CSS variables.
+
+---
+
+## 🛠️ 4. Quy Chuẩn Chung
 
 1. **Giao tiếp**: Lên kế hoạch, báo cáo và comment code bằng **tiếng Việt**.
 2. **TypeScript**: Strict mode, typing rõ ràng, Zod validation cho toàn bộ dữ liệu vào/ra (Request/Response).
-3. **UI / Styling**: Shadcn UI + Tailwind CSS v4, luôn hỗ trợ cả Dark Mode và Light Mode.
-4. **Kiểm tra**: Luôn chạy `pnpm build`, `pnpm lint` và kiểm tra endpoint `/api/health` trước khi bàn giao hoàn thành task.
+3. **Kiểm tra**: Luôn chạy `pnpm build`, `pnpm lint` và kiểm tra endpoint `/api/health` trước khi bàn giao hoàn thành task.
+
