@@ -334,14 +334,16 @@ apps/src/
     - `listen-result-card.tsx`: Hiển thị kết quả đúng/sai, đáp án chính xác kèm Furigana, nghĩa tiếng Việt, câu ví dụ mẫu và nút Tiếp tục.
   - Tinh gọn `listen/page.tsx`: Giảm từ **583 dòng xuống còn 128 dòng**.
 
-#### Nhiệm vụ 4.4: Refactor Chế Độ Ghép Thẻ (`src/app/(dashboard)/study/[setId]/match/page.tsx` — 557 dòng)
+#### Nhiệm vụ 4.4: Refactor Chế Độ Ghép Thẻ (`src/app/(dashboard)/study/[setId]/match/page.tsx` — 557 dòng) [ĐÃ HOÀN THÀNH ✅]
 - **Giải pháp**:
-  - Tách hook `src/hooks/study/use-match-game.ts`: Sinh 6 cặp (12 tiles), xáo trộn lưới thẻ, state selectedTile1/2, hiệu ứng so khớp, stopwatch timer ms, chuỗi combo, lưu Best Time localStorage.
+  - Tách types `src/types/match.ts`: Định nghĩa kiểu dữ liệu `MatchCardItem` và `MatchTile`.
+  - Tách hook `src/hooks/study/use-match-game.ts`: Sinh 6 cặp (12 tiles), xáo trộn lưới thẻ, state selectedTileId, logic so khớp tile (phát âm từ vựng khi chọn/ghép đúng), stopwatch timer theo ms (+1s penalty khi chọn sai kèm hiệu ứng rung lắc), lưu và so sánh kỷ lục cá nhân (PB) vào `localStorage`, gửi Server Actions `startStudySessionAction` và `endStudySessionAction`.
   - Tách Sub-components `src/components/study/match/`:
-    - `match-header.tsx`: Đồng hồ bấm giờ thực tế, đếm số cặp hoàn thành, nút chơi lại.
-    - `match-grid.tsx` & `match-tile.tsx`: Lưới thẻ với animations chọn/đúng/sai.
-    - `match-game-over-modal.tsx`: Modal chúc mừng hoàn thành và so sánh kỷ lục.
-  - Tinh gọn `match/page.tsx`: Giảm từ **557 dòng xuống dưới 70 dòng**.
+    - `match-header.tsx`: Thanh điều hướng về bộ thẻ, tên bộ thẻ, đồng hồ bấm giờ thực tế (ms -> 0.1s), đếm số cặp còn lại và nút chơi lại ván mới.
+    - `match-tile.tsx`: Nút thẻ bài linh hoạt với animations chuyển đổi trạng thái (chọn, ghép đúng biến mất, ghép sai rung nảy, badge ngôn ngữ/định nghĩa).
+    - `match-grid.tsx`: Lưới hiển thị các thẻ bài responsive 2-4 cột.
+    - `match-result-card.tsx`: Khung chiến thắng với cúp Trophy, thông báo Kỷ lục mới (PB), đồng hồ thời gian lớn, thống kê số cặp/lỗi phạt/PB và nút chơi lại ván mới.
+  - Tinh gọn `match/page.tsx`: Giảm từ **557 dòng xuống còn 85 dòng**.
 
 #### Nhiệm vụ 4.5: Refactor Chế Độ Luyện Viết (`src/app/(dashboard)/study/[setId]/write/page.tsx` — 506 dòng)
 - **Giải pháp**:
