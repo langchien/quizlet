@@ -21,6 +21,7 @@ import { StudySummary } from "@/components/study/study-summary"
 import { useTTS } from "@/hooks/useTTS"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
+import { isStudyAnswerCorrect } from "@/lib/study-matcher"
 
 interface CardItem {
   id: string
@@ -99,6 +100,17 @@ export default function LearnStudyPage() {
         cardList.length < 4
           ? "written"
           : types[Math.floor(Math.random() * types.length)]
+
+      // KHÓA CHIỀU VIẾT: Luôn luôn hiển thị nghĩa tiếng Việt -> Gõ từ tiếng Nhật
+      if (randomType === "written") {
+        return {
+          card,
+          type: "written",
+          prompt: card.definition,
+          subPrompt: undefined,
+          correctAnswer: card.term,
+        }
+      }
 
       const prompt = reverse ? card.definition : card.term
       const subPrompt = reverse ? undefined : card.reading
@@ -254,12 +266,12 @@ export default function LearnStudyPage() {
   // Kiểm tra câu trả lời dạng Written
   const handleCheckWritten = React.useCallback(() => {
     if (!currentQuestion || showFeedback) return
-    const inputClean = writtenAnswer.trim().toLowerCase()
-    const targetClean = currentQuestion.correctAnswer.trim().toLowerCase()
-    const readingClean = currentQuestion.card.reading.trim().toLowerCase()
 
-    const isMatch =
-      inputClean === targetClean || (!isReverse && inputClean === readingClean)
+    const isMatch = isStudyAnswerCorrect({
+      userAnswer: writtenAnswer,
+      card: currentQuestion.card,
+      isReverse: false, // Luôn so khớp tiếng Nhật (hỗ trợ Kanji & Hiragana)
+    })
 
     if (isMatch) {
       handleSelectAnswer(writtenAnswer, true)
@@ -276,7 +288,6 @@ export default function LearnStudyPage() {
     currentQuestion,
     showFeedback,
     writtenAnswer,
-    isReverse,
     handleSelectAnswer,
     writtenFailedAttempts,
   ])
@@ -459,7 +470,11 @@ export default function LearnStudyPage() {
         {/* Prompt Presentation */}
         <div className="my-6 text-center">
           <div className="text-muted-foreground mb-1 text-xs font-medium">
-            {isReverse ? "Nghĩa tiếng Việt:" : "Thuật ngữ tiếng Nhật:"}
+            {currentQuestion.type === "written"
+              ? "Nghĩa tiếng Việt (Gõ từ tiếng Nhật tương ứng):"
+              : isReverse
+              ? "Nghĩa tiếng Việt:"
+              : "Thuật ngữ tiếng Nhật:"}
           </div>
           <h2 className="font-japanese text-foreground text-3xl font-black tracking-tight sm:text-4xl">
             {currentQuestion.prompt}
@@ -581,8 +596,16 @@ export default function LearnStudyPage() {
               <div className="flex items-center gap-2 rounded-xl bg-amber-500/10 p-3 text-xs text-amber-600 dark:text-amber-400">
                 <Lightbulb className="size-4 shrink-0" />
                 <span>
-                  Gợi ý: Bắt đầu bằng chữ &quot;
-                  <b>{currentQuestion.correctAnswer.charAt(0)}</b>&quot;
+                  {currentQuestion.card.reading ? (
+                    <>
+                      Gợi ý cách đọc: <b>{currentQuestion.card.reading}</b>
+                    </>
+                  ) : (
+                    <>
+                      Gợi ý: Bắt đầu bằng chữ &quot;
+                      <b>{currentQuestion.correctAnswer.charAt(0)}</b>&quot;
+                    </>
+                  )}
                 </span>
               </div>
             )}
@@ -595,7 +618,7 @@ export default function LearnStudyPage() {
               className="flex gap-2"
             >
               <Input
-                placeholder="Gõ đáp án vào đây..."
+                placeholder="Gõ từ tiếng Nhật (Kanji hoặc Hiragana)..."
                 value={writtenAnswer}
                 onChange={(e) => setWrittenAnswer(e.target.value)}
                 disabled={showFeedback}
@@ -634,6 +657,11 @@ export default function LearnStudyPage() {
                       Đáp án đúng là:{" "}
                       <span className="text-foreground font-bold">
                         {currentQuestion.correctAnswer}
+                        {currentQuestion.card.reading &&
+                        currentQuestion.card.reading !==
+                          currentQuestion.correctAnswer
+                          ? ` (${currentQuestion.card.reading})`
+                          : ""}
                       </span>
                     </div>
                   )}

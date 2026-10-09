@@ -55,7 +55,6 @@ export default function WriteStudyPage() {
   const [status, setStatus] = React.useState<
     "typing" | "correct" | "incorrect" | "revealed"
   >("typing")
-  const [isReverse] = React.useState(false)
 
   // Results
   const [correctCards, setCorrectCards] = React.useState<CardItem[]>([])
@@ -135,7 +134,7 @@ export default function WriteStudyPage() {
     const isMatch = isStudyAnswerCorrect({
       userAnswer: userTyped,
       card: currentCard,
-      isReverse,
+      isReverse: false,
     })
 
     if (isMatch) {
@@ -293,7 +292,6 @@ export default function WriteStudyPage() {
   }
 
   const progressPct = Math.round(((currentIndex + 1) / cards.length) * 100)
-  const targetAnswer = isReverse ? currentCard.definition : currentCard.term
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 pb-16">
@@ -336,9 +334,7 @@ export default function WriteStudyPage() {
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="bg-muted text-muted-foreground rounded-md px-2.5 py-1 text-[11px] font-bold">
-              {isReverse
-                ? "Nhìn tiếng Nhật gõ định nghĩa"
-                : "Nhìn định nghĩa gõ tiếng Nhật"}
+              Nhìn định nghĩa gõ tiếng Nhật
             </span>
 
             {currentCard.jlptLevel && (
@@ -361,10 +357,10 @@ export default function WriteStudyPage() {
         {/* Prompt Section */}
         <div className="my-6 text-center">
           <div className="text-muted-foreground mb-1 text-xs font-medium">
-            {isReverse ? "Thuật ngữ tiếng Nhật:" : "Định nghĩa:"}
+            Nghĩa tiếng Việt (Hãy gõ từ tiếng Nhật tương ứng):
           </div>
           <h2 className="text-foreground text-2xl font-black tracking-tight sm:text-3xl">
-            {isReverse ? currentCard.term : currentCard.definition}
+            {currentCard.definition}
           </h2>
 
           {/* Example Context if available */}
@@ -389,12 +385,20 @@ export default function WriteStudyPage() {
             <div>
               {failedAttempts === 1 ? (
                 <span>
-                  Gợi ý: Bắt đầu bằng chữ &quot;
-                  <b>{targetAnswer.charAt(0)}</b>&quot;
+                  {currentCard.reading ? (
+                    <>
+                      Gợi ý cách đọc: <b>{currentCard.reading}</b>
+                    </>
+                  ) : (
+                    <>
+                      Gợi ý: Bắt đầu bằng chữ &quot;
+                      <b>{currentCard.term.charAt(0)}</b>&quot;
+                    </>
+                  )}
                 </span>
               ) : (
                 <span>
-                  Gợi ý cách đọc: <b>{currentCard.reading}</b>
+                  Gợi ý từ vựng: <b>{currentCard.term}</b> ({currentCard.reading})
                 </span>
               )}
             </div>
@@ -416,11 +420,7 @@ export default function WriteStudyPage() {
           <div className="relative">
             <Input
               ref={inputRef}
-              placeholder={
-                isReverse
-                  ? "Nhập định nghĩa tiếng Việt..."
-                  : "Gõ tiếng Nhật (Kanji hoặc Hiragana)..."
-              }
+              placeholder="Gõ tiếng Nhật (Kanji hoặc Hiragana)..."
               value={userTyped}
               onChange={(e) => setUserTyped(e.target.value)}
               disabled={status !== "typing"}

@@ -174,6 +174,19 @@ export default function TestStudyPage() {
       return selectedCards.map((card, idx) => {
         // Chọn ngẫu nhiên dạng câu hỏi trong các dạng đã chọn
         const kind = types[Math.floor(Math.random() * types.length)]
+
+        // KHÓA CHIỀU VIẾT: Luôn luôn hiển thị nghĩa tiếng Việt -> Yêu cầu gõ từ tiếng Nhật
+        if (kind === "written") {
+          return {
+            id: `q_${idx}_${card.id}`,
+            card,
+            kind: "written",
+            prompt: card.definition,
+            subPrompt: undefined,
+            correctAnswer: card.term,
+          }
+        }
+
         const prompt = reverse ? card.definition : card.term
         const subPrompt = reverse ? undefined : card.reading
         const correctAnswer = reverse ? card.term : card.definition
@@ -220,13 +233,14 @@ export default function TestStudyPage() {
             tfPair: { isTrue, displayedAnswer },
           }
         } else {
+          // Fallback dạng written
           return {
             id: `q_${idx}_${card.id}`,
             card,
             kind: "written",
-            prompt,
-            subPrompt,
-            correctAnswer,
+            prompt: card.definition,
+            subPrompt: undefined,
+            correctAnswer: card.term,
           }
         }
       })
@@ -324,7 +338,7 @@ export default function TestStudyPage() {
         isCorrect = isStudyAnswerCorrect({
           userAnswer: q.userAnswer,
           card: q.card,
-          isReverse,
+          isReverse: false, // Luôn so khớp tiếng Nhật (hỗ trợ Kanji & Hiragana)
         })
       }
 
@@ -369,7 +383,7 @@ export default function TestStudyPage() {
 
     setConfirmSubmitOpen(false)
     setTestPhase("result")
-  }, [questions, isReverse, personalBestScore, sessionId, setId])
+  }, [questions, personalBestScore, sessionId, setId])
 
   // Timer countdown
   React.useEffect(() => {
@@ -563,7 +577,7 @@ export default function TestStudyPage() {
                       Điền từ / Tự luận (Written)
                     </Label>
                     <p className="text-muted-foreground text-xs">
-                      Tự gõ chính xác từ vựng hoặc ý nghĩa vào ô trả lời.
+                      Xem nghĩa tiếng Việt và gõ từ tiếng Nhật (hỗ trợ cả Kanji và Hiragana).
                     </p>
                   </div>
                   <Checkbox
@@ -613,11 +627,10 @@ export default function TestStudyPage() {
                   htmlFor="switch-reverse"
                   className="text-foreground cursor-pointer text-sm font-semibold"
                 >
-                  Chế độ đảo ngược (Reverse)
+                  Đảo ngược trắc nghiệm (Reverse)
                 </Label>
                 <p className="text-muted-foreground text-xs">
-                  Hiển thị định nghĩa tiếng Việt và yêu cầu chọn/gõ từ tiếng
-                  Nhật.
+                  Hiển thị nghĩa tiếng Việt để chọn từ tiếng Nhật cho câu trắc nghiệm và đúng/sai.
                 </p>
               </div>
               <Switch
@@ -769,7 +782,7 @@ export default function TestStudyPage() {
                     ? "Trắc nghiệm"
                     : q.kind === "true-false"
                       ? "Đúng hay Sai"
-                      : "Điền câu trả lời"}
+                      : "Tự luận viết tiếng Nhật"}
                 </span>
 
                 {q.card.jlptLevel && (
@@ -792,7 +805,11 @@ export default function TestStudyPage() {
             {/* Prompt */}
             <div className="my-6 text-center">
               <div className="text-muted-foreground mb-1 text-xs font-medium">
-                {isReverse ? "Nghĩa tiếng Việt:" : "Thuật ngữ tiếng Nhật:"}
+                {q.kind === "written"
+                  ? "Nghĩa tiếng Việt (Gõ từ tiếng Nhật tương ứng):"
+                  : isReverse
+                    ? "Nghĩa tiếng Việt:"
+                    : "Thuật ngữ tiếng Nhật:"}
               </div>
               <h2 className="font-japanese text-foreground text-3xl font-black tracking-tight sm:text-4xl">
                 {q.prompt}
@@ -893,11 +910,7 @@ export default function TestStudyPage() {
             {q.kind === "written" && (
               <div className="mx-auto max-w-md space-y-3">
                 <Input
-                  placeholder={
-                    isReverse
-                      ? "Gõ định nghĩa tiếng Việt..."
-                      : "Gõ từ tiếng Nhật..."
-                  }
+                  placeholder="Gõ từ tiếng Nhật (Kanji hoặc Hiragana)..."
                   value={q.userAnswer || ""}
                   onChange={(e) =>
                     handleAnswerQuestion(activeQuestionIndex, e.target.value)
@@ -906,9 +919,7 @@ export default function TestStudyPage() {
                   className="h-13 rounded-2xl text-center text-lg font-bold shadow-inner"
                 />
                 <p className="text-muted-foreground text-center text-xs">
-                  {isReverse
-                    ? "Nhập câu dịch tiếng Việt"
-                    : "Bạn có thể gõ Hiragana hoặc Kanji"}
+                  Bạn có thể gõ bằng chữ Hán (Kanji) hoặc Hiragana
                 </p>
               </div>
             )}
@@ -1219,6 +1230,9 @@ export default function TestStudyPage() {
                         </span>
                         <span className="text-foreground font-bold">
                           {q.correctAnswer}
+                          {q.card.reading && q.card.reading !== q.correctAnswer
+                            ? ` (${q.card.reading})`
+                            : ""}
                         </span>
                       </div>
                     )}
