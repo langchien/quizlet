@@ -53,11 +53,11 @@
 | 7.3 |   7   | TTS hoàn chỉnh                  | Web Speech API, voice ja-JP, tốc độ tuỳ chỉnh, auto-play                                           |     ✅     |
 | 7.4 |   7   | UI/UX Polish                    | Skeletons, empty states, error states, toasts, confirm dialogs, optimistic updates                 |     ✅     |
 |     |       | **✅ Checkpoint 7**             | **Settings + Shortcuts + TTS + UX mượt mà**                                                        |     ✅     |
-| 8.1 |   8   | Seed Data                       | Minna no Nihongo N5-N4 mẫu, SRS data, sessions, stats 30 ngày                                      |     ⬜     |
-| 8.2 |   8   | Unit Tests                      | Vitest cho APIs, SRS algorithms, Import parsers — Coverage ≥ 80%                                   |     ⬜     |
-| 8.3 |   8   | E2E Tests                       | Playwright: Auth flow, Study flow, Import flow, Stats flow                                         |     ⬜     |
-| 8.4 |   8   | Bug Fixes & Perf                | Next.js build opt, SSR/CSR opt, Prisma query opt, font tiếng Nhật                                  |     ⬜     |
-|     |       | **✅ Checkpoint 8**             | **🎉 App hoàn chỉnh, tests pass, performance OK**                                                  |     ⬜     |
+| 8.1 |   8   | Seed Data                       | Minna no Nihongo N5-N4 mẫu, SRS data, sessions, stats 30 ngày                                      |     ✅     |
+| 8.2 |   8   | Unit Tests                      | Vitest cho APIs, SRS algorithms, Import parsers — Coverage ≥ 80%                                   |     ✅     |
+| 8.3 |   8   | E2E Tests                       | Playwright: Auth flow, Study flow, Import flow, Stats flow                                         |     ✅     |
+| 8.4 |   8   | Bug Fixes & Perf                | Next.js build opt, SSR/CSR opt, Prisma query opt, font tiếng Nhật                                  |     ✅     |
+|     |       | **✅ Checkpoint 8**             | **🎉 App hoàn chỉnh, tests pass, performance OK**                                                  |     ✅     |
 
 ---
 

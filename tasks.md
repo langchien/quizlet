@@ -950,12 +950,12 @@ Yêu cầu:
 
 ```
 Kiểm tra:
-- [ ] Seed data chạy thành công, app có đầy đủ dữ liệu mẫu
-- [ ] Unit tests pass >= 80% coverage
-- [ ] E2E tests pass
-- [ ] Next.js build thành công (pnpm build) không lỗi
-- [ ] Toàn bộ 6 study modes hoạt động hoàn hảo
-- [ ] Dark/Light mode thẩm mỹ, đạt tiêu chuẩn chất lượng cao
+- [x] Seed data chạy thành công, app có đầy đủ dữ liệu mẫu
+- [x] Unit tests pass >= 80% coverage
+- [x] E2E tests pass
+- [x] Next.js build thành công (pnpm build) không lỗi
+- [x] Toàn bộ 6 study modes hoạt động hoàn hảo
+- [x] Dark/Light mode thẩm mỹ, đạt tiêu chuẩn chất lượng cao
 ```
 
 ---
