@@ -46,7 +46,7 @@ export const DueCardsResponseSchema = z.object({
   dueCount: z.number(),
   newCount: z.number(),
   reviewCount: z.number(),
-  cards: z.array(z.any()),
+  cards: z.array(z.record(z.string(), z.unknown())),
 })
 
 export type DueCardsResponse = z.infer<typeof DueCardsResponseSchema>

@@ -17,8 +17,8 @@ export const CreateCardSchema = z.object({
   definition: z.string().trim().min(1, "Ý nghĩa không được để trống"),
   example: z.string().trim().optional().nullable(),
   exampleTranslation: z.string().trim().optional().nullable(),
-  imageUrl: z.string().url("URL ảnh không hợp lệ").optional().nullable(),
-  audioUrl: z.string().url("URL âm thanh không hợp lệ").optional().nullable(),
+  imageUrl: z.string().trim().optional().nullable(),
+  audioUrl: z.string().trim().optional().nullable(),
   note: z.string().trim().optional().nullable(),
   jlptLevel: JLPTLevelEnum.optional().nullable(),
   wordType: WordTypeEnum.optional().nullable(),
@@ -100,7 +100,7 @@ export const CardResponseSchema = z.object({
       })
     )
     .optional(),
-  srsData: z.any().optional(),
+  srsData: z.record(z.string(), z.unknown()).nullable().optional(),
 })
 
 export type CardResponse = z.infer<typeof CardResponseSchema>
