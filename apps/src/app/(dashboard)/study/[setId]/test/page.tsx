@@ -84,7 +84,7 @@ type TestPhase = "config" | "testing" | "result"
 export default function TestStudyPage() {
   const params = useParams()
   const router = useRouter()
-  const setId = params.id as string
+  const setId = (params.setId || params.id) as string
 
   const { speak } = useTTS()
 

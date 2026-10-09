@@ -62,7 +62,7 @@ interface CardItem {
 export default function FlashcardStudyPage() {
   const params = useParams()
   const router = useRouter()
-  const setId = params.id as string
+  const setId = (params.setId || params.id) as string
 
   const { user } = useAuthStore()
   const userSettings =

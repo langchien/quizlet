@@ -47,7 +47,7 @@ interface MatchTile {
 export default function MatchStudyPage() {
   const params = useParams()
   const router = useRouter()
-  const setId = params.id as string
+  const setId = (params.setId || params.id) as string
 
   const { speak } = useTTS()
 

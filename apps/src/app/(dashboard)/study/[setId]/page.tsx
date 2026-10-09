@@ -45,7 +45,7 @@ interface SetDetailData {
 export default function StudyModeSelectionPage() {
   const params = useParams()
   const router = useRouter()
-  const setId = params.id as string
+  const setId = (params.setId || params.id) as string
 
   const [setDetail, setSetDetail] = React.useState<SetDetailData | null>(null)
   const [tags, setTags] = React.useState<TagItem[]>([])
