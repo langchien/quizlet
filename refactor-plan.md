@@ -382,15 +382,19 @@ apps/src/
     - `card-form-kanji-tab.tsx`: Bộ thủ (Radicals), số nét (Stroke count), âm On/Kun reading và từ ghép (Compounds).
   - Tinh gọn `create-card-modal.tsx`: Giảm từ **670 dòng xuống còn 138 dòng**.
 
-#### Nhiệm vụ 5.2: Refactor Trang Thư Viện (`src/app/(dashboard)/library/page.tsx` — 603 dòng)
+#### Nhiệm vụ 5.2: Refactor Trang Thư Viện (`src/app/(dashboard)/library/page.tsx` — 603 dòng) [ĐÃ HOÀN THÀNH ✅]
 - **Giải pháp**:
-  - Tách hook `src/hooks/library/use-library-sets.ts`: Fetch sets, folders, search, filter theo folder, sort, trigger delete/duplicate actions.
+  - Tách types `src/types/library.ts`: Định nghĩa kiểu dữ liệu `LibraryStudySetItem` và `LibraryFolderItem`.
+  - Tách hook `src/hooks/library/use-library-sets.ts`: Quản lý nạp bộ thẻ (`getUserSetsAction`), danh sách thư mục (`getFoldersFlatAction`), tìm kiếm, lọc theo thư mục (đồng bộ URL param `folderId`), sắp xếp đa tiêu chí, chuyển đổi viewMode (grid/list), nhân bản bộ thẻ (`duplicateSetAction`), xóa an toàn bộ thẻ (`deleteSetAction`) và lắng nghe global event `refresh-library`.
   - Tách Sub-components `src/components/library/`:
-    - `library-toolbar.tsx`: Thanh tìm kiếm, filter folder, sort select, chuyển đổi Grid/List, nút Tạo set / Ghép sets.
-    - `library-grid-view.tsx` & `library-set-card.tsx`: Hiển thị dạng lưới thẻ.
-    - `library-list-view.tsx` & `library-set-row.tsx`: Hiển thị dạng bảng chi tiết.
-    - `library-delete-dialog.tsx`: Dialog xác nhận xoá bộ thẻ an toàn.
-  - Tinh gọn `library/page.tsx`: Giảm từ **603 dòng xuống dưới 90 dòng**.
+    - `library-header.tsx`: Tiêu đề thư viện và các nút tạo mới / gộp bộ thẻ.
+    - `library-toolbar.tsx`: Thanh tìm kiếm theo tên/mô tả, dropdown lọc thư mục, dropdown sắp xếp và bộ chuyển đổi Grid/List view.
+    - `library-set-card.tsx`: Thẻ hiển thị bộ học dạng Grid kèm thanh tiến độ ghi nhớ (gradient) và menu thao tác nhanh.
+    - `library-grid-view.tsx`: Lưới hiển thị các thẻ bộ học 1-3 cột responsive.
+    - `library-set-row.tsx`: Dòng hiển thị bộ học dạng List view chi tiết.
+    - `library-list-view.tsx`: Danh sách bộ học dạng bảng chia dòng.
+    - `library-delete-dialog.tsx`: Dialog xác nhận xoá bộ thẻ an toàn (AlertDialog).
+  - Tinh gọn `library/page.tsx`: Giảm từ **603 dòng xuống còn 165 dòng**.
 
 #### Nhiệm vụ 5.3: Refactor Trang Lịch Ôn Tập (`src/app/(dashboard)/calendar/calendar-client.tsx` — 595 dòng)
 - **Giải pháp**:
