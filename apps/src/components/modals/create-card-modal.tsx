@@ -296,7 +296,7 @@ export function CreateCardModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl" onClose={() => onOpenChange(false)}>
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
           <div className="flex items-center gap-2">
             <div className="flex size-9 items-center justify-center rounded-xl bg-amber-500/10 text-amber-500">

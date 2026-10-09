@@ -20,7 +20,7 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Select } from "@/components/ui/select"
+import { NativeSelect as Select } from "@/components/ui/native-select"
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -372,7 +372,7 @@ function LibraryContent() {
                       <DropdownMenuTrigger className="text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-1">
                         <MoreVertical className="size-4" />
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="right" className="w-44">
+                      <DropdownMenuContent align="end" className="w-44">
                         <DropdownMenuItem
                           onClick={() => {
                             setEditingSet(set)
@@ -392,7 +392,7 @@ function LibraryContent() {
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
-                          destructive
+                          variant="destructive"
                           onClick={() => setSetToDelete(set)}
                           className="gap-2"
                         >
@@ -499,7 +499,7 @@ function LibraryContent() {
                     <DropdownMenuTrigger className="text-muted-foreground hover:bg-muted hover:text-foreground rounded p-1">
                       <MoreVertical className="size-4" />
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="right" className="w-44">
+                    <DropdownMenuContent align="end" className="w-44">
                       <DropdownMenuItem
                         onClick={() => {
                           setEditingSet(set)
@@ -519,7 +519,7 @@ function LibraryContent() {
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
-                        destructive
+                        variant="destructive"
                         onClick={() => setSetToDelete(set)}
                         className="gap-2"
                       >

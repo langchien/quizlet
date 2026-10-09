@@ -93,13 +93,15 @@ export function Topbar({
       <div className="flex items-center gap-2 sm:gap-3">
         {/* Quick Add Menu */}
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button size="sm" className="shadow-primary/20 gap-1.5 shadow-xs">
-              <Plus className="size-4" />
-              <span className="hidden sm:inline">Tạo mới</span>
-            </Button>
+          <DropdownMenuTrigger
+            render={
+              <Button size="sm" className="shadow-primary/20 gap-1.5 shadow-xs" />
+            }
+          >
+            <Plus className="size-4" />
+            <span className="hidden sm:inline">Tạo mới</span>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="right" className="w-48">
+          <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuLabel>Tạo nội dung mới</DropdownMenuLabel>
             <DropdownMenuItem onClick={onOpenCreateSet} className="gap-2">
               <BookOpen className="text-primary size-4" />
@@ -133,17 +135,19 @@ export function Topbar({
 
         {/* User Profile Menu */}
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button
-              type="button"
-              className="border-border bg-card hover:bg-muted flex items-center gap-2 rounded-full border p-1 transition-colors"
-            >
-              <div className="bg-primary/10 text-primary flex size-7 items-center justify-center rounded-full text-xs font-semibold">
-                {user?.name?.charAt(0).toUpperCase() || "U"}
-              </div>
-            </button>
+          <DropdownMenuTrigger
+            render={
+              <button
+                type="button"
+                className="border-border bg-card hover:bg-muted flex items-center gap-2 rounded-full border p-1 transition-colors"
+              />
+            }
+          >
+            <div className="bg-primary/10 text-primary flex size-7 items-center justify-center rounded-full text-xs font-semibold">
+              {user?.name?.charAt(0).toUpperCase() || "U"}
+            </div>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="right" className="w-56">
+          <DropdownMenuContent align="end" className="w-56">
             <div className="flex flex-col space-y-0.5 p-2">
               <p className="text-foreground truncate text-xs font-semibold">
                 {user?.name || "Người dùng"}
@@ -168,7 +172,7 @@ export function Topbar({
             )}
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              destructive
+              variant="destructive"
               onClick={handleLogout}
               className="gap-2"
             >

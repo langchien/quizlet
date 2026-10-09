@@ -221,7 +221,7 @@ export function Sidebar({
               >
                 <MoreVertical className="size-3.5" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="left" className="w-44">
+              <DropdownMenuContent align="start" className="w-44">
                 <DropdownMenuItem
                   onClick={() => onOpenCreateSet(node.id)}
                   className="gap-2"
@@ -251,7 +251,7 @@ export function Sidebar({
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  destructive
+                  variant="destructive"
                   onClick={() =>
                     setFolderToDelete({ id: node.id, name: node.name })
                   }

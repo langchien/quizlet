@@ -20,7 +20,7 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Select } from "@/components/ui/select"
+import { NativeSelect as Select } from "@/components/ui/native-select"
 import { Badge } from "@/components/ui/badge"
 import {
   Card,

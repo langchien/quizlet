@@ -194,7 +194,7 @@ export default function TagsPage() {
                   <DropdownMenuTrigger className="text-muted-foreground hover:bg-muted hover:text-foreground rounded p-1">
                     <MoreVertical className="size-4" />
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="right" className="w-40">
+                  <DropdownMenuContent align="end" className="w-40">
                     <DropdownMenuItem
                       onClick={() => {
                         setEditingTag(tag)
@@ -207,7 +207,7 @@ export default function TagsPage() {
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
-                      destructive
+                      variant="destructive"
                       onClick={() => setTagToDelete(tag)}
                       className="gap-2"
                     >

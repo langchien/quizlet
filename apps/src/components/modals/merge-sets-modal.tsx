@@ -12,7 +12,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Select } from "@/components/ui/select"
+import { NativeSelect as Select } from "@/components/ui/native-select"
 import { Label } from "@/components/ui/label"
 
 interface MergeSetsModalProps {
@@ -110,7 +110,7 @@ export function MergeSetsModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent onClose={() => onOpenChange(false)}>
+      <DialogContent>
         <DialogHeader>
           <div className="flex items-center gap-2">
             <div className="flex size-9 items-center justify-center rounded-xl bg-purple-500/10 text-purple-500">
@@ -132,6 +132,7 @@ export function MergeSetsModal({
               1. Chọn bộ thẻ đích (sẽ nhận thêm thẻ)
             </Label>
             <Select
+              className="w-full"
               value={targetSetId}
               onChange={(e) => {
                 setTargetSetId(e.target.value)
