@@ -323,15 +323,16 @@ apps/src/
     - `learn-feedback-view.tsx`: Banner thông báo đúng/sai, hiển thị đáp án mẫu kèm câu ví dụ và nút Tiếp tục.
   - Tinh gọn `learn/page.tsx`: Giảm từ **699 dòng xuống còn 145 dòng**.
 
-#### Nhiệm vụ 4.3: Refactor Chế Độ Luyện Nghe (`src/app/(dashboard)/study/[setId]/listen/page.tsx` — 583 dòng)
+#### Nhiệm vụ 4.3: Refactor Chế Độ Luyện Nghe (`src/app/(dashboard)/study/[setId]/listen/page.tsx` — 583 dòng) [ĐÃ HOÀN THÀNH ✅]
 - **Giải pháp**:
-  - Tách hook `src/hooks/study/use-listen-session.ts`: Tự động đọc TTS khi nạp thẻ, tốc độ phát âm (0.75x/1.0x), số lần nghe lại, so khớp câu trả lời nghe được với `isStudyAnswerCorrect`.
+  - Tách types `src/types/listen.ts`: Kiểu dữ liệu thẻ luyện nghe `ListenCardItem` và trạng thái `ListenStatus`.
+  - Tách hook `src/hooks/study/use-listen-session.ts`: Tự động đọc TTS khi nạp thẻ mới, tốc độ phát âm (0.5x - 1.2x), phím tắt Space để phát lại, gợi ý luỹ tiến theo số lần gõ sai (chữ đầu -> Furigana & nghĩa tiếng Việt), so khớp câu trả lời nghe được với `isStudyAnswerCorrect`, ghi nhận Server Actions (`startStudySessionAction`, `answerCardAction`, `endStudySessionAction`).
   - Tách Sub-components `src/components/study/listen/`:
-    - `listen-header.tsx`: Thanh tiến độ và thiết lập âm lượng.
-    - `listen-audio-player.tsx`: Trình phát âm thanh lớn (Waveform animation, nút Play, chọn tốc độ phát âm).
-    - `listen-input-form.tsx`: Ô nhập từ vựng nghe được, nút xem gợi ý Furigana, nút Kiểm tra.
-    - `listen-feedback-view.tsx`: Hiển thị kết quả đúng/sai, đáp án chính xác và nghĩa tiếng Việt.
-  - Tinh gọn `listen/page.tsx`: Giảm từ **583 dòng xuống dưới 80 dòng**.
+    - `listen-header.tsx`: Thanh điều hướng thoát, bộ đếm số câu và thanh tiến độ hoàn thành.
+    - `listen-audio-player.tsx`: Trình phát âm thanh lớn (Waveform animation 5 cột nhảy theo điệu phát, nút Loa gradient tròn nổi bật, thanh chọn tốc độ phát âm 0.5x - 1.2x, JLPT level badge).
+    - `listen-answer-form.tsx`: Ô nhập từ vựng tiếng Nhật nghe được, gợi ý thông minh khi gõ sai, nút Bỏ qua và Kiểm tra (Enter).
+    - `listen-result-card.tsx`: Hiển thị kết quả đúng/sai, đáp án chính xác kèm Furigana, nghĩa tiếng Việt, câu ví dụ mẫu và nút Tiếp tục.
+  - Tinh gọn `listen/page.tsx`: Giảm từ **583 dòng xuống còn 128 dòng**.
 
 #### Nhiệm vụ 4.4: Refactor Chế Độ Ghép Thẻ (`src/app/(dashboard)/study/[setId]/match/page.tsx` — 557 dòng)
 - **Giải pháp**:
