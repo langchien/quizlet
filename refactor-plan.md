@@ -396,14 +396,17 @@ apps/src/
     - `library-delete-dialog.tsx`: Dialog xác nhận xoá bộ thẻ an toàn (AlertDialog).
   - Tinh gọn `library/page.tsx`: Giảm từ **603 dòng xuống còn 165 dòng**.
 
-#### Nhiệm vụ 5.3: Refactor Trang Lịch Ôn Tập (`src/app/(dashboard)/calendar/calendar-client.tsx` — 595 dòng)
+#### Nhiệm vụ 5.3: Refactor Trang Lịch Ôn Tập (`src/app/(dashboard)/calendar/calendar-client.tsx` — 595 dòng) [ĐÃ HOÀN THÀNH ✅]
 - **Giải pháp**:
-  - Tách hook `src/hooks/calendar/use-calendar-srs.ts`: Tính toán ma trận ngày trong tháng, phân bổ thẻ due vào từng ngày, quản lý ngày được chọn (selectedDate).
+  - Tách types `src/types/calendar.ts`: Định nghĩa kiểu dữ liệu `MonthDueData`, `TodayDueData`, `CalendarCell`, hằng số `MONTH_NAMES`, `DAY_LABELS` và bảng màu nhãn trạng thái `SRS_STATUS_BADGES`.
+  - Tách hook `src/hooks/calendar/use-calendar-srs.ts`: Quản lý năm/tháng hiện tại, tải dữ liệu lịch theo tháng qua Server Action (`getCalendarMonthDueAction`), tra cứu nhanh O(1) qua từ điển ngày `daysDict`, tính toán ma trận lưới 35-42 ô (`calendarCells`), quản lý ngày đang chọn (`selectedDateStr`) và các thao tác điều hướng (tháng trước, tháng sau, về hôm nay).
   - Tách Sub-components `src/components/calendar/`:
-    - `calendar-header.tsx`: Điều hướng tháng, nút Hôm nay, tổng thẻ cần ôn trong tháng.
-    - `calendar-grid.tsx` & `calendar-day-cell.tsx`: Lưới 7 cột hiển thị các ngày kèm badge số thẻ và màu nhiệt.
-    - `calendar-day-detail-sheet.tsx`: Sheet mở ra danh sách thẻ cần ôn trong ngày được click kèm nút bắt đầu học.
-  - Tinh gọn `calendar-client.tsx`: Giảm từ **595 dòng xuống dưới 90 dòng**.
+    - `calendar-header.tsx`: Tiêu đề trang Spaced Repetition và nút ôn tập nhanh các thẻ đến hạn hôm nay.
+    - `calendar-forecast-bar.tsx`: Thanh dự báo trực quan số thẻ đến hạn trong 7 ngày tới kèm chọn ngày nhanh.
+    - `calendar-month-grid.tsx`: Lưới lịch 7 cột hiển thị ngày, badge số thẻ đến hạn (xanh/vàng/nổi bật), thanh chuyển tháng và chú giải màu sắc.
+    - `calendar-day-detail-panel.tsx`: Panel chi tiết ngày được chọn, thống kê tổng thẻ & quá hạn, danh sách thẻ chi tiết kèm badge trạng thái SRS, empty state và nút bắt đầu phiên ôn tập.
+  - Tinh gọn `calendar-client.tsx`: Giảm từ **595 dòng xuống còn 67 dòng** theo mô hình clean composition container.
+
 
 #### Nhiệm vụ 5.4: Refactor Hộp Thoại Lệnh & Sidebar Layout
 - **`src/components/command-palette.tsx` (450 dòng)**:
