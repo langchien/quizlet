@@ -269,21 +269,22 @@ apps/src/
 
 ### 🔹 GIAI ĐOẠN 3: Tái Cấu Trúc Quản Lý Bộ Thẻ & Dashboard (700 - 850 dòng)
 
-#### Nhiệm vụ 3.1: Refactor Màn Hình Chi Tiết Bộ Thẻ (`src/app/(dashboard)/sets/[id]/set-detail-client.tsx` — 849 dòng)
+#### Nhiệm vụ 3.1: Refactor Màn Hình Chi Tiết Bộ Thẻ (`src/app/(dashboard)/sets/[id]/set-detail-client.tsx` — 849 dòng) [ĐÃ HOÀN THÀNH ✅]
 - **Vấn đề**: Chứa bảng danh sách thẻ, cơ chế chọn nhiều thẻ (selection state), các thao tác hàng loạt (bulk delete, bulk tag), phát âm, và 4 dialogs.
 - **Giải pháp**:
   1. Tạo hook `src/hooks/sets/use-set-card-operations.ts`:
-     - Quản lý selection: `selectedCardIds`, `toggleCardSelection`, `selectAllCards`, `clearSelection`.
-     - Quản lý operations: `handleDeleteCard`, `handleDuplicateCard`, `handleBulkDelete`, `handleBulkTag`.
+     - Quản lý selection: `selectedCardIds`, `toggleSelectAll`, `toggleSelectCard`, `clearSelection`.
+     - Quản lý tìm kiếm: `searchCard`, `filteredCards`.
+     - Quản lý operations: `confirmDeleteCard`, `handleDuplicateCard`, `confirmBulkDelete`, `handleBulkTag`, phát âm TTS tiếng Nhật.
   2. Tạo thư mục `src/components/sets/`:
-     - `set-detail-header.tsx`: Tên set, folder link, mô tả, nút sửa set, xoá set, chia sẻ.
-     - `set-study-modes-bar.tsx`: Grid 6 nút vào nhanh các chế độ học.
-     - `set-progress-banner.tsx`: Tiến độ Mastered / Learning / New và thanh progress bar.
-     - `set-cards-toolbar.tsx`: Thanh tìm kiếm thẻ, counter, thanh công cụ bulk action khi có thẻ được chọn, nút thêm thẻ.
-     - `set-cards-table.tsx` & `set-card-row.tsx`: Bảng danh sách thẻ (memoized `set-card-row` để tránh re-render khi gõ ô tìm kiếm).
-     - `set-bulk-tag-dialog.tsx`: Dialog chọn tag để gắn đồng loạt.
+     - `set-detail-header.tsx`: Breadcrumb, tên set, folder link, mô tả, nút sửa set, thêm thẻ, bắt đầu học, và 4 thẻ thống kê tiến độ.
+     - `set-study-modes-bar.tsx`: Grid 6 nút vào nhanh các chế độ học với micro-animations.
+     - `set-cards-toolbar.tsx`: Thanh tìm kiếm thẻ, counter, thanh công cụ bulk actions khi có thẻ được chọn.
+     - `set-card-row.tsx`: Row thẻ memoized tối ưu hiệu năng re-render với TTS, JLPT level, ví dụ câu mẫu, nhãn và SRS status badge.
+     - `set-cards-table.tsx`: Bảng danh sách thẻ với Select All checkbox.
+     - `set-bulk-tag-dialog.tsx`: Modal chọn nhãn để gắn hàng loạt.
      - `set-delete-dialogs.tsx`: Modal xác nhận xoá 1 thẻ và xoá nhiều thẻ.
-  3. Tinh gọn `set-detail-client.tsx`: Giảm từ **849 dòng xuống dưới 120 dòng**.
+  3. Tinh gọn `set-detail-client.tsx`: Giảm từ **849 dòng xuống còn 136 dòng**.
 
 #### Nhiệm vụ 3.2: Refactor Màn Hình Trang Chủ Dashboard (`src/app/(dashboard)/dashboard/dashboard-client.tsx` — 730 dòng)
 - **Vấn đề**: Banner chào mừng, Streak flame, 4 KPI cards, Dialog sửa mục tiêu, Quick SRS review, Biểu đồ hoạt động 7 ngày, Danh sách bộ thẻ gần đây, Lịch sử buổi học gần nhất nằm chung trong một client component.
