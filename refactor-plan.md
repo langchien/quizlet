@@ -357,12 +357,16 @@ apps/src/
     - `write-feedback-view.tsx`: Bảng phản hồi kết quả đúng/sai, hiển thị đáp án mẫu, nút "Đáp án của tôi đúng" và nút Tiếp tục.
   - Tinh gọn `write/page.tsx`: Giảm từ **506 dòng xuống còn 116 dòng**.
 
-#### Nhiệm vụ 4.6: Refactor Sổ Tay Thẻ Sai (`src/app/(dashboard)/study/mistakes/mistakes-client.tsx` — 529 dòng)
+#### Nhiệm vụ 4.6: Refactor Sổ Tay Thẻ Sai (`src/app/(dashboard)/study/mistakes/mistakes-client.tsx` — 529 dòng) [ĐÃ HOÀN THÀNH ✅]
 - **Giải pháp**:
-  - Tách hook `src/hooks/study/use-mistakes-notebook.ts`: Filter theo set, tìm kiếm thẻ, sort theo lapses/tỷ lệ sai, reset lapse action.
+  - Tách types `src/types/mistakes.ts`: Định nghĩa kiểu dữ liệu `MistakeCard` và chế độ ôn tập `MistakeReviewMode`.
+  - Tách hook `src/hooks/study/use-mistakes-notebook.ts`: Quản lý bộ lọc theo bộ thẻ, cấp độ JLPT, tiêu chí sắp xếp (useTransition), gọi `getMistakeCardsAction`, trích xuất `uniqueSets`, quản lý dialog ôn tập và khởi chạy `startReviewMistakesAction` theo 3 chế độ (Flashcard, Learn, Write).
   - Tách Sub-components `src/components/study/mistakes/`:
-    - `mistakes-header.tsx`, `mistakes-toolbar.tsx`, `mistakes-cards-table.tsx`, `mistakes-quick-study-dialog.tsx`.
-  - Tinh gọn `mistakes-client.tsx`: Giảm từ **529 dòng xuống dưới 90 dòng**.
+    - `mistakes-header.tsx`: Banner Error Pool hiển thị số lượng thẻ cần củng cố và nút kích hoạt ôn tập ngay.
+    - `mistakes-toolbar.tsx`: Thanh điều khiển với 3 dropdown bộ lọc (Bộ thẻ, Cấp độ JLPT, Tiêu chí sắp xếp).
+    - `mistakes-cards-table.tsx`: Bảng danh sách thẻ sai chi tiết kèm nút phát âm TTS, thanh độ chính xác trực quan và empty state đẹp mắt.
+    - `mistakes-quick-study-dialog.tsx`: Modal chọn chế độ ôn tập lỗi sai (Flashcard 3D, Học thích ứng, Luyện viết) và nút bắt đầu ôn tập.
+  - Tinh gọn `mistakes-client.tsx`: Giảm từ **529 dòng xuống còn 69 dòng**.
 
 ---
 
