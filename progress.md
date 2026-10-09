@@ -15,7 +15,7 @@
 | 1.3 |   1   | Auth API (Route Handlers)       | Register, Login, Refresh, Logout, /me — JWT Access + Refresh (HttpOnly Cookies)                    |     ✅     |
 | 1.4 |   1   | Auth UI (App Router)            | Login/Register pages, Axios interceptor, Zustand auth store, Middleware route guards               |     ✅     |
 |     |       | **✅ Checkpoint 1**             | **Đăng ký → Đăng nhập → Protected routes → Auto refresh token**                                    |     ✅     |
-| 2.1 |   2   | Study Sets API (Route Handlers) | GET/POST/PATCH/DELETE sets + duplicate + merge                                                     |     ⬜     |
+| 2.1 |   2   | Study Sets API (Route Handlers) | GET/POST/PATCH/DELETE sets + duplicate + merge                                                     |     ✅     |
 | 2.2 |   2   | Cards API (Route Handlers)      | GET/POST/PATCH/DELETE cards + upload ảnh (Sharp → webp) + bulk tag + reorder                       |     ⬜     |
 | 2.3 |   2   | Folders API (Route Handlers)    | Tree structure, nested folders, move                                                               |     ⬜     |
 | 2.4 |   2   | Tags API (Route Handlers)       | CRUD tags + auto-complete search + cards by tag                                                    |     ⬜     |

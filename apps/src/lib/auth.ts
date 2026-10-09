@@ -174,3 +174,33 @@ export async function getCurrentUser() {
 
   return null
 }
+
+/**
+ * Lấy thông tin User hiện tại, hỗ trợ cả Authorization Header và HttpOnly Cookies
+ */
+export async function getAuthUser(req?: Request) {
+  if (req) {
+    const authHeader = req.headers.get("authorization")
+    if (authHeader?.startsWith("Bearer ")) {
+      const token = authHeader.substring(7)
+      const payload = await verifyAccessToken(token)
+      if (payload?.userId) {
+        const user = await prisma.user.findUnique({
+          where: { id: payload.userId },
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            avatar: true,
+            settings: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        })
+        if (user) return user
+      }
+    }
+  }
+
+  return getCurrentUser()
+}

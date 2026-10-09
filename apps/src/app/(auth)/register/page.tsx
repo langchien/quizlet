@@ -63,10 +63,11 @@ export default function RegisterPage() {
       })
       router.push("/")
       router.refresh()
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errObj = err as { error?: string; message?: string } | undefined
       const errorMsg =
-        err?.error ||
-        err?.message ||
+        errObj?.error ||
+        errObj?.message ||
         "Đăng ký không thành công. Vui lòng thử lại."
       toast.error("Lỗi đăng ký", {
         description: errorMsg,

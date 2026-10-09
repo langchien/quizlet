@@ -37,10 +37,27 @@ export const MoveFolderSchema = z.object({
 
 export type MoveFolderBody = z.infer<typeof MoveFolderSchema>
 
+export interface FolderResponse {
+  id: string
+  name: string
+  description?: string | null
+  parentId?: string | null
+  userId: string
+  order: number
+  createdAt: Date | string
+  updatedAt: Date | string
+  children?: FolderResponse[]
+  studySets?: Array<{
+    id: string
+    name: string
+    cardCount: number
+  }>
+}
+
 /**
- * Schema hiển thị thư mục cơ bản
+ * Schema hiển thị thư mục cơ bản (hỗ trợ lồng nhau)
  */
-export const FolderResponseSchema: z.ZodType<any> = z.lazy(() =>
+export const FolderResponseSchema: z.ZodType<FolderResponse> = z.lazy(() =>
   z.object({
     id: z.string(),
     name: z.string(),
@@ -62,5 +79,3 @@ export const FolderResponseSchema: z.ZodType<any> = z.lazy(() =>
       .optional(),
   })
 )
-
-export type FolderResponse = z.infer<typeof FolderResponseSchema>

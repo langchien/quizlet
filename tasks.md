@@ -16,7 +16,7 @@
 5. Code comment bằng **tiếng Việt** cho dễ maintain
 6. UI tuân theo **Shadcn UI** style, hỗ trợ **Dark/Light mode** từ đầu
 7. Database migrations quản lý qua **Prisma 7** (tuân thủ [PRISMA_7_GUIDE.md](file:///p:/Nodejs/quizlet/docs/PRISMA_7_GUIDE.md))
-8. Sau khi hoàn thành 1 phase hoặc 1 vài task lớn thì chạy format sau đó tạo commit chi tiết bằng tiếng việt có dấu và commit tự động
+8. Sau khi hoàn thành 1 phase hoặc 1 vài task lớn thì chạy format, chạy pnpm lint nếu có lỗi hoặc cảnh báo phải sửa ngay và báo lại cho tôi cân nhắc nên tắt lỗi đó đi hay là nên fix code sau đó tạo commit chi tiết bằng tiếng việt có dấu và commit tự động
 
 ---
 

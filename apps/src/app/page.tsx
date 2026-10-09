@@ -8,16 +8,13 @@ import {
   BookOpen,
   CheckCircle2,
   Database,
-  Flame,
   Layers,
-  Sparkles,
   Zap,
   LogIn,
   UserPlus,
   LogOut,
   User,
   ShieldCheck,
-  Target,
   ArrowRight,
 } from "lucide-react"
 import { Button, buttonVariants } from "@/components/ui/button"

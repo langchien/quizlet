@@ -2,8 +2,13 @@ import { create } from "zustand"
 import { api } from "@/lib/api"
 import type { LoginBody, RegisterBody, UserBaseDTO } from "@/schemas"
 
+export interface AuthUser extends UserBaseDTO {
+  goal?: Record<string, unknown> | null
+  settings?: Record<string, unknown> | null
+}
+
 export interface AuthState {
-  user: (UserBaseDTO & { goal?: any; settings?: any }) | null
+  user: AuthUser | null
   isAuthenticated: boolean
   isLoading: boolean
   isInitialized: boolean
@@ -13,7 +18,7 @@ export interface AuthState {
   register: (credentials: RegisterBody) => Promise<void>
   logout: () => Promise<void>
   fetchCurrentUser: () => Promise<void>
-  setUser: (user: (UserBaseDTO & { goal?: any; settings?: any }) | null) => void
+  setUser: (user: AuthUser | null) => void
 }
 
 export const useAuthStore = create<AuthState>((set) => ({

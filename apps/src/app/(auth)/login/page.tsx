@@ -30,7 +30,6 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { Badge } from "@/components/ui/badge"
 import { LoginBodySchema, type LoginBody } from "@/schemas/auth"
 import { useAuthStore } from "@/stores/useAuthStore"
 
@@ -65,10 +64,11 @@ function LoginForm() {
       })
       router.push(callbackUrl)
       router.refresh()
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errObj = err as { error?: string; message?: string } | undefined
       const errorMsg =
-        err?.error ||
-        err?.message ||
+        errObj?.error ||
+        errObj?.message ||
         "Đăng nhập thất bại. Vui lòng kiểm tra lại."
       toast.error("Lỗi đăng nhập", {
         description: errorMsg,
