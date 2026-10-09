@@ -1,0 +1,19 @@
+# Dependencies & Build Outputs
+node_modules
+.next
+out
+dist
+build
+coverage
+.turbo
+
+# Prisma 7 Generated Client
+**/src/generated/**
+src/generated
+apps/src/generated
+
+# Lockfiles & Environment
+pnpm-lock.yaml
+.env
+.env.*
+!.env.example

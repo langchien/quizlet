@@ -57,20 +57,21 @@
 
 Mỗi thẻ gồm các trường:
 
-| Trường | Bắt buộc | Mô tả |
-|:---|:---:|:---|
-| **Term** (thuật ngữ) | ✅ | Từ vựng / Kanji / Ngữ pháp tiếng Nhật |
-| **Reading** (cách đọc) | ✅ | Hiragana / Katakana (furigana) |
-| **Definition** (nghĩa) | ✅ | Nghĩa tiếng Việt |
-| **Example** (ví dụ) | ❌ | Câu ví dụ tiếng Nhật + dịch |
-| **Image** (hình ảnh) | ❌ | Hình minh hoạ (upload hoặc URL) |
-| **Audio** (âm thanh) | ❌ | File audio hoặc TTS tự động |
-| **Note** (ghi chú) | ❌ | Ghi chú cá nhân, mẹo nhớ |
-| **Tags** (nhãn) | ❌ | VD: `#N4`, `#動詞`, `#chapter-5`, `#khó` |
-| **JLPT Level** | ❌ | N5 / N4 / N3 / N2 |
-| **Word Type** | ❌ | Danh từ / Động từ / Tính từ / Kanji / Ngữ pháp |
+| Trường                 | Bắt buộc | Mô tả                                          |
+| :--------------------- | :------: | :--------------------------------------------- |
+| **Term** (thuật ngữ)   |    ✅    | Từ vựng / Kanji / Ngữ pháp tiếng Nhật          |
+| **Reading** (cách đọc) |    ✅    | Hiragana / Katakana (furigana)                 |
+| **Definition** (nghĩa) |    ✅    | Nghĩa tiếng Việt                               |
+| **Example** (ví dụ)    |    ❌    | Câu ví dụ tiếng Nhật + dịch                    |
+| **Image** (hình ảnh)   |    ❌    | Hình minh hoạ (upload hoặc URL)                |
+| **Audio** (âm thanh)   |    ❌    | File audio hoặc TTS tự động                    |
+| **Note** (ghi chú)     |    ❌    | Ghi chú cá nhân, mẹo nhớ                       |
+| **Tags** (nhãn)        |    ❌    | VD: `#N4`, `#動詞`, `#chapter-5`, `#khó`       |
+| **JLPT Level**         |    ❌    | N5 / N4 / N3 / N2                              |
+| **Word Type**          |    ❌    | Danh từ / Động từ / Tính từ / Kanji / Ngữ pháp |
 
 > **Đặc biệt cho tiếng Nhật:**
+>
 > - Hỗ trợ hiển thị Furigana (ruby text) trên Kanji
 > - Trường riêng cho Kanji: Bộ thủ, Số nét, Âm On/Kun, Từ ghép liên quan
 > - Phân loại tự động theo JLPT level
@@ -148,7 +149,7 @@ Mỗi thẻ gồm các trường:
 - Gợi ý (hint) khi sai nhiều lần
 - Hỗ trợ input tiếng Nhật (IME)
 
-### 3.6. Listening Mode (Nghe & viết) — *cải tiến từ Spell*
+### 3.6. Listening Mode (Nghe & viết) — _cải tiến từ Spell_
 
 - Nghe phát âm tiếng Nhật (TTS) → gõ lại chính xác
 - Hỗ trợ tốc độ phát âm: chậm / bình thường / nhanh
@@ -160,11 +161,11 @@ Mỗi thẻ gồm các trường:
 
 ### 4.1. Ba chế độ SRS
 
-| Chế độ | Mô tả | Mặc định |
-|:---|:---|:---:|
-| **Tự động** | Hệ thống tự quyết định interval, người dùng chỉ cần học | ✅ |
-| **Đơn giản** (kiểu Quizlet) | Đánh giá: Repeat / Hard / Okay / Easy | ❌ |
-| **Nâng cao** (kiểu Anki SM-2) | Thuật toán SM-2, interval chính xác theo ngày | ❌ |
+| Chế độ                        | Mô tả                                                   | Mặc định |
+| :---------------------------- | :------------------------------------------------------ | :------: |
+| **Tự động**                   | Hệ thống tự quyết định interval, người dùng chỉ cần học |    ✅    |
+| **Đơn giản** (kiểu Quizlet)   | Đánh giá: Repeat / Hard / Okay / Easy                   |    ❌    |
+| **Nâng cao** (kiểu Anki SM-2) | Thuật toán SM-2, interval chính xác theo ngày           |    ❌    |
 
 - Mặc định sử dụng chế độ **Tự động** (dễ dùng nhất)
 - Có thể chuyển đổi chế độ SRS trong Settings
@@ -223,13 +224,13 @@ Mỗi thẻ gồm các trường:
 
 ### 6.1. Import
 
-| Format | Ưu tiên | Ghi chú |
-|:---|:---:|:---|
-| **Anki Deck (.apkg)** | ⭐ Cao nhất | Từ extension "Quizlet to Anki" |
-| **JSON** | ⭐ Cao | Format chuẩn nội bộ |
-| **Quizlet Export** | Trung bình | Nếu tìm được cách extract data |
-| **CSV / TSV** | Trung bình | Hỗ trợ cơ bản |
-| **Copy-paste text** | Thấp | Dạng "term - definition" mỗi dòng |
+| Format                |   Ưu tiên   | Ghi chú                           |
+| :-------------------- | :---------: | :-------------------------------- |
+| **Anki Deck (.apkg)** | ⭐ Cao nhất | Từ extension "Quizlet to Anki"    |
+| **JSON**              |   ⭐ Cao    | Format chuẩn nội bộ               |
+| **Quizlet Export**    | Trung bình  | Nếu tìm được cách extract data    |
+| **CSV / TSV**         | Trung bình  | Hỗ trợ cơ bản                     |
+| **Copy-paste text**   |    Thấp     | Dạng "term - definition" mỗi dòng |
 
 - Hỗ trợ mapping trường khi import (chọn cột nào là Term, cột nào là Definition...)
 - Preview trước khi import
@@ -323,23 +324,23 @@ Mỗi thẻ gồm các trường:
 
 ## 11. Tóm tắt tech stack
 
-| Layer | Công nghệ | Ghi chú |
-|:---|:---|:---|
-| **Framework** | Next.js 15+ (App Router) | Fullstack React 19, Single Project |
-| **Frontend** | React 19 + Server & Client Components | Desktop first, SSR & CSR tối ưu |
-| **UI** | Shadcn UI + Tailwind CSS v4 + Radix UI | Dark/Light mode |
-| **Routing** | Next.js App Router | File-based routing chuẩn Next.js |
-| **State** | TanStack Query v5 + Zustand | Server state + Client state |
-| **Forms** | React Hook Form + Zod | Form validation type-safe |
-| **Charts** | Recharts | Dashboard thống kê |
-| **Backend** | Next.js Route Handlers (`app/api/*`) | RESTful API endpoints |
-| **ORM** | Prisma ORM | Type-safe queries PostgreSQL |
-| **Database** | PostgreSQL 15 (Docker) | Container hoá cổng 54321 |
-| **Auth** | JWT (Access + Refresh) / bcryptjs / Cookies | HttpOnly cookie auth + Middleware |
-| **Media** | Sharp + Next.js Route Handlers | Upload + convert webp |
+| Layer            | Công nghệ                                      | Ghi chú                              |
+| :--------------- | :--------------------------------------------- | :----------------------------------- |
+| **Framework**    | Next.js 15+ (App Router)                       | Fullstack React 19, Single Project   |
+| **Frontend**     | React 19 + Server & Client Components          | Desktop first, SSR & CSR tối ưu      |
+| **UI**           | Shadcn UI + Tailwind CSS v4 + Radix UI         | Dark/Light mode                      |
+| **Routing**      | Next.js App Router                             | File-based routing chuẩn Next.js     |
+| **State**        | TanStack Query v5 + Zustand                    | Server state + Client state          |
+| **Forms**        | React Hook Form + Zod                          | Form validation type-safe            |
+| **Charts**       | Recharts                                       | Dashboard thống kê                   |
+| **Backend**      | Next.js Route Handlers (`app/api/*`)           | RESTful API endpoints                |
+| **ORM**          | Prisma ORM v7 (@prisma/adapter-pg)             | Type-safe queries PostgreSQL         |
+| **Database**     | PostgreSQL 15 (Docker)                         | Container hoá cổng 54321             |
+| **Auth**         | JWT (Access + Refresh) / bcryptjs / Cookies    | HttpOnly cookie auth + Middleware    |
+| **Media**        | Sharp + Next.js Route Handlers                 | Upload + convert webp                |
 | **Shared / Lib** | Zod schemas + TypeScript types (`src/schemas`) | Import nội bộ `@/schemas`, `@/types` |
-| **TTS** | Web Speech API | Miễn phí |
-| **Import** | Custom parsers | .apkg, JSON, CSV |
-| **Testing** | Vitest + Playwright | Unit + E2E |
-| **DevOps** | Docker Compose | PostgreSQL container |
-| **Linter** | Prettier + ESLint 9 | Code quality |
+| **TTS**          | Web Speech API                                 | Miễn phí                             |
+| **Import**       | Custom parsers                                 | .apkg, JSON, CSV                     |
+| **Testing**      | Vitest + Playwright                            | Unit + E2E                           |
+| **DevOps**       | Docker Compose                                 | PostgreSQL container                 |
+| **Linter**       | Prettier + ESLint 9                            | Code quality                         |

@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: nihomemo_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: nihomemo
+      POSTGRES_PASSWORD: nihomemo_password123
+      POSTGRES_DB: nihomemo
+    ports:
+      - "54321:5432"
+    volumes:
+      - nihomemo_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nihomemo -d nihomemo"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  nihomemo_pgdata:
+    driver: local

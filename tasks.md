@@ -2,8 +2,8 @@
 
 > **Dự án**: NihoMemo (日本メモ) — Web app học tiếng Nhật cá nhân
 > **Kiến trúc**: Next.js Fullstack (App Router)
-> **Tech stack**: Next.js 15+, React 19, Prisma, PostgreSQL, Shadcn UI, Tailwind CSS v4, Lucide React, Zustand, TanStack Query v5, Zod
-> **Tham chiếu**: [func.md](file:///p:/Nodejs/quizlet/func.md)
+> **Tech stack**: Next.js 16+, React 19, Prisma 7 (@prisma/adapter-pg), PostgreSQL 15, Shadcn UI, Tailwind CSS v4, Lucide React, Zustand, TanStack Query v5, Zod
+> **Tham chiếu**: [func.md](file:///p:/Nodejs/quizlet/func.md) | [PRISMA_7_GUIDE.md](file:///p:/Nodejs/quizlet/docs/PRISMA_7_GUIDE.md)
 
 ---
 
@@ -15,20 +15,20 @@
 4. Mọi schema (Zod) và type dùng chung đặt trong `src/schemas/` và `src/types/` (alias `@/schemas`, `@/types`)
 5. Code comment bằng **tiếng Việt** cho dễ maintain
 6. UI tuân theo **Shadcn UI** style, hỗ trợ **Dark/Light mode** từ đầu
-7. Database migrations quản lý qua **Prisma**
-8. Sau khi hoàn thành 1 phase hoặc 1 vài task lớn thì tạo commit chi tiết bằng tiếng việt có dấu và commit tự động
+7. Database migrations quản lý qua **Prisma 7** (tuân thủ [PRISMA_7_GUIDE.md](file:///p:/Nodejs/quizlet/docs/PRISMA_7_GUIDE.md))
+8. Sau khi hoàn thành 1 phase hoặc 1 vài task lớn thì chạy format sau đó tạo commit chi tiết bằng tiếng việt có dấu và commit tự động
 
 ---
 
 ## 📦 PHASE 0: Khởi tạo dự án & Hạ tầng cơ sở
 
-> **Mục tiêu**: Setup Next.js App Router, cấu hình Tailwind CSS v4, Shadcn UI, Docker PostgreSQL, Prisma ORM, chạy được "Hello World" và kết nối DB
+> **Mục tiêu**: Setup Next.js App Router, cấu hình Tailwind CSS v4, Shadcn UI, Docker PostgreSQL, Prisma 7 ORM, chạy được "Hello World" và kết nối DB
 
 ### Task 0.1 — Khởi tạo Next.js App Router Project
 
 ```
 Yêu cầu:
-- Khởi tạo Next.js 15+ (App Router) với React 19 và TypeScript
+- Khởi tạo Next.js 16+ (App Router) với React 19 và TypeScript
 - Cấu trúc thư mục:
   - src/app/ (App Router pages, layouts, route handlers)
   - src/components/ (Shadcn UI & custom components)
@@ -39,8 +39,8 @@ Yêu cầu:
   - src/hooks/ (Custom React hooks)
   - prisma/ (Prisma schema, migrations, seed)
 - File package.json với các scripts:
-  - "dev": chạy Next.js dev server (cổng 3000)
-  - "build": build Next.js production
+  - "dev": chạy Next.js dev server (cổng 30001)
+  - "build": build Next.js production (chạy prisma generate && next build)
   - "start": chạy Next.js production
   - "lint": kiểm tra code bằng ESLint
   - "db:up": docker compose up -d
@@ -50,8 +50,8 @@ Yêu cầu:
   - "db:studio": prisma studio
   - "db:seed": prisma db seed
 - Cấu hình path alias: @/* → ./src/* trong tsconfig.json
-- File .gitignore (node_modules, .next, .env, uploads/, etc.)
-- Prettier + ESLint + prettier-plugin-tailwindcss
+- File .gitignore (node_modules, .next, .env, src/generated/, uploads/, etc.)
+- Prettier + ESLint + prettier-plugin-tailwindcss (.prettierignore bỏ qua src/generated/)
 ```
 
 ### Task 0.2 — Cấu hình UI & Design System
@@ -75,7 +75,7 @@ Yêu cầu:
   - Root layout (src/app/layout.tsx) tích hợp ThemeProvider, QueryClientProvider, Toaster
 ```
 
-### Task 0.3 — Setup Database & Docker
+### Task 0.3 — Setup Database & Docker (Prisma 7)
 
 ```
 Yêu cầu:
@@ -84,10 +84,11 @@ Yêu cầu:
   - Volume persistent data (nihomemo_pgdata)
   - Port 54321:5432
   - Env: POSTGRES_USER=nihomemo, POSTGRES_PASSWORD=nihomemo_password123, POSTGRES_DB=nihomemo
-- Prisma ORM:
-  - prisma/schema.prisma kết nối PostgreSQL
+- Prisma 7 ORM:
+  - prisma.config.ts quản lý config, migrations path và database URL
+  - prisma/schema.prisma kết nối PostgreSQL (provider = "prisma-client", output = "../src/generated/prisma")
   - Model User cơ bản (id, email, name, password, avatar, createdAt, updatedAt)
-  - Singleton PrismaClient trong src/lib/prisma.ts (tránh tạo nhiều connection trong Next.js dev mode)
+  - Singleton PrismaClient trong src/lib/prisma.ts sử dụng @prisma/adapter-pg + pg.Pool
 - Khởi động container: docker compose up -d → prisma migrate dev → prisma generate
 - Xác nhận kết nối DB thành công
 ```
@@ -961,17 +962,17 @@ Kiểm tra:
 
 ## 📋 Tóm tắt Phases
 
-| Phase | Tên                            | Ước lượng | Mô tả                                        |
-| :---: | :----------------------------- | :-------: | :------------------------------------------- |
+| Phase | Tên                            | Ước lượng | Mô tả                                                   |
+| :---: | :----------------------------- | :-------: | :------------------------------------------------------ |
 |   0   | Khởi tạo & Hạ tầng             |    ⏱️     | Next.js App Router, Tailwind v4, Shadcn, Docker, Prisma |
-|   1   | Auth & DB Schema               |    ⏱️     | Login/Register, JWT Cookies, 10 Prisma models |
-|   2   | CRUD Core                      |   ⏱️⏱️    | Sets, Cards, Folders, Tags, Search           |
-|   3   | Study: Flashcard, Learn, Write |   ⏱️⏱️    | 3 study modes + SRS engine + Review mistakes |
-|   4   | Study: Test, Match, Listen     |   ⏱️⏱️    | 3 study modes còn lại                        |
-|   5   | Dashboard & Statistics         |   ⏱️⏱️    | Dashboard, Charts, Calendar, Goals           |
-|   6   | Import / Export                |   ⏱️⏱️    | Anki .apkg, JSON, CSV, Backup/Restore        |
-|   7   | Settings & Polish              |    ⏱️     | Settings, Shortcuts, TTS, UX polish          |
-|   8   | Seed Data & Testing            |    ⏱️     | Sample data, Unit tests, E2E, Next.js build  |
+|   1   | Auth & DB Schema               |    ⏱️     | Login/Register, JWT Cookies, 10 Prisma models           |
+|   2   | CRUD Core                      |   ⏱️⏱️    | Sets, Cards, Folders, Tags, Search                      |
+|   3   | Study: Flashcard, Learn, Write |   ⏱️⏱️    | 3 study modes + SRS engine + Review mistakes            |
+|   4   | Study: Test, Match, Listen     |   ⏱️⏱️    | 3 study modes còn lại                                   |
+|   5   | Dashboard & Statistics         |   ⏱️⏱️    | Dashboard, Charts, Calendar, Goals                      |
+|   6   | Import / Export                |   ⏱️⏱️    | Anki .apkg, JSON, CSV, Backup/Restore                   |
+|   7   | Settings & Polish              |    ⏱️     | Settings, Shortcuts, TTS, UX polish                     |
+|   8   | Seed Data & Testing            |    ⏱️     | Sample data, Unit tests, E2E, Next.js build             |
 
 ---
 
