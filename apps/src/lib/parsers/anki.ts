@@ -1,18 +1,9 @@
-import JSZip from "jszip"
-import initSqlJs, { Database, SqlJsStatic } from "sql.js"
 import fs from "fs/promises"
 import path from "path"
+import JSZip from "jszip"
+import Database from "better-sqlite3"
 import type { JLPTLevel, WordType } from "@/generated/prisma/client"
 import type { AnkiFieldMapping } from "@/schemas/import-export"
-
-let sqlPromise: Promise<SqlJsStatic> | null = null
-
-async function getSqlJs(): Promise<SqlJsStatic> {
-  if (!sqlPromise) {
-    sqlPromise = initSqlJs()
-  }
-  return sqlPromise
-}
 
 export interface AnkiDeckPreview {
   id: number | string
@@ -253,7 +244,6 @@ function parseWordType(val?: string | null): WordType | null {
 export async function previewAnkiPackage(
   zipBuffer: Buffer
 ): Promise<AnkiDeckPreview[]> {
-  const SQL = await getSqlJs()
   const zip = await JSZip.loadAsync(zipBuffer)
 
   // Tìm file SQLite database
@@ -268,21 +258,20 @@ export async function previewAnkiPackage(
     )
   }
 
-  const dbData = await dbFile.async("uint8array")
-  const db: Database = new SQL.Database(dbData)
+  const dbData = await dbFile.async("nodebuffer")
+  const db = new Database(dbData)
 
   try {
     // 1. Đọc models và decks từ bảng col
-    const colResult = db.exec("SELECT models, decks FROM col LIMIT 1")
-    if (!colResult.length || !colResult[0].values.length) {
+    const colRow = db
+      .prepare("SELECT models, decks FROM col LIMIT 1")
+      .get() as { models?: string; decks?: string } | undefined
+
+    if (!colRow || !colRow.models || !colRow.decks) {
       throw new Error("Không thể đọc thông tin cấu trúc bộ thẻ Anki.")
     }
 
-    const [modelsJsonStr, decksJsonStr] = colResult[0].values[0] as [
-      string,
-      string,
-    ]
-    const models = JSON.parse(modelsJsonStr || "{}") as Record<
+    const models = JSON.parse(colRow.models || "{}") as Record<
       string,
       {
         id: number | string
@@ -290,39 +279,38 @@ export async function previewAnkiPackage(
         flds: Array<{ name: string; ord: number }>
       }
     >
-    const decks = JSON.parse(decksJsonStr || "{}") as Record<
+    const decks = JSON.parse(colRow.decks || "{}") as Record<
       string,
       { id: number | string; name: string }
     >
 
     // 2. Đọc notes và cards
-    const cardsResult = db.exec(
-      "SELECT c.did, n.mid, n.flds, n.tags FROM cards c JOIN notes n ON c.nid = n.id"
-    )
+    const cardRows = db
+      .prepare(
+        "SELECT c.did, n.mid, n.flds, n.tags FROM cards c JOIN notes n ON c.nid = n.id"
+      )
+      .all() as Array<{
+      did: number | string
+      mid: number | string
+      flds: string
+      tags: string
+    }>
 
     const deckCardsMap = new Map<
       string,
       Array<{ flds: string; tags: string; mid: string }>
     >()
 
-    if (cardsResult.length > 0 && cardsResult[0].values) {
-      for (const row of cardsResult[0].values) {
-        const [did, mid, flds, tags] = row as [
-          number | string,
-          number | string,
-          string,
-          string,
-        ]
-        const deckKey = String(did)
-        if (!deckCardsMap.has(deckKey)) {
-          deckCardsMap.set(deckKey, [])
-        }
-        deckCardsMap.get(deckKey)!.push({
-          flds: String(flds || ""),
-          tags: String(tags || ""),
-          mid: String(mid || ""),
-        })
+    for (const row of cardRows) {
+      const deckKey = String(row.did)
+      if (!deckCardsMap.has(deckKey)) {
+        deckCardsMap.set(deckKey, [])
       }
+      deckCardsMap.get(deckKey)!.push({
+        flds: String(row.flds || ""),
+        tags: String(row.tags || ""),
+        mid: String(row.mid || ""),
+      })
     }
 
     const previewList: AnkiDeckPreview[] = []
@@ -402,7 +390,6 @@ export async function parseFullAnkiPackage(
   cards: AnkiParsedCard[]
   extractedMediaCount: number
 }> {
-  const SQL = await getSqlJs()
   const zip = await JSZip.loadAsync(zipBuffer)
 
   const dbFile =
@@ -451,20 +438,19 @@ export async function parseFullAnkiPackage(
   }
 
   // 2. Mở SQLite Database
-  const dbData = await dbFile.async("uint8array")
-  const db: Database = new SQL.Database(dbData)
+  const dbData = await dbFile.async("nodebuffer")
+  const db = new Database(dbData)
 
   try {
-    const colResult = db.exec("SELECT models, decks FROM col LIMIT 1")
-    if (!colResult.length || !colResult[0].values.length) {
+    const colRow = db
+      .prepare("SELECT models, decks FROM col LIMIT 1")
+      .get() as { models?: string; decks?: string } | undefined
+
+    if (!colRow || !colRow.models || !colRow.decks) {
       throw new Error("Không thể đọc thông tin cấu trúc bộ thẻ Anki.")
     }
 
-    const [modelsJsonStr, decksJsonStr] = colResult[0].values[0] as [
-      string,
-      string,
-    ]
-    const models = JSON.parse(modelsJsonStr || "{}") as Record<
+    const models = JSON.parse(colRow.models || "{}") as Record<
       string,
       {
         id: number | string
@@ -472,7 +458,7 @@ export async function parseFullAnkiPackage(
         flds: Array<{ name: string; ord: number }>
       }
     >
-    const decks = JSON.parse(decksJsonStr || "{}") as Record<
+    const decks = JSON.parse(colRow.decks || "{}") as Record<
       string,
       { id: number | string; name: string }
     >
@@ -495,109 +481,101 @@ export async function parseFullAnkiPackage(
       query += ` WHERE c.did = ${targetDeckId}`
     }
 
-    const cardsResult = db.exec(query)
+    const cardRows = db.prepare(query).all() as Array<{
+      did: number | string
+      mid: number | string
+      flds: string
+      tags: string
+    }>
     const cards: AnkiParsedCard[] = []
 
-    if (cardsResult.length > 0 && cardsResult[0].values) {
-      for (const row of cardsResult[0].values) {
-        const [, mid, flds, rawTags] = row as [
-          number | string,
-          number | string,
-          string,
-          string,
-        ]
-        const model = models[String(mid)]
-        const fields = model?.flds
-          ? [...model.flds]
-              .sort((a, b) => (a.ord || 0) - (b.ord || 0))
-              .map((f) => f.name)
-          : []
+    for (const row of cardRows) {
+      const model = models[String(row.mid)]
+      const fields = model?.flds
+        ? [...model.flds]
+            .sort((a, b) => (a.ord || 0) - (b.ord || 0))
+            .map((f) => f.name)
+        : []
 
-        const fieldValues = String(flds || "").split("\x1f")
-        const rawFields: Record<string, string> = {}
-        const rawFieldsHtml: Record<string, string> = {}
+      const fieldValues = String(row.flds || "").split("\x1f")
+      const rawFields: Record<string, string> = {}
+      const rawFieldsHtml: Record<string, string> = {}
 
-        fields.forEach((fName, idx) => {
-          const rawVal = fieldValues[idx] || ""
-          rawFieldsHtml[fName] = rawVal
-          rawFields[fName] = cleanHtmlText(rawVal)
-        })
+      fields.forEach((fName, idx) => {
+        const rawVal = fieldValues[idx] || ""
+        rawFieldsHtml[fName] = rawVal
+        rawFields[fName] = cleanHtmlText(rawVal)
+      })
 
-        const mapping = options.fieldMapping || guessFieldMapping(fields)
+      const mapping = options.fieldMapping || guessFieldMapping(fields)
 
-        const termField = mapping.term || fields[0] || ""
-        const readingField = mapping.reading || ""
-        const defField = mapping.definition || fields[1] || fields[0] || ""
-        const exField = mapping.example || ""
-        const exTrField = mapping.exampleTranslation || ""
-        const noteField = mapping.note || ""
-        const jlptField = mapping.jlptLevel || ""
-        const wordTypeField = mapping.wordType || ""
+      const termField = mapping.term || fields[0] || ""
+      const readingField = mapping.reading || ""
+      const defField = mapping.definition || fields[1] || fields[0] || ""
+      const exField = mapping.example || ""
+      const exTrField = mapping.exampleTranslation || ""
+      const noteField = mapping.note || ""
+      const jlptField = mapping.jlptLevel || ""
+      const wordTypeField = mapping.wordType || ""
 
-        const termRawHtml = rawFieldsHtml[termField] || ""
-        const termMedia = extractMediaReferences(termRawHtml)
+      const termRawHtml = rawFieldsHtml[termField] || ""
+      const termMedia = extractMediaReferences(termRawHtml)
 
-        const defRawHtml = rawFieldsHtml[defField] || ""
-        const defMedia = extractMediaReferences(defRawHtml)
+      const defRawHtml = rawFieldsHtml[defField] || ""
+      const defMedia = extractMediaReferences(defRawHtml)
 
-        const term = termMedia.cleanText || rawFields[termField] || ""
-        let reading = readingField ? rawFields[readingField] || "" : ""
-        const definition = defMedia.cleanText || rawFields[defField] || ""
+      const term = termMedia.cleanText || rawFields[termField] || ""
+      let reading = readingField ? rawFields[readingField] || "" : ""
+      const definition = defMedia.cleanText || rawFields[defField] || ""
 
-        // Nếu term rỗng và reading có thì lấy reading làm term
-        if (!term && reading) {
-          // swap
-        }
-
-        // Bỏ qua thẻ hoàn toàn rỗng
-        if (!term && !definition) {
-          continue
-        }
-
-        // Nếu reading rỗng nhưng term chứa furigana dạng 漢字[かんじ]
-        if (!reading) {
-          const bracketMatch = term.match(/\[(.*?)\]/)
-          if (bracketMatch) {
-            reading = bracketMatch[1]
-          }
-        }
-
-        // Image / Audio mapping
-        let imageUrl: string | null = null
-        let audioUrl: string | null = null
-
-        const allImages = [...termMedia.imageFiles, ...defMedia.imageFiles]
-        const allAudios = [...termMedia.audioFiles, ...defMedia.audioFiles]
-
-        if (allImages.length > 0 && mediaPathMap.has(allImages[0])) {
-          imageUrl = mediaPathMap.get(allImages[0])!
-        }
-        if (allAudios.length > 0 && mediaPathMap.has(allAudios[0])) {
-          audioUrl = mediaPathMap.get(allAudios[0])!
-        }
-
-        // Tags
-        const tags = String(rawTags || "")
-          .trim()
-          .split(/\s+/)
-          .filter((t) => t.length > 0)
-
-        cards.push({
-          term: term || reading || "Không có tiêu đề",
-          reading: reading || term,
-          definition: definition || term,
-          example: exField ? rawFields[exField] || null : null,
-          exampleTranslation: exTrField ? rawFields[exTrField] || null : null,
-          imageUrl,
-          audioUrl,
-          note: noteField ? rawFields[noteField] || null : null,
-          jlptLevel: parseJlpt(jlptField ? rawFields[jlptField] : null),
-          wordType: parseWordType(
-            wordTypeField ? rawFields[wordTypeField] : null
-          ),
-          tags,
-        })
+      // Bỏ qua thẻ hoàn toàn rỗng
+      if (!term && !definition) {
+        continue
       }
+
+      // Nếu reading rỗng nhưng term chứa furigana dạng 漢字[かんじ]
+      if (!reading) {
+        const bracketMatch = term.match(/\[(.*?)\]/)
+        if (bracketMatch) {
+          reading = bracketMatch[1]
+        }
+      }
+
+      // Image / Audio mapping
+      let imageUrl: string | null = null
+      let audioUrl: string | null = null
+
+      const allImages = [...termMedia.imageFiles, ...defMedia.imageFiles]
+      const allAudios = [...termMedia.audioFiles, ...defMedia.audioFiles]
+
+      if (allImages.length > 0 && mediaPathMap.has(allImages[0])) {
+        imageUrl = mediaPathMap.get(allImages[0])!
+      }
+      if (allAudios.length > 0 && mediaPathMap.has(allAudios[0])) {
+        audioUrl = mediaPathMap.get(allAudios[0])!
+      }
+
+      // Tags
+      const tags = String(row.tags || "")
+        .trim()
+        .split(/\s+/)
+        .filter((t) => t.length > 0)
+
+      cards.push({
+        term: term || reading || "Không có tiêu đề",
+        reading: reading || term,
+        definition: definition || term,
+        example: exField ? rawFields[exField] || null : null,
+        exampleTranslation: exTrField ? rawFields[exTrField] || null : null,
+        imageUrl,
+        audioUrl,
+        note: noteField ? rawFields[noteField] || null : null,
+        jlptLevel: parseJlpt(jlptField ? rawFields[jlptField] : null),
+        wordType: parseWordType(
+          wordTypeField ? rawFields[wordTypeField] : null
+        ),
+        tags,
+      })
     }
 
     return {

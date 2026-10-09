@@ -4,7 +4,7 @@ import {
   WordTypeSchema,
   CardStatusSchema,
   StudyModeSchema,
-} from "./index"
+} from "./enums"
 
 /**
  * Schema cho một thẻ khi import

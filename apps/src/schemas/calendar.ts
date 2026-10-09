@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { CardStatusSchema } from "./index"
+import { CardStatusSchema } from "./enums"
 
 /**
  * Schema thống kê số thẻ ôn theo từng ngày trong tháng
