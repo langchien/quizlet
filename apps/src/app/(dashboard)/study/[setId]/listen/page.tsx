@@ -137,7 +137,6 @@ export default function ListenStudyPage() {
     }
   }, [currentIndex, status])
 
-
   // Phát âm lại thẻ hiện tại
   const handlePlayAudio = React.useCallback(
     (customRate?: number) => {

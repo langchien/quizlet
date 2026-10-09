@@ -122,7 +122,6 @@ export default function WriteStudyPage() {
 
   const currentCard = cards[currentIndex]
 
-
   // Kiểm tra đáp án
   const handleCheckAnswer = async () => {
     if (!currentCard || status !== "typing" || !userTyped.trim()) return
@@ -398,7 +397,8 @@ export default function WriteStudyPage() {
                 </span>
               ) : (
                 <span>
-                  Gợi ý từ vựng: <b>{currentCard.term}</b> ({currentCard.reading})
+                  Gợi ý từ vựng: <b>{currentCard.term}</b> (
+                  {currentCard.reading})
                 </span>
               )}
             </div>

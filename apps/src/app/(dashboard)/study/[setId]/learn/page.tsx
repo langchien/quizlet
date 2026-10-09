@@ -473,8 +473,8 @@ export default function LearnStudyPage() {
             {currentQuestion.type === "written"
               ? "Nghĩa tiếng Việt (Gõ từ tiếng Nhật tương ứng):"
               : isReverse
-              ? "Nghĩa tiếng Việt:"
-              : "Thuật ngữ tiếng Nhật:"}
+                ? "Nghĩa tiếng Việt:"
+                : "Thuật ngữ tiếng Nhật:"}
           </div>
           <h2 className="font-japanese text-foreground text-3xl font-black tracking-tight sm:text-4xl">
             {currentQuestion.prompt}

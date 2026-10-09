@@ -49,7 +49,9 @@ export function normalizeJapanese(str: string): string {
  * - "bé (dùng cho nam) hoặc gọi thân mật." -> ["bé", "gọi thân mật", "bé hoặc gọi thân mật"]
  * - "sân ga số -" -> ["sân ga số -", "sân ga số"]
  */
-export function extractAcceptedVietnameseMeanings(definition: string): string[] {
+export function extractAcceptedVietnameseMeanings(
+  definition: string
+): string[] {
   if (!definition) return []
 
   const results = new Set<string>()
@@ -197,9 +199,7 @@ export function isStudyAnswerCorrect({
 
     // 2. So khớp không khoảng trắng (phòng trường hợp gõ "thầycô" thay vì "thầy cô")
     const typedNoSpace = typedClean.replace(/\s+/g, "")
-    if (
-      acceptedMeanings.some((m) => m.replace(/\s+/g, "") === typedNoSpace)
-    ) {
+    if (acceptedMeanings.some((m) => m.replace(/\s+/g, "") === typedNoSpace)) {
       return true
     }
 

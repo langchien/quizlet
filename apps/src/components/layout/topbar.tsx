@@ -95,7 +95,10 @@ export function Topbar({
         <DropdownMenu>
           <DropdownMenuTrigger
             render={
-              <Button size="sm" className="shadow-primary/20 gap-1.5 shadow-xs" />
+              <Button
+                size="sm"
+                className="shadow-primary/20 gap-1.5 shadow-xs"
+              />
             }
           >
             <Plus className="size-4" />

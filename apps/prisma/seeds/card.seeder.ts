@@ -133,8 +133,7 @@ export async function seedCardsAndSets(
           jlptLevel,
           wordType,
           radicals: c.radicals || null,
-          strokeCount:
-            typeof c.strokeCount === "number" ? c.strokeCount : null,
+          strokeCount: typeof c.strokeCount === "number" ? c.strokeCount : null,
           onReading: c.onReading || null,
           kunReading: c.kunReading || null,
           compounds: c.compounds || null,

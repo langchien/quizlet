@@ -307,7 +307,6 @@ export default function TestStudyPage() {
     setTestPhase("testing")
   }
 
-
   // Xử lý nộp bài thi
   const handleSubmitTest = React.useCallback(async () => {
     if (timerRef.current) {
@@ -577,7 +576,8 @@ export default function TestStudyPage() {
                       Điền từ / Tự luận (Written)
                     </Label>
                     <p className="text-muted-foreground text-xs">
-                      Xem nghĩa tiếng Việt và gõ từ tiếng Nhật (hỗ trợ cả Kanji và Hiragana).
+                      Xem nghĩa tiếng Việt và gõ từ tiếng Nhật (hỗ trợ cả Kanji
+                      và Hiragana).
                     </p>
                   </div>
                   <Checkbox
@@ -630,7 +630,8 @@ export default function TestStudyPage() {
                   Đảo ngược trắc nghiệm (Reverse)
                 </Label>
                 <p className="text-muted-foreground text-xs">
-                  Hiển thị nghĩa tiếng Việt để chọn từ tiếng Nhật cho câu trắc nghiệm và đúng/sai.
+                  Hiển thị nghĩa tiếng Việt để chọn từ tiếng Nhật cho câu trắc
+                  nghiệm và đúng/sai.
                 </p>
               </div>
               <Switch

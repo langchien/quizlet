@@ -75,7 +75,9 @@ export async function seedFolders(
   folderMap.set(n5Folder.name, n5Folder.id)
   folderMap.set(n4Folder.name, n4Folder.id)
 
-  console.log("✅ [Folders] Đã thiết lập cấu trúc cây thư mục Minna no Nihongo.")
+  console.log(
+    "✅ [Folders] Đã thiết lập cấu trúc cây thư mục Minna no Nihongo."
+  )
 
   return {
     minnaFolder,
