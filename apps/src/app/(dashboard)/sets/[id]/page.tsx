@@ -378,6 +378,16 @@ export default function SetDetailPage() {
 
           {/* Header Action Buttons */}
           <div className="flex flex-wrap items-center gap-2">
+            <Link href={`/study/${setId}`}>
+              <Button
+                size="sm"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 gap-1.5 font-bold shadow-xs"
+              >
+                <Play className="size-3.5 fill-current" />
+                <span>Bắt đầu học</span>
+              </Button>
+            </Link>
+
             <Button
               variant="outline"
               size="sm"
@@ -385,19 +395,20 @@ export default function SetDetailPage() {
               className="gap-1.5"
             >
               <Edit2 className="size-3.5" />
-              <span>Sửa thông tin</span>
+              <span>Sửa</span>
             </Button>
 
             <Button
+              variant="outline"
               size="sm"
               onClick={() => {
                 setEditingCard(null)
                 setCardModalOpen(true)
               }}
-              className="shadow-primary/20 gap-1.5 shadow-xs"
+              className="gap-1.5"
             >
-              <Plus className="size-4" />
-              <span>Thêm thẻ mới</span>
+              <Plus className="size-3.5" />
+              <span>Thêm thẻ</span>
             </Button>
           </div>
         </div>

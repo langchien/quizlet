@@ -31,11 +31,11 @@
 | 3.5 |   3   | Write Mode (UI)                 | Gõ đáp án, check chính tả, hint, IME tiếng Nhật, override                                          |     ✅     |
 | 3.6 |   3   | Review Mistakes (UI) ⭐         | Error Pool, thống kê tần suất sai, ôn tập tập trung vào lỗi sai                                    |     ✅     |
 |     |       | **✅ Checkpoint 3**             | **Flashcard + Learn + Write + SRS + Review Mistakes hoạt động**                                    |     ✅     |
-| 4.1 |   4   | Test Mode (UI)                  | Cấu hình (số câu, dạng, timed), chấm điểm, so sánh với lần trước                                   |     ⬜     |
-| 4.2 |   4   | Match Mode (UI)                 | Ghép đôi drag & drop, timer, animation, personal best                                              |     ⬜     |
-| 4.3 |   4   | Listening Mode (UI)             | TTS phát âm → gõ lại, tốc độ 0.5x/1x/1.5x, hint                                                    |     ⬜     |
-| 4.4 |   4   | Mode Selection Screen           | 6 cards chọn mode, options chung (shuffle, reverse, filter)                                        |     ⬜     |
-|     |       | **✅ Checkpoint 4**             | **Tất cả 6 study modes hoạt động, lưu session**                                                    |     ⬜     |
+| 4.1 |   4   | Test Mode (UI)                  | Cấu hình (số câu, dạng, timed), chấm điểm, so sánh với lần trước                                   |     ✅     |
+| 4.2 |   4   | Match Mode (UI)                 | Ghép đôi drag & drop, timer, animation, personal best                                              |     ✅     |
+| 4.3 |   4   | Listening Mode (UI)             | TTS phát âm → gõ lại, tốc độ 0.5x/1x/1.5x, hint                                                    |     ✅     |
+| 4.4 |   4   | Mode Selection Screen           | 6 cards chọn mode, options chung (shuffle, reverse, filter)                                        |     ✅     |
+|     |       | **✅ Checkpoint 4**             | **Tất cả 6 study modes hoạt động, lưu session**                                                    |     ✅     |
 | 5.1 |   5   | Statistics API                  | Route Handlers: Dashboard, daily stats, heatmap, sessions history, export                          |     ⬜     |
 | 5.2 |   5   | Calendar API                    | Route Handlers: Due cards theo tháng, chi tiết cards cần ôn hôm nay                                |     ⬜     |
 | 5.3 |   5   | Daily Goals API                 | Route Handlers: CRUD goals, progress tracking, streak logic                                        |     ⬜     |

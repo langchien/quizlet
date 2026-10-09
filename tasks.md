@@ -656,11 +656,11 @@ Yêu cầu:
 
 ```
 Kiểm tra:
-- [ ] Test mode: cấu hình, timed, nhiều dạng câu, chấm điểm
-- [ ] Match mode: ghép đôi, timer, animation mượt mà
-- [ ] Listen mode: TTS phát âm, gõ lại, check chính xác
-- [ ] Mode selection screen hiển thị đẹp, điều hướng chính xác
-- [ ] Toàn bộ 6 modes đều lưu StudySession đầy đủ
+- [x] Test mode: cấu hình, timed, nhiều dạng câu, chấm điểm
+- [x] Match mode: ghép đôi, timer, animation mượt mà
+- [x] Listen mode: TTS phát âm, gõ lại, check chính xác
+- [x] Mode selection screen hiển thị đẹp, điều hướng chính xác
+- [x] Toàn bộ 6 modes đều lưu StudySession đầy đủ
 ```
 
 ---
