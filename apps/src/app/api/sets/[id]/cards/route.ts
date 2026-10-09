@@ -10,11 +10,11 @@ import type {
 } from "@/generated/prisma/client"
 
 interface RouteProps {
-  params: Promise<{ setId: string }>
+  params: Promise<{ id: string }>
 }
 
 /**
- * GET /api/sets/[setId]/cards — Danh sách thẻ học trong bộ thẻ
+ * GET /api/sets/[id]/cards — Danh sách thẻ học trong bộ thẻ
  */
 export async function GET(req: Request, { params }: RouteProps) {
   try {
@@ -26,7 +26,7 @@ export async function GET(req: Request, { params }: RouteProps) {
       )
     }
 
-    const { setId } = await params
+    const { id: setId } = await params
 
     // Kiểm tra bộ thẻ thuộc quyền sở hữu của user
     const studySet = await prisma.studySet.findFirst({
@@ -135,7 +135,7 @@ export async function GET(req: Request, { params }: RouteProps) {
       total: formattedCards.length,
     })
   } catch (error) {
-    console.error("❌ Lỗi GET /api/sets/[setId]/cards:", error)
+    console.error("❌ Lỗi GET /api/sets/[id]/cards:", error)
     return NextResponse.json(
       { error: "Đã xảy ra lỗi máy chủ khi lấy danh sách thẻ." },
       { status: 500 }
@@ -144,7 +144,7 @@ export async function GET(req: Request, { params }: RouteProps) {
 }
 
 /**
- * POST /api/sets/[setId]/cards — Thêm thẻ mới vào bộ thẻ
+ * POST /api/sets/[id]/cards — Thêm thẻ mới vào bộ thẻ
  */
 export async function POST(req: Request, { params }: RouteProps) {
   try {
@@ -156,7 +156,7 @@ export async function POST(req: Request, { params }: RouteProps) {
       )
     }
 
-    const { setId } = await params
+    const { id: setId } = await params
 
     // Kiểm tra bộ thẻ thuộc quyền sở hữu của user
     const studySet = await prisma.studySet.findFirst({
@@ -333,7 +333,7 @@ export async function POST(req: Request, { params }: RouteProps) {
 
     return NextResponse.json(formattedResult, { status: 201 })
   } catch (error) {
-    console.error("❌ Lỗi POST /api/sets/[setId]/cards:", error)
+    console.error("❌ Lỗi POST /api/sets/[id]/cards:", error)
     return NextResponse.json(
       { error: "Đã xảy ra lỗi máy chủ khi thêm thẻ mới." },
       { status: 500 }
