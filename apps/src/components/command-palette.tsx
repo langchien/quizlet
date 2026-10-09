@@ -256,6 +256,16 @@ export function CommandPalette({
                   </div>
                   <span>Thống kê tiến độ</span>
                 </button>
+                <button
+                  type="button"
+                  onClick={() => handleSelect("/import-export")}
+                  className="text-foreground hover:bg-muted flex items-center gap-2.5 rounded-xl px-3 py-2 text-left text-xs font-medium transition-colors"
+                >
+                  <div className="flex size-7 items-center justify-center rounded-lg bg-teal-500/10 text-teal-500">
+                    <Sparkles className="size-4" />
+                  </div>
+                  <span>Nhập / Xuất dữ liệu</span>
+                </button>
               </div>
             </div>
           )}

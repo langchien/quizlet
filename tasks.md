@@ -819,11 +819,11 @@ Yêu cầu:
 
 ```
 Kiểm tra:
-- [ ] Import deck Anki (.apkg) thực tế thành công
-- [ ] Import CSV và JSON tạo cards chính xác
-- [ ] Bảng preview hiển thị đúng trước khi xác nhận import
-- [ ] Export set ra JSON chuẩn cấu trúc
-- [ ] Full backup và restore dữ liệu toàn vẹn
+- [x] Import deck Anki (.apkg) thực tế thành công
+- [x] Import CSV và JSON tạo cards chính xác
+- [x] Bảng preview hiển thị đúng trước khi xác nhận import
+- [x] Export set ra JSON chuẩn cấu trúc
+- [x] Full backup và restore dữ liệu toàn vẹn
 ```
 
 ---

@@ -22,6 +22,7 @@ import {
   BookOpen,
   ChevronLeft,
   AlertCircle,
+  UploadCloud,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { APP_NAME } from "@/types"
@@ -153,6 +154,12 @@ export function Sidebar({
       href: "/stats",
       icon: BarChart3,
       active: pathname.startsWith("/stats"),
+    },
+    {
+      title: "Nhập / Xuất dữ liệu",
+      href: "/import-export",
+      icon: UploadCloud,
+      active: pathname.startsWith("/import-export"),
     },
     {
       title: "Cài đặt",
