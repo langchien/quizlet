@@ -286,19 +286,19 @@ apps/src/
      - `set-delete-dialogs.tsx`: Modal xác nhận xoá 1 thẻ và xoá nhiều thẻ.
   3. Tinh gọn `set-detail-client.tsx`: Giảm từ **849 dòng xuống còn 136 dòng**.
 
-#### Nhiệm vụ 3.2: Refactor Màn Hình Trang Chủ Dashboard (`src/app/(dashboard)/dashboard/dashboard-client.tsx` — 730 dòng)
+#### Nhiệm vụ 3.2: Refactor Màn Hình Trang Chủ Dashboard (`src/app/(dashboard)/dashboard/dashboard-client.tsx` — 730 dòng) [ĐÃ HOÀN THÀNH ✅]
 - **Vấn đề**: Banner chào mừng, Streak flame, 4 KPI cards, Dialog sửa mục tiêu, Quick SRS review, Biểu đồ hoạt động 7 ngày, Danh sách bộ thẻ gần đây, Lịch sử buổi học gần nhất nằm chung trong một client component.
 - **Giải pháp**:
   1. Tạo hook `src/hooks/dashboard/use-daily-goal.ts`:
      - Quản lý state mở dialog, input cardTarget, input timeTarget, transition gọi `updateGoalAction`.
   2. Tạo thư mục `src/components/dashboard/`:
      - `dashboard-welcome-banner.tsx`: Lời chào theo buổi trong ngày, streak flame badge, nút ôn tập nhanh thẻ đến hạn (Due reviews).
-     - `dashboard-kpi-grid.tsx`: Grid 4 cards KPI chỉ số trong ngày.
-     - `dashboard-goal-card.tsx` & `dashboard-goal-dialog.tsx`: Hiển thị tiến độ hoàn thành mục tiêu ngày và dialog chỉnh sửa.
-     - `dashboard-activity-chart.tsx`: Biểu đồ hoạt động 7 ngày (Recharts Area/Bar chart).
+     - `dashboard-kpi-grid.tsx`: Grid 4 cards KPI chỉ số trong ngày (thẻ đã học, độ chính xác, thời gian học, thẻ cần ôn SRS).
+     - `dashboard-goal-banner.tsx` & `dashboard-goal-dialog.tsx`: Hiển thị tiến độ hoàn thành mục tiêu ngày và dialog chỉnh sửa.
+     - `dashboard-performance-charts.tsx`: Biểu đồ hoạt động 7 ngày (Recharts AreaChart) và hiệu suất theo chế độ học (BarChart).
      - `dashboard-recent-sets.tsx`: Grid danh sách các bộ thẻ vừa học / vừa tạo.
      - `dashboard-recent-sessions.tsx`: Danh sách lịch sử các phiên học gần nhất.
-  3. Tinh gọn `dashboard-client.tsx`: Giảm từ **730 dòng xuống dưới 100 dòng**.
+  3. Tinh gọn `dashboard-client.tsx`: Giảm từ **730 dòng xuống còn 88 dòng**.
 
 ---
 
