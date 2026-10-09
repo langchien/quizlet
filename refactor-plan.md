@@ -345,15 +345,17 @@ apps/src/
     - `match-result-card.tsx`: Khung chiến thắng với cúp Trophy, thông báo Kỷ lục mới (PB), đồng hồ thời gian lớn, thống kê số cặp/lỗi phạt/PB và nút chơi lại ván mới.
   - Tinh gọn `match/page.tsx`: Giảm từ **557 dòng xuống còn 85 dòng**.
 
-#### Nhiệm vụ 4.5: Refactor Chế Độ Luyện Viết (`src/app/(dashboard)/study/[setId]/write/page.tsx` — 506 dòng)
+#### Nhiệm vụ 4.5: Refactor Chế Độ Luyện Viết (`src/app/(dashboard)/study/[setId]/write/page.tsx` — 506 dòng) [ĐÃ HOÀN THÀNH ✅]
 - **Giải pháp**:
-  - Tách hook `src/hooks/study/use-write-session.ts`: Quản lý prompt nghĩa, kiểm tra chuỗi câu trả lời, xem đáp án khi quên, vòng lặp gõ lại các thẻ sai cho đến khi thuộc toàn bộ.
+  - Tách types `src/types/write.ts`: Định nghĩa kiểu dữ liệu `WriteCardItem` và trạng thái `WriteStatus`.
+  - Tách hook `src/hooks/study/use-write-session.ts`: Quản lý nạp thẻ theo URL params, kiểm tra câu trả lời qua `isStudyAnswerCorrect`, phát âm tiếng Nhật qua `useTTS`, cơ chế gợi ý lũy tiến theo số lần gõ sai (Hiragana reading -> từ vựng đầy đủ), tính năng override "Đáp án của tôi đúng", tự động focus input, ghi nhận Server Actions (`startStudySessionAction`, `answerCardAction`, `endStudySessionAction`).
   - Tách Sub-components `src/components/study/write/`:
-    - `write-header.tsx`: Tiến độ vòng học và số thẻ đã ghi nhớ.
-    - `write-prompt-card.tsx`: Hiển thị nghĩa tiếng Việt và gợi ý từ loại.
-    - `write-input-form.tsx`: Ô nhập tiếng Nhật kèm phím gửi bài.
-    - `write-feedback-view.tsx`: Bảng so sánh từ người dùng gõ vs từ đúng khi trả lời sai.
-  - Tinh gọn `write/page.tsx`: Giảm từ **506 dòng xuống dưới 70 dòng**.
+    - `write-header.tsx`: Thanh điều hướng thoát, bộ đếm số câu và thanh tiến độ màu amber.
+    - `write-prompt-card.tsx`: Hiển thị nghĩa tiếng Việt câu hỏi, nút phát âm loa tiếng Nhật, badge JLPT và câu ví dụ mẫu.
+    - `write-hint-box.tsx`: Hộp gợi ý thông minh hiển thị khi gõ sai lần 1 (Hiragana) hoặc lần 2 (từ vựng).
+    - `write-input-form.tsx`: Ô nhập tiếng Nhật kèm icon trạng thái đúng/sai và nút gửi kiểm tra.
+    - `write-feedback-view.tsx`: Bảng phản hồi kết quả đúng/sai, hiển thị đáp án mẫu, nút "Đáp án của tôi đúng" và nút Tiếp tục.
+  - Tinh gọn `write/page.tsx`: Giảm từ **506 dòng xuống còn 116 dòng**.
 
 #### Nhiệm vụ 4.6: Refactor Sổ Tay Thẻ Sai (`src/app/(dashboard)/study/mistakes/mistakes-client.tsx` — 529 dòng)
 - **Giải pháp**:
