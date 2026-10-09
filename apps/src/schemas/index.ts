@@ -13,7 +13,7 @@ export const StudyModeSchema = z.enum(STUDY_MODES)
  * Schema thông tin người dùng cơ bản
  */
 export const UserBaseSchema = z.object({
-  id: z.string().cuid(),
+  id: z.string(),
   email: z.string().email("Email không hợp lệ"),
   name: z.string().min(2, "Tên phải có ít nhất 2 ký tự"),
   avatar: z.string().url().nullable().optional(),
@@ -35,3 +35,15 @@ export const HealthCheckResponseSchema = z.object({
 })
 
 export type HealthCheckResponseDTO = z.infer<typeof HealthCheckResponseSchema>
+
+// Export toàn bộ schemas từ các modules
+export * from "./auth"
+export * from "./card"
+export * from "./set"
+export * from "./folder"
+export * from "./tag"
+export * from "./srs"
+export * from "./session"
+export * from "./stats"
+export * from "./goals"
+export * from "./import-export"

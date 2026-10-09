@@ -7,14 +7,264 @@ datasource db {
   provider = "postgresql"
 }
 
+// --------------------------------------------------------
+// ENUMS
+// --------------------------------------------------------
+
+enum JLPTLevel {
+  N5
+  N4
+  N3
+  N2
+  N1
+}
+
+enum WordType {
+  Noun
+  Verb
+  IAdjective
+  NaAdjective
+  Adverb
+  Kanji
+  Grammar
+  Other
+}
+
+enum CardStatus {
+  New
+  Learning
+  Review
+  Mastered
+}
+
+enum StudyMode {
+  Flashcard
+  Learn
+  Test
+  Match
+  Write
+  Listen
+}
+
+// --------------------------------------------------------
+// MODELS
+// --------------------------------------------------------
+
+/// Người dùng hệ thống
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
   name      String
   password  String
   avatar    String?
+  settings  Json     @default("{\"theme\":\"system\",\"srsMode\":\"auto\",\"dailyGoal\":20,\"keyboardShortcuts\":true}")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  folders       Folder[]
+  studySets     StudySet[]
+  tags          Tag[]
+  srsData       SRSData[]
+  studySessions StudySession[]
+  dailyStats    DailyStats[]
+  goal          UserGoal?
+
   @@map("users")
+}
+
+/// Thư mục tổ chức bộ thẻ học tập (hỗ trợ thư mục lồng nhau)
+model Folder {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  parentId    String?
+  userId      String
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  parent    Folder?    @relation("FolderHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  children  Folder[]   @relation("FolderHierarchy")
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  studySets StudySet[]
+
+  @@index([userId])
+  @@index([parentId])
+  @@map("folders")
+}
+
+/// Bộ thẻ học tập (Study Set)
+model StudySet {
+  id             String   @id @default(cuid())
+  name           String
+  description    String?
+  sourceLanguage String   @default("ja")
+  targetLanguage String   @default("vi")
+  folderId       String?
+  userId         String
+  cardCount      Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  folder        Folder?        @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cards         Card[]
+  studySessions StudySession[]
+
+  @@index([userId])
+  @@index([folderId])
+  @@map("study_sets")
+}
+
+/// Thẻ từ vựng / Hán tự / Ngữ pháp
+model Card {
+  id                 String     @id @default(cuid())
+  studySetId         String
+  term               String
+  reading            String
+  definition         String
+  example            String?
+  exampleTranslation String?
+  imageUrl           String?
+  audioUrl           String?
+  note               String?
+  jlptLevel          JLPTLevel?
+  wordType           WordType?
+  
+  // Trường đặc thù cho Hán tự (Kanji)
+  radicals           String?
+  strokeCount        Int?
+  onReading          String?
+  kunReading         String?
+  compounds          String?
+
+  order              Int        @default(0)
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+
+  studySet StudySet  @relation(fields: [studySetId], references: [id], onDelete: Cascade)
+  cardTags CardTag[]
+  srsData  SRSData[]
+
+  @@index([studySetId])
+  @@index([jlptLevel])
+  @@map("cards")
+}
+
+/// Nhãn phân loại linh hoạt
+model Tag {
+  id        String   @id @default(cuid())
+  name      String
+  color     String   @default("#3B82F6")
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cardTags CardTag[]
+
+  @@unique([name, userId])
+  @@index([userId])
+  @@map("tags")
+}
+
+/// Bảng trung gian nhiều - nhiều giữa Card và Tag
+model CardTag {
+  cardId String
+  tagId  String
+
+  card Card @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  tag  Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([cardId, tagId])
+  @@index([cardId])
+  @@index([tagId])
+  @@map("card_tags")
+}
+
+/// Dữ liệu thuật toán lặp lại ngắt quãng (Spaced Repetition System) theo từng thẻ
+model SRSData {
+  id             String     @id @default(cuid())
+  cardId         String
+  userId         String
+  status         CardStatus @default(New)
+  easeFactor     Float      @default(2.5)
+  interval       Int        @default(0) // số ngày
+  repetitions    Int        @default(0)
+  nextReviewDate DateTime   @default(now())
+  lastReviewDate DateTime?
+  correctCount   Int        @default(0)
+  incorrectCount Int        @default(0)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  card Card @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([cardId, userId])
+  @@index([userId, nextReviewDate])
+  @@index([userId, status])
+  @@map("srs_data")
+}
+
+/// Nhật ký phiên học tập
+model StudySession {
+  id             String    @id @default(cuid())
+  userId         String
+  studySetId     String?
+  mode           StudyMode
+  startedAt      DateTime  @default(now())
+  endedAt        DateTime?
+  duration       Int       @default(0) // Số giây
+  totalCards     Int       @default(0)
+  correctCards   Int       @default(0)
+  incorrectCards Int       @default(0)
+  score          Float     @default(0) // Điểm phần trăm (0 - 100)
+  createdAt      DateTime  @default(now())
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  studySet StudySet? @relation(fields: [studySetId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([studySetId])
+  @@map("study_sessions")
+}
+
+/// Thống kê học tập theo từng ngày của người dùng
+model DailyStats {
+  id             String   @id @default(cuid())
+  userId         String
+  date           String   // Định dạng chuẩn YYYY-MM-DD
+  cardsStudied   Int      @default(0)
+  cardsCorrect   Int      @default(0)
+  cardsIncorrect Int      @default(0)
+  timeSpent      Int      @default(0) // Số giây học tập
+  newCardsSeen   Int      @default(0)
+  reviewCards    Int      @default(0)
+  streak         Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId])
+  @@map("daily_stats")
+}
+
+/// Mục tiêu học tập cá nhân và chuỗi ngày học liên tục (Streak)
+model UserGoal {
+  id               String    @id @default(cuid())
+  userId           String    @unique
+  dailyCardTarget  Int       @default(20) // Mục tiêu số thẻ mỗi ngày
+  dailyTimeTarget  Int       @default(15) // Mục tiêu số phút mỗi ngày
+  currentStreak    Int       @default(0)
+  longestStreak    Int       @default(0)
+  lastStudyDate    DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_goals")
 }

@@ -53,6 +53,12 @@ export interface UserBase {
   email: string
   name: string
   avatar?: string | null
+  settings?: {
+    theme?: "light" | "dark" | "system"
+    srsMode?: "auto" | "simple" | "advanced"
+    dailyGoal?: number
+    keyboardShortcuts?: boolean
+  }
   createdAt: Date | string
   updatedAt: Date | string
 }

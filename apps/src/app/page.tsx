@@ -1,5 +1,7 @@
 "use client"
 
+import * as React from "react"
+import Link from "next/link"
 import { useQuery } from "@tanstack/react-query"
 import { toast } from "sonner"
 import {
@@ -10,11 +12,21 @@ import {
   Layers,
   Sparkles,
   Zap,
+  LogIn,
+  UserPlus,
+  LogOut,
+  User,
+  ShieldCheck,
+  Target,
+  ArrowRight,
 } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import { ModeToggle } from "@/components/mode-toggle"
+import { Badge } from "@/components/ui/badge"
+import { cn } from "@/lib/utils"
 import { APP_NAME, APP_TITLE, JLPT_LEVELS, STUDY_MODES } from "@/types"
 import { useAppStore } from "@/stores/useAppStore"
+import { useAuthStore } from "@/stores/useAuthStore"
 import type { HealthCheckResponse } from "@/types"
 
 async function fetchHealth(): Promise<HealthCheckResponse> {
@@ -27,6 +39,12 @@ async function fetchHealth(): Promise<HealthCheckResponse> {
 
 export default function HomePage() {
   const { selectedJLPTLevel, setSelectedJLPTLevel } = useAppStore()
+  const { user, isAuthenticated, fetchCurrentUser, logout, isLoading } =
+    useAuthStore()
+
+  React.useEffect(() => {
+    fetchCurrentUser()
+  }, [fetchCurrentUser])
 
   const {
     data: health,
@@ -48,13 +66,25 @@ export default function HomePage() {
     }
   }
 
+  const handleLogout = async () => {
+    try {
+      await logout()
+      toast.success("Đã đăng xuất tài khoản thành công")
+    } catch {
+      toast.error("Đăng xuất thất bại")
+    }
+  }
+
   return (
-    <div className="bg-background selection:bg-primary/20 flex min-h-screen flex-col">
+    <div className="bg-background text-foreground selection:bg-primary/20 relative flex min-h-screen flex-col">
+      {/* Background Grid Pattern */}
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] opacity-30 dark:bg-[radial-gradient(#1f2937_1px,transparent_1px)] dark:opacity-20" />
+
       {/* Navigation Top Bar */}
       <header className="border-border/40 bg-background/80 sticky top-0 z-50 w-full border-b backdrop-blur-md">
         <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-8">
           <div className="flex items-center gap-3">
-            <div className="bg-primary text-primary-foreground shadow-primary/20 flex h-10 w-10 items-center justify-center rounded-xl shadow-md">
+            <div className="from-primary text-primary-foreground shadow-primary/20 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br to-rose-600 shadow-md">
               <span className="text-lg font-bold">日</span>
             </div>
             <div>
@@ -68,15 +98,48 @@ export default function HomePage() {
           </div>
 
           <div className="flex items-center gap-3">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => toast.info("Chào mừng bạn đến với NihoMemo!")}
-              className="hidden sm:inline-flex"
-            >
-              <Sparkles className="mr-1.5 h-3.5 w-3.5 text-amber-500" />
-              Thử nghiệm Toast
-            </Button>
+            {isAuthenticated && user ? (
+              <div className="flex items-center gap-2">
+                <div className="border-border/70 bg-card hidden items-center gap-2 rounded-full border px-3 py-1 text-xs sm:flex">
+                  <User className="text-primary size-3.5" />
+                  <span className="font-medium">{user.name}</span>
+                  <Badge variant="success" className="h-4 px-1.5 text-[10px]">
+                    Đã đăng nhập
+                  </Badge>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleLogout}
+                  disabled={isLoading}
+                  className="gap-1.5"
+                >
+                  <LogOut className="size-3.5" />
+                  <span className="hidden sm:inline">Đăng xuất</span>
+                </Button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Link
+                  href="/login"
+                  className={cn(
+                    buttonVariants({ variant: "ghost", size: "sm" }),
+                    "gap-1.5"
+                  )}
+                >
+                  <LogIn className="size-3.5" />
+                  <span>Đăng nhập</span>
+                </Link>
+                <Link
+                  href="/register"
+                  className={cn(buttonVariants({ size: "sm" }), "gap-1.5")}
+                >
+                  <UserPlus className="size-3.5" />
+                  <span className="hidden sm:inline">Đăng ký</span>
+                </Link>
+              </div>
+            )}
+
             <ModeToggle />
           </div>
         </div>
@@ -86,14 +149,14 @@ export default function HomePage() {
       <main className="container mx-auto flex flex-1 flex-col items-center justify-center px-4 py-12 sm:px-8">
         <div className="mx-auto flex max-w-4xl flex-col items-center text-center">
           {/* Badge */}
-          <div className="border-primary/20 bg-primary/5 text-primary mb-6 inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-semibold">
-            <Flame className="h-4 w-4 text-orange-500" />
-            <span>Phase 0 — Khởi tạo dự án & Hạ tầng cơ sở</span>
+          <div className="border-primary/20 bg-primary/5 text-primary dark:bg-primary/10 mb-6 inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-semibold">
+            <ShieldCheck className="h-4 w-4 text-emerald-500" />
+            <span>Phase 1 — Xác thực & Database Schema Hoàn Tất</span>
           </div>
 
           {/* Heading */}
           <h1 className="text-4xl font-extrabold tracking-tight sm:text-6xl sm:leading-tight">
-            Hello{" "}
+            Chào mừng đến với{" "}
             <span className="from-primary bg-gradient-to-r via-indigo-500 to-sky-500 bg-clip-text text-transparent">
               {APP_TITLE}
             </span>
@@ -103,6 +166,41 @@ export default function HomePage() {
             Nền tảng học từ vựng, Kanji và ngữ pháp tiếng Nhật cá nhân hoá kết
             hợp thuật toán lặp lại ngắt quãng (Spaced Repetition System - SRS).
           </p>
+
+          {/* Auth Action Callout */}
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            {isAuthenticated ? (
+              <div className="flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-600 dark:text-emerald-400">
+                <CheckCircle2 className="size-4" />
+                <span>
+                  Xin chào, <strong>{user?.name}</strong> ({user?.email})! Bạn
+                  đã sẵn sàng học tập.
+                </span>
+              </div>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                <Link
+                  href="/login"
+                  className={cn(
+                    buttonVariants({ size: "lg" }),
+                    "shadow-primary/20 gap-2 shadow-lg"
+                  )}
+                >
+                  <span>Đăng nhập hệ thống</span>
+                  <ArrowRight className="size-4" />
+                </Link>
+                <Link
+                  href="/register"
+                  className={cn(
+                    buttonVariants({ variant: "outline", size: "lg" }),
+                    "gap-2"
+                  )}
+                >
+                  <span>Tạo tài khoản miễn phí</span>
+                </Link>
+              </div>
+            )}
+          </div>
 
           {/* Health & DB Status Card */}
           <div className="border-border/60 bg-card shadow-foreground/5 mt-8 w-full max-w-md rounded-2xl border p-6 text-left shadow-xl">
@@ -236,8 +334,9 @@ export default function HomePage() {
               "TypeScript Strict",
               "Tailwind CSS v4",
               "Shadcn UI",
-              "Prisma ORM",
+              "Prisma ORM 7",
               "PostgreSQL Docker",
+              "JWT & HttpOnly Cookies",
               "Zustand State",
               "TanStack Query v5",
               "Zod Validation",

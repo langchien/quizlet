@@ -10,11 +10,11 @@
 | 0.4 |   0   | Schemas, Types & State          | Zod schemas, Enums JLPT/WordType/SRS, Zustand store, Axios/Fetch client                            |     ✅     |
 | 0.5 |   0   | Health Check & Env Validation   | GET `/api/health` Route Handler, Env validation bằng Zod                                           |     ✅     |
 |     |       | **✅ Checkpoint 0**             | **Next.js chạy thành công, kết nối DB Prisma OK, UI Shadcn + Dark mode OK**                        |     ✅     |
-| 1.1 |   1   | Prisma Schema đầy đủ            | 10 models: User, Folder, StudySet, Card, Tag, CardTag, SRSData, StudySession, DailyStats, UserGoal |     ⬜     |
-| 1.2 |   1   | Zod Schemas & Types             | DTOs cho Auth, Card, Set, Folder, Tag, SRS, Session, Stats, Import/Export trong `src/schemas`      |     ⬜     |
-| 1.3 |   1   | Auth API (Route Handlers)       | Register, Login, Refresh, Logout, /me — JWT Access + Refresh (HttpOnly Cookies)                    |     ⬜     |
-| 1.4 |   1   | Auth UI (App Router)            | Login/Register pages, Axios interceptor, Zustand auth store, Middleware route guards               |     ⬜     |
-|     |       | **✅ Checkpoint 1**             | **Đăng ký → Đăng nhập → Protected routes → Auto refresh token**                                    |     ⬜     |
+| 1.1 |   1   | Prisma Schema đầy đủ            | 10 models: User, Folder, StudySet, Card, Tag, CardTag, SRSData, StudySession, DailyStats, UserGoal |     ✅     |
+| 1.2 |   1   | Zod Schemas & Types             | DTOs cho Auth, Card, Set, Folder, Tag, SRS, Session, Stats, Import/Export trong `src/schemas`      |     ✅     |
+| 1.3 |   1   | Auth API (Route Handlers)       | Register, Login, Refresh, Logout, /me — JWT Access + Refresh (HttpOnly Cookies)                    |     ✅     |
+| 1.4 |   1   | Auth UI (App Router)            | Login/Register pages, Axios interceptor, Zustand auth store, Middleware route guards               |     ✅     |
+|     |       | **✅ Checkpoint 1**             | **Đăng ký → Đăng nhập → Protected routes → Auto refresh token**                                    |     ✅     |
 | 2.1 |   2   | Study Sets API (Route Handlers) | GET/POST/PATCH/DELETE sets + duplicate + merge                                                     |     ⬜     |
 | 2.2 |   2   | Cards API (Route Handlers)      | GET/POST/PATCH/DELETE cards + upload ảnh (Sharp → webp) + bulk tag + reorder                       |     ⬜     |
 | 2.3 |   2   | Folders API (Route Handlers)    | Tree structure, nested folders, move                                                               |     ⬜     |
