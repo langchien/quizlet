@@ -21,6 +21,7 @@ import {
   FolderPlus,
   BookOpen,
   ChevronLeft,
+  AlertCircle,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { APP_NAME } from "@/types"
@@ -134,6 +135,12 @@ export function Sidebar({
       href: "/tags",
       icon: Tag,
       active: pathname.startsWith("/tags"),
+    },
+    {
+      title: "Ôn tập lỗi sai",
+      href: "/study/mistakes",
+      icon: AlertCircle,
+      active: pathname === "/study/mistakes",
     },
     {
       title: "Lịch ôn tập",

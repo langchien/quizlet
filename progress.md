@@ -24,13 +24,13 @@
 | 2.7 |   2   | Folders & Tags (UI)             | Folder CRUD trong sidebar, Tag management, gán tag nhanh                                           |     ✅     |
 | 2.8 |   2   | Tìm kiếm toàn cục               | API: search xuyên sets/cards/tags — UI: Command palette (Ctrl+K)                                   |     ✅     |
 |     |       | **✅ Checkpoint 2**             | **CRUD Sets/Cards/Folders/Tags OK, Search OK, Sidebar OK**                                         |     ✅     |
-| 3.1 |   3   | Study Session API               | Route Handlers: Start/Answer/End session, Mistakes pool, Review mistakes                           |     ⬜     |
-| 3.2 |   3   | SRS Engine                      | Core logic: 3 chế độ Auto / Simple (Quizlet) / Advanced (SM-2) + Due cards API                     |     ⬜     |
-| 3.3 |   3   | Flashcard Mode (UI)             | Flip 3D, shuffle, reverse, TTS, keyboard shortcuts, auto-play, summary                             |     ⬜     |
-| 3.4 |   3   | Learn Mode (UI)                 | Adaptive: MC + TF + Written, thẻ sai quay lại, progress bar                                        |     ⬜     |
-| 3.5 |   3   | Write Mode (UI)                 | Gõ đáp án, check chính tả, hint, IME tiếng Nhật, override                                          |     ⬜     |
-| 3.6 |   3   | Review Mistakes (UI) ⭐         | Error Pool, thống kê tần suất sai, ôn tập tập trung vào lỗi sai                                    |     ⬜     |
-|     |       | **✅ Checkpoint 3**             | **Flashcard + Learn + Write + SRS + Review Mistakes hoạt động**                                    |     ⬜     |
+| 3.1 |   3   | Study Session API               | Route Handlers: Start/Answer/End session, Mistakes pool, Review mistakes                           |     ✅     |
+| 3.2 |   3   | SRS Engine                      | Core logic: 3 chế độ Auto / Simple (Quizlet) / Advanced (SM-2) + Due cards API                     |     ✅     |
+| 3.3 |   3   | Flashcard Mode (UI)             | Flip 3D, shuffle, reverse, TTS, keyboard shortcuts, auto-play, summary                             |     ✅     |
+| 3.4 |   3   | Learn Mode (UI)                 | Adaptive: MC + TF + Written, thẻ sai quay lại, progress bar                                        |     ✅     |
+| 3.5 |   3   | Write Mode (UI)                 | Gõ đáp án, check chính tả, hint, IME tiếng Nhật, override                                          |     ✅     |
+| 3.6 |   3   | Review Mistakes (UI) ⭐         | Error Pool, thống kê tần suất sai, ôn tập tập trung vào lỗi sai                                    |     ✅     |
+|     |       | **✅ Checkpoint 3**             | **Flashcard + Learn + Write + SRS + Review Mistakes hoạt động**                                    |     ✅     |
 | 4.1 |   4   | Test Mode (UI)                  | Cấu hình (số câu, dạng, timed), chấm điểm, so sánh với lần trước                                   |     ⬜     |
 | 4.2 |   4   | Match Mode (UI)                 | Ghép đôi drag & drop, timer, animation, personal best                                              |     ⬜     |
 | 4.3 |   4   | Listening Mode (UI)             | TTS phát âm → gõ lại, tốc độ 0.5x/1x/1.5x, hint                                                    |     ⬜     |

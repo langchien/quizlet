@@ -91,8 +91,9 @@ export function CreateCardModal({
     setValue,
     formState: { errors },
   } = useForm<CreateCardBody>({
-    resolver:
-      zodResolver(CreateCardSchema) as unknown as Resolver<CreateCardBody>,
+    resolver: zodResolver(
+      CreateCardSchema
+    ) as unknown as Resolver<CreateCardBody>,
     defaultValues: {
       term: "",
       reading: "",

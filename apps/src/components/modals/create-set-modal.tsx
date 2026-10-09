@@ -55,8 +55,9 @@ export function CreateSetModal({
     reset,
     formState: { errors },
   } = useForm<CreateSetBody>({
-    resolver:
-      zodResolver(CreateSetSchema) as unknown as Resolver<CreateSetBody>,
+    resolver: zodResolver(
+      CreateSetSchema
+    ) as unknown as Resolver<CreateSetBody>,
     defaultValues: {
       name: "",
       description: "",

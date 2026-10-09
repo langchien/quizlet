@@ -61,8 +61,9 @@ export function CreateTagModal({
     reset,
     formState: { errors },
   } = useForm<CreateTagBody>({
-    resolver:
-      zodResolver(CreateTagSchema) as unknown as Resolver<CreateTagBody>,
+    resolver: zodResolver(
+      CreateTagSchema
+    ) as unknown as Resolver<CreateTagBody>,
     defaultValues: {
       name: "",
       color: "#3B82F6",

@@ -53,8 +53,9 @@ export function CreateFolderModal({
     reset,
     formState: { errors },
   } = useForm<CreateFolderBody>({
-    resolver:
-      zodResolver(CreateFolderSchema) as unknown as Resolver<CreateFolderBody>,
+    resolver: zodResolver(
+      CreateFolderSchema
+    ) as unknown as Resolver<CreateFolderBody>,
     defaultValues: {
       name: "",
       description: "",
