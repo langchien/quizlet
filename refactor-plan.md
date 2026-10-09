@@ -408,17 +408,29 @@ apps/src/
   - Tinh gọn `calendar-client.tsx`: Giảm từ **595 dòng xuống còn 67 dòng** theo mô hình clean composition container.
 
 
-#### Nhiệm vụ 5.4: Refactor Hộp Thoại Lệnh & Sidebar Layout
-- **`src/components/command-palette.tsx` (450 dòng)**:
-  - Tách hook `useCommandSearch.ts` lọc sets & actions.
-  - Tách các nhóm lệnh: `command-nav-group.tsx`, `command-sets-group.tsx`, `command-actions-group.tsx`.
-- **`src/components/layout/sidebar.tsx` (443 dòng)**:
-  - Tách hook `useSidebarNavigation.ts` quản lý trạng thái collapse & folders tree.
-  - Tách Sub-components: `sidebar-nav-menu.tsx`, `sidebar-folder-tree.tsx`, `sidebar-recent-sets.tsx`, `sidebar-user-footer.tsx`.
-- **`src/app/page.tsx` (391 dòng)**:
-  - Tách các sections trang Landing Page: `landing-hero.tsx`, `landing-demo-card.tsx`, `landing-features-grid.tsx`, `landing-srs-section.tsx`, `landing-cta.tsx`.
-- **`src/app/(dashboard)/study/[setId]/study-mode-client.tsx` (352 dòng)**:
-  - Tách `study-mode-header.tsx`, `study-mode-cards-grid.tsx`, `study-mode-srs-summary.tsx`.
+#### Nhiệm vụ 5.4: Refactor Hộp Thoại Lệnh & Sidebar Layout [ĐÃ HOÀN THÀNH ✅]
+- **`src/components/command-palette.tsx` (450 dòng ➔ 116 dòng)**:
+  - Tách types `src/types/command-palette.ts`: Định nghĩa `SearchResults` và `CommandPaletteProps`.
+  - Tách hook `src/hooks/command/use-command-search.ts`: Quản lý phím tắt `Ctrl+K / Cmd+K` và `Escape`, focus input khi mở, debounced global search 250ms qua `globalSearchAction` và điều hướng nhanh.
+  - Tách Sub-components `src/components/command/`:
+    - `command-header.tsx`: Thanh input tìm kiếm, icon search, nút xóa nhanh, badge `ESC`.
+    - `command-quick-actions.tsx`: Lưới thao tác nhanh khi chưa nhập từ khóa (Tạo bộ thẻ, Tạo thư mục, Thư viện, Nhãn, Lịch, Thống kê, Nhập/Xuất).
+    - `command-sets-group.tsx`: Danh sách kết quả bộ thẻ kèm thư mục chứa và số lượng thẻ.
+    - `command-cards-group.tsx`: Danh sách từ vựng & thẻ học kèm Kanji, Romaji, Hiragana, định nghĩa và tên bộ thẻ.
+    - `command-folders-group.tsx`: Danh sách thư mục kèm số lượng bộ thẻ.
+    - `command-tags-group.tsx`: Danh sách nhãn phân loại kèm màu sắc và số lượng thẻ.
+    - `command-footer.tsx`: Hướng dẫn phím điều hướng và nhãn NihoMemo Search.
+- **`src/components/layout/sidebar.tsx` (443 dòng ➔ 78 dòng)**:
+  - Tách types `src/types/sidebar.ts`: Định nghĩa `SidebarProps`, `SidebarNavItem`, `FolderToDelete`.
+  - Tách hook `src/hooks/sidebar/use-sidebar-folders.ts`: Quản lý nạp cây thư mục (`getFoldersTreeAction`), mở/thu gọn thư mục (`expandedFolderIds`, `toggleFolder`), xóa thư mục an toàn (`deleteFolderAction`, toast).
+  - Tách Sub-components `src/components/layout/sidebar-parts/`:
+    - `sidebar-header.tsx`: Logo NihoMemo / 日本メモ, gradient box và nút toggle thu gọn/mở rộng sidebar.
+    - `sidebar-nav-menu.tsx`: Menu 8 liên kết điều hướng chính với trạng thái active và tooltip khi thu gọn.
+    - `sidebar-folder-node.tsx`: Đơn vị node thư mục đệ quy kèm dropdown menu thao tác nhanh (Tạo bộ thẻ, Tạo thư mục con, Đổi tên, Xóa).
+    - `sidebar-folder-tree.tsx`: Khu vực cây thư mục học tập kèm nút tạo thư mục mới.
+    - `sidebar-create-button.tsx`: Nút "Tạo bộ thẻ mới" ở chân sidebar khi mở rộng.
+    - `sidebar-delete-dialog.tsx`: AlertDialog xác nhận xóa thư mục an toàn.
+
 
 ---
 
