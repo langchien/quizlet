@@ -22,9 +22,7 @@ export type ActionResponse<T = unknown> =
 /**
  * Server Action: Tạo mới bộ thẻ học tập
  */
-export async function createSetAction(
-  input: CreateSetBody
-): Promise<
+export async function createSetAction(input: CreateSetBody): Promise<
   ActionResponse<
     StudySet & {
       progress: {
