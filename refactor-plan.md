@@ -304,14 +304,14 @@ apps/src/
 
 ### 🔹 GIAI ĐOẠN 4: Tái Cấu Trúc Toàn Bộ Các Chế Độ Học Tập (Study Modes — 500 - 770 dòng)
 
-#### Nhiệm vụ 4.1: Refactor Chế Độ Flashcard (`src/app/(dashboard)/study/[setId]/flashcard/page.tsx` — 766 dòng)
+#### Nhiệm vụ 4.1: Refactor Chế Độ Flashcard (`src/app/(dashboard)/study/[setId]/flashcard/page.tsx` — 766 dòng) [ĐÃ HOÀN THÀNH ✅]
 - **Giải pháp**:
-  - Tách hook `src/hooks/study/use-flashcard-session.ts`: Quản lý session lifecycle, currentIndex, isFlipped, isReverse, isShuffle, isAutoPlay, timer autoplay loop, fullscreen, answer submit action.
+  - Tách hook `src/hooks/study/use-flashcard-session.ts`: Quản lý session lifecycle, currentIndex, isFlipped, isReverse, isShuffle, isAutoPlay, timer autoplay loop, fullscreen, answer submit action, TTS và keyboard shortcuts.
   - Tách Sub-components `src/components/study/flashcard/`:
     - `flashcard-header.tsx`: Thanh điều hướng, tiến độ học, toggles (Shuffle, Auto-play, Fullscreen, Phím tắt).
-    - `flashcard-viewer.tsx`: 3D card xoay lật mượt mà, render Term/Furigana/Audio/Nghĩa/Kanji/Hình ảnh.
-    - `flashcard-action-bar.tsx`: Bộ nút đánh giá SRS (Again, Hard, Good, Easy) với hotkey hints.
-  - Tinh gọn `flashcard/page.tsx`: Giảm từ **766 dòng xuống dưới 90 dòng**.
+    - `flashcard-viewer.tsx`: 3D card xoay lật mượt mà, render Term/Reading/Audio/Nghĩa/Kanji/Hình ảnh.
+    - `flashcard-action-bar.tsx`: Bộ nút điều hướng trước/sau/lật thẻ, nút đánh giá SRS (Chưa biết / Đã biết) với hotkey hints.
+  - Tinh gọn `flashcard/page.tsx`: Giảm từ **766 dòng xuống còn 140 dòng**.
 
 #### Nhiệm vụ 4.2: Refactor Chế Độ Học Thích Ứng (`src/app/(dashboard)/study/[setId]/learn/page.tsx` — 699 dòng)
 - **Giải pháp**:
