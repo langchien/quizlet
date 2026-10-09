@@ -1,6 +1,4 @@
-# 🤖 Quy Định Kỹ Thuật Dành Cho AI Agents — Dự Án NihoMemo
-
-Tất cả AI Agents khi phát triển tính năng, sửa lỗi hoặc refactor trong repository này **BẮT BUỘC** phải đọc và tuân thủ các tài liệu kỹ thuật sau:
+<!-- BEGIN:nextjs-agent-rules -->
 
 ## This is NOT the Next.js you know
 
@@ -9,6 +7,10 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+# 🤖 Quy Định Kỹ Thuật Dành Cho AI Agents — Dự Án NihoMemo
+
+Tất cả AI Agents khi phát triển tính năng, sửa lỗi hoặc refactor trong repository này **BẮT BUỘC** phải đọc và tuân thủ các tài liệu kỹ thuật sau:
 
 ---
 
@@ -23,25 +25,27 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## ⚡ 2. Quy Chuẩn Cơ Sở Dữ Liệu: Prisma ORM v7
 
+Dự án sử dụng **Prisma ORM v7** với các quy chuẩn kỹ thuật mới:
+
 1. **Kiến trúc Rust-free & ESM**:
    - Sử dụng `prisma@7.x` và `@prisma/client@7.x`.
-   - Cấu hình CLI tập trung tại `apps/prisma.config.ts`.
+   - Cấu hình CLI tập trung tại `apps/prisma.config.ts` (quản lý `datasource.url = env("DATABASE_URL")`). Không thêm thuộc tính `url` vào `schema.prisma`.
 2. **Schema (`apps/prisma/schema.prisma`)**:
-   - `generator client`: `provider = "prisma-client"`, `output = "../src/generated/prisma"`.
+   - `generator client`: `provider = "prisma-client"` (không dùng `prisma-client-js`), `output = "../src/generated/prisma"`.
    - `datasource db`: `provider = "postgresql"` (KHÔNG chứa `url`).
 3. **Database Driver Adapter**:
-   - Bắt buộc dùng `@prisma/adapter-pg` và `pg.Pool`.
-   - Sử dụng singleton từ `@/lib/prisma`.
+   - Bắt buộc dùng `@prisma/adapter-pg` và `pg.Pool` khi khởi tạo `PrismaClient`.
+   - Luôn sử dụng singleton từ `@/lib/prisma` (`import prisma from "@/lib/prisma"`).
 4. **Import Types & Models**:
-   - `import type { User, Prisma } from "@/generated/prisma/client"`
+   - `import type { User, Prisma, StudySet, Card, SRSData, Tag } from "@/generated/prisma/client"`
 5. **Code Generated**:
-   - Thư mục `src/generated/prisma` được sinh tự động, không sửa tay và đã được cấu hình trong `.gitignore` và `.prettierignore`.
+   - Thư mục `src/generated/prisma` được sinh tự động bởi `prisma generate`, không can thiệp thủ công (đã cấu hình trong `.gitignore` và `.prettierignore`).
 
 ---
 
 ## 🛠️ 3. Quy Chuẩn Chung
 
-1. **Giao tiếp**: Lên kế hoạch, báo cáo và comment code bằng tiếng Việt.
-2. **TypeScript**: Strict mode, typing rõ ràng, Zod validation cho dữ liệu vào/ra.
+1. **Giao tiếp**: Lên kế hoạch, báo cáo và comment code bằng **tiếng Việt**.
+2. **TypeScript**: Strict mode, typing rõ ràng, Zod validation cho toàn bộ dữ liệu vào/ra (Request/Response).
 3. **UI / Styling**: Shadcn UI + Tailwind CSS v4, luôn hỗ trợ cả Dark Mode và Light Mode.
-4. **Kiểm tra**: Luôn chạy `pnpm build` và kiểm tra endpoint `/api/health` trước khi bàn giao hoàn thành task.
+4. **Kiểm tra**: Luôn chạy `pnpm build`, `pnpm lint` và kiểm tra endpoint `/api/health` trước khi bàn giao hoàn thành task.
