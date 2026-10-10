@@ -27,6 +27,7 @@ export const MONTH_NAMES = [
 ] as const
 
 export const DAY_LABELS = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"] as const
+export const DAY_NAMES = DAY_LABELS
 
 export const SRS_STATUS_BADGES: Record<
   string,

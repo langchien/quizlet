@@ -29,45 +29,15 @@ export function SetDetailClient({
   const router = useRouter()
   const setId = initialSet.id
 
-  const {
-    searchCard,
-    setSearchCard,
-    filteredCards,
-    selectedCardIds,
-    toggleSelectAll,
-    toggleSelectCard,
-    cardModalOpen,
-    setCardModalOpen,
-    editingCard,
-    setEditingCard,
-    editSetModalOpen,
-    setEditSetModalOpen,
-    cardToDelete,
-    setCardToDelete,
-    bulkDeleteOpen,
-    setBulkDeleteOpen,
-    bulkTagModalOpen,
-    setBulkTagModalOpen,
-    selectedTagIdForBulk,
-    setSelectedTagIdForBulk,
-    isPending,
-    speakJapanese,
-    confirmDeleteCard,
-    handleDuplicateCard,
-    confirmBulkDelete,
-    handleBulkTag,
-  } = useSetCardOperations({ cards: initialSet.cards })
+  const ops = useSetCardOperations({ cards: initialSet.cards })
 
   return (
     <div className="flex flex-col gap-8 pb-16">
       {/* Header và Tổng quan tiến độ */}
       <SetDetailHeader
         set={initialSet}
-        onEditSet={() => setEditSetModalOpen(true)}
-        onAddCard={() => {
-          setEditingCard(null)
-          setCardModalOpen(true)
-        }}
+        onEditSet={ops.openEditSetModal}
+        onAddCard={ops.openAddCardModal}
       />
 
       {/* 6 Chế độ học tập */}
@@ -77,64 +47,61 @@ export function SetDetailClient({
       <div className="flex flex-col gap-4">
         <SetCardsToolbar
           totalCards={initialSet.cards.length}
-          selectedCount={selectedCardIds.size}
-          searchQuery={searchCard}
-          onSearchChange={setSearchCard}
-          onBulkTag={() => setBulkTagModalOpen(true)}
-          onBulkDelete={() => setBulkDeleteOpen(true)}
+          selectedCount={ops.selectedCardIds.size}
+          searchQuery={ops.searchCard}
+          onSearchChange={ops.setSearchCard}
+          onBulkTag={ops.openBulkTagDialog}
+          onBulkDelete={ops.openBulkDeleteDialog}
         />
 
         <SetCardsTable
-          cards={filteredCards}
+          cards={ops.filteredCards}
           allCardsCount={initialSet.cards.length}
-          selectedCardIds={selectedCardIds}
-          onToggleSelectAll={toggleSelectAll}
-          onToggleSelectCard={toggleSelectCard}
-          onSpeak={speakJapanese}
-          onEditCard={(card) => {
-            setEditingCard(card)
-            setCardModalOpen(true)
-          }}
-          onDuplicateCard={handleDuplicateCard}
-          onDeleteCard={(card) => setCardToDelete(card)}
+          selectedCardIds={ops.selectedCardIds}
+          onToggleSelectAll={ops.toggleSelectAll}
+          onToggleSelectCard={ops.toggleSelectCard}
+          onSpeak={ops.speakJapanese}
+          onEditCard={ops.openEditCardModal}
+          onDuplicateCard={ops.handleDuplicateCard}
+          onDeleteCard={ops.openDeleteCardDialog}
         />
       </div>
 
       {/* Modals & Dialogs */}
       <CreateCardModal
-        open={cardModalOpen}
-        onOpenChange={setCardModalOpen}
+        open={ops.cardModalOpen}
+        onOpenChange={ops.setCardModalOpen}
         studySetId={setId}
-        editCard={editingCard}
+        editCard={ops.editingCard}
         onSuccess={() => router.refresh()}
       />
 
       <CreateSetModal
-        open={editSetModalOpen}
-        onOpenChange={setEditSetModalOpen}
+        open={ops.editSetModalOpen}
+        onOpenChange={ops.setEditSetModalOpen}
         editSet={initialSet}
         onSuccess={() => router.refresh()}
       />
 
       <SetBulkTagDialog
-        open={bulkTagModalOpen}
-        onOpenChange={setBulkTagModalOpen}
-        selectedCount={selectedCardIds.size}
+        open={ops.bulkTagModalOpen}
+        onOpenChange={ops.setBulkTagModalOpen}
+        selectedCount={ops.selectedCardIds.size}
         availableTags={availableTags}
-        selectedTagId={selectedTagIdForBulk}
-        onSelectTag={setSelectedTagIdForBulk}
-        onSubmit={handleBulkTag}
-        isPending={isPending}
+        selectedTagId={ops.selectedTagIdForBulk}
+        onSelectTag={ops.setSelectedTagIdForBulk}
+        onSubmit={ops.handleBulkTag}
+        isPending={ops.isPending}
       />
 
       <SetDeleteDialogs
-        cardToDelete={cardToDelete}
-        onCloseDeleteCard={() => setCardToDelete(null)}
-        onConfirmDeleteCard={confirmDeleteCard}
-        bulkDeleteOpen={bulkDeleteOpen}
-        selectedCount={selectedCardIds.size}
-        onCloseBulkDelete={() => setBulkDeleteOpen(false)}
-        onConfirmBulkDelete={confirmBulkDelete}
+        cardToDelete={ops.cardToDelete}
+        onCloseDeleteCard={ops.closeDeleteCardDialog}
+        onConfirmDeleteCard={ops.confirmDeleteCard}
+        bulkDeleteOpen={ops.bulkDeleteOpen}
+        selectedCount={ops.selectedCardIds.size}
+        onCloseBulkDelete={ops.closeBulkDeleteDialog}
+        onConfirmBulkDelete={ops.confirmBulkDelete}
       />
     </div>
   )

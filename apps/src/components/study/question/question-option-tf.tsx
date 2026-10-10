@@ -1,9 +1,10 @@
 "use client"
 
 import * as React from "react"
-import { Check, X } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { TfPromptBox } from "./tf-prompt-box"
+import { TfOptionInteractiveButtons } from "./tf-option-interactive-buttons"
+import { TfOptionExamButtons } from "./tf-option-exam-buttons"
 
 export type QuestionOptionTfMode = "interactive" | "exam"
 
@@ -68,87 +69,25 @@ export function QuestionOptionTF({
 
   return (
     <div className={cn("flex flex-col gap-6", className)}>
-      {/* Khung hiển thị câu hỏi nhận định */}
-      {displayedAnswer && (
-        <div className="border-border/60 bg-muted/30 rounded-2xl border p-4 text-center">
-          <span className="text-muted-foreground text-xs">{promptTitle}</span>
-          <div className="text-foreground mt-1 text-xl font-bold">
-            {displayedAnswer}
-          </div>
-        </div>
+      <TfPromptBox
+        displayedAnswer={displayedAnswer}
+        promptTitle={promptTitle}
+      />
+
+      {mode === "interactive" ? (
+        <TfOptionInteractiveButtons
+          isTrue={isTrue}
+          showFeedback={showFeedback}
+          disabled={disabled}
+          onSelect={handleSelect}
+        />
+      ) : (
+        <TfOptionExamButtons
+          userAnswer={userAnswer}
+          disabled={disabled}
+          onSelect={handleSelect}
+        />
       )}
-
-      {/* Grid 2 nút lựa chọn: Sai (X) & Đúng (V) */}
-      <div className="grid grid-cols-2 gap-4">
-        {mode === "interactive" ? (
-          <>
-            <Button
-              type="button"
-              variant="outline"
-              size="lg"
-              disabled={showFeedback || disabled}
-              onClick={() => handleSelect("false")}
-              className={cn(
-                "h-14 gap-2 rounded-2xl border-rose-500/30 text-base font-bold text-rose-600 hover:bg-rose-500/10 dark:text-rose-400",
-                showFeedback &&
-                  !isTrue &&
-                  "border-emerald-500 bg-emerald-500/10 font-black text-emerald-600"
-              )}
-            >
-              <X className="size-5" />
-              <span>Sai ❌</span>
-            </Button>
-
-            <Button
-              type="button"
-              size="lg"
-              disabled={showFeedback || disabled}
-              onClick={() => handleSelect("true")}
-              className={cn(
-                "h-14 gap-2 rounded-2xl bg-emerald-600 text-base font-bold text-white hover:bg-emerald-700",
-                showFeedback && isTrue && "bg-emerald-600 font-black"
-              )}
-            >
-              <Check className="size-5" />
-              <span>Đúng ✅</span>
-            </Button>
-          </>
-        ) : (
-          <>
-            <Button
-              type="button"
-              variant="outline"
-              size="lg"
-              disabled={disabled}
-              onClick={() => handleSelect("false")}
-              className={cn(
-                "h-14 rounded-2xl border-rose-500/30 text-base font-bold text-rose-600 hover:bg-rose-500/10 dark:text-rose-400",
-                userAnswer === "false" &&
-                  "border-rose-600 bg-rose-500/20 font-black text-rose-700 ring-2 ring-rose-500"
-              )}
-            >
-              <X className="size-5" />
-              <span>Sai ❌</span>
-            </Button>
-
-            <Button
-              type="button"
-              variant="outline"
-              size="lg"
-              disabled={disabled}
-              onClick={() => handleSelect("true")}
-              className={cn(
-                "h-14 rounded-2xl border-emerald-500/30 text-base font-bold text-emerald-600 hover:bg-emerald-500/10 dark:text-emerald-400",
-                userAnswer === "true" &&
-                  "border-emerald-600 bg-emerald-500/20 font-black text-emerald-700 ring-2 ring-emerald-500"
-              )}
-            >
-              <Check className="size-5" />
-              <span>Đúng ✅</span>
-            </Button>
-          </>
-        )}
-      </div>
     </div>
   )
 }

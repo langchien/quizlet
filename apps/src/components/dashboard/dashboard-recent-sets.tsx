@@ -2,15 +2,21 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { BookOpen, ArrowRight, Plus, Play } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { BookOpen, ArrowRight } from "lucide-react"
+import { useRecentSets } from "@/hooks/dashboard"
 import type { RecentSetItem } from "@/types/dashboard"
+import { RecentSetCard } from "./recent-set-card"
+import { RecentSetsEmpty } from "./recent-sets-empty"
 
-interface DashboardRecentSetsProps {
+export interface DashboardRecentSetsProps {
   recentSets: RecentSetItem[]
 }
 
-export function DashboardRecentSets({ recentSets }: DashboardRecentSetsProps) {
+export function DashboardRecentSets({
+  recentSets: initialSets,
+}: DashboardRecentSetsProps) {
+  const { sets, hasSets } = useRecentSets({ recentSets: initialSets })
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
@@ -32,55 +38,14 @@ export function DashboardRecentSets({ recentSets }: DashboardRecentSetsProps) {
         </Link>
       </div>
 
-      {recentSets.length === 0 ? (
-        <div className="border-border rounded-2xl border border-dashed py-10 text-center">
-          <BookOpen className="text-muted-foreground mx-auto mb-2 size-8 opacity-40" />
-          <p className="text-muted-foreground text-xs">
-            Bạn chưa có bộ thẻ nào. Hãy tạo bộ thẻ đầu tiên để bắt đầu học!
-          </p>
-          <Link href="/library" className="mt-3 inline-block">
-            <Button size="sm" className="gap-1.5 rounded-xl text-xs">
-              <Plus className="size-3.5" />
-              <span>Tạo bộ thẻ ngay</span>
-            </Button>
-          </Link>
-        </div>
-      ) : (
+      {hasSets ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {recentSets.map((set) => (
-            <Link
-              key={set.id}
-              href={`/sets/${set.id}`}
-              className="group border-border bg-card hover:border-primary/40 flex flex-col justify-between rounded-2xl border p-5 shadow-2xs transition-all hover:shadow-md"
-            >
-              <div>
-                {set.folder && (
-                  <span className="mb-1.5 inline-flex items-center gap-1 rounded bg-blue-500/10 px-1.5 py-0.5 text-[10px] font-medium text-blue-500">
-                    📁 {set.folder.name}
-                  </span>
-                )}
-                <h3 className="text-foreground group-hover:text-primary line-clamp-1 text-sm font-bold transition-colors">
-                  {set.name}
-                </h3>
-                {set.description && (
-                  <p className="text-muted-foreground mt-1 line-clamp-2 text-xs">
-                    {set.description}
-                  </p>
-                )}
-              </div>
-
-              <div className="border-border/50 mt-4 flex items-center justify-between border-t pt-3 text-xs">
-                <span className="text-foreground font-semibold">
-                  {set.cardCount} thẻ
-                </span>
-                <span className="text-primary inline-flex items-center gap-1 text-[11px] font-semibold transition-transform group-hover:translate-x-0.5">
-                  <span>Học ngay</span>
-                  <Play className="size-2.5 fill-current" />
-                </span>
-              </div>
-            </Link>
+          {sets.map((set) => (
+            <RecentSetCard key={set.id} set={set} />
           ))}
         </div>
+      ) : (
+        <RecentSetsEmpty />
       )}
     </div>
   )

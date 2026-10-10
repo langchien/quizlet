@@ -1,1 +1,6 @@
 export * from "./use-daily-goal"
+export * from "./use-dashboard-welcome"
+export * from "./use-dashboard-kpi"
+export * from "./use-dashboard-charts"
+export * from "./use-recent-sessions"
+export * from "./use-recent-sets"

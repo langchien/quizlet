@@ -1,2 +1,7 @@
 export * from "./question-option-mcq"
+export * from "./mcq-option-interactive-button"
+export * from "./mcq-option-exam-button"
 export * from "./question-option-tf"
+export * from "./tf-prompt-box"
+export * from "./tf-option-interactive-buttons"
+export * from "./tf-option-exam-buttons"

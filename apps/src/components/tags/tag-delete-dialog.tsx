@@ -46,7 +46,7 @@ export function TagDeleteDialog({
           <AlertDialogAction
             onClick={onConfirm}
             disabled={isDeleting}
-            className="bg-red-500 text-white hover:bg-red-600 focus:ring-red-500"
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
             {isDeleting ? "Đang xoá..." : "Xoá nhãn"}
           </AlertDialogAction>

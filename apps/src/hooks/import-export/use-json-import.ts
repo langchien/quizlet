@@ -15,12 +15,17 @@ export interface UseJsonImportOptions {
 }
 
 export function useJsonImport(options?: UseJsonImportOptions) {
+  const fileInputRef = React.useRef<HTMLInputElement>(null)
   const [file, setFile] = React.useState<File | null>(null)
   const [content, setContent] = React.useState("")
   const [parsedSets, setParsedSets] = React.useState<ParsedJsonSet[] | null>(
     null
   )
   const [importing, setImporting] = React.useState(false)
+
+  const openFileDialog = React.useCallback(() => {
+    fileInputRef.current?.click()
+  }, [])
 
   const parseJsonText = (text: string) => {
     try {
@@ -57,6 +62,17 @@ export function useJsonImport(options?: UseJsonImportOptions) {
       setParsedSets(null)
     }
   }
+
+  const handleFileInputChange = React.useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const selected = e.target.files?.[0]
+      if (selected) {
+        handleFileChange(selected)
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  )
 
   const handleContentChange = (val: string) => {
     setContent(val)
@@ -97,11 +113,17 @@ export function useJsonImport(options?: UseJsonImportOptions) {
     }
   }
 
+  const canImport = Boolean(content.trim())
+
   return {
     file,
+    fileInputRef,
     content,
     parsedSets,
     importing,
+    canImport,
+    openFileDialog,
+    handleFileInputChange,
     handleFileChange,
     handleContentChange,
     handleImport,

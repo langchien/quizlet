@@ -2,42 +2,43 @@
 
 import * as React from "react"
 import { Search, X } from "lucide-react"
+import { Kbd } from "@/components/ui/kbd"
 
 interface CommandHeaderProps {
   inputRef: React.RefObject<HTMLInputElement | null>
   query: string
   onQueryChange: (val: string) => void
+  onClearQuery?: () => void
 }
 
 export function CommandHeader({
   inputRef,
   query,
   onQueryChange,
+  onClearQuery,
 }: CommandHeaderProps) {
   return (
-    <div className="border-border flex items-center border-b px-4 py-3">
-      <Search className="text-muted-foreground mr-3 size-5 shrink-0" />
+    <div className="border-border flex items-center gap-3 border-b px-4 py-3">
+      <Search className="text-muted-foreground size-5 shrink-0" />
       <input
         ref={inputRef}
         type="text"
         value={query}
         onChange={(e) => onQueryChange(e.target.value)}
         placeholder="Tìm bộ thẻ, từ vựng (Kanji, Romaji, Hiragana), thư mục, nhãn..."
-        className="placeholder:text-muted-foreground text-foreground w-full bg-transparent text-sm outline-hidden"
+        className="text-foreground placeholder:text-muted-foreground w-full bg-transparent text-sm outline-hidden"
       />
       {query && (
         <button
           type="button"
-          onClick={() => onQueryChange("")}
-          className="text-muted-foreground hover:bg-muted hover:text-foreground mr-2 rounded p-1"
+          onClick={onClearQuery ?? (() => onQueryChange(""))}
+          className="text-muted-foreground hover:bg-muted hover:text-foreground flex size-6 shrink-0 items-center justify-center rounded-md transition-colors"
           aria-label="Xoá tìm kiếm"
         >
           <X className="size-4" />
         </button>
       )}
-      <span className="bg-muted text-muted-foreground border-border rounded border px-1.5 py-0.5 text-[10px] font-semibold">
-        ESC
-      </span>
+      <Kbd className="h-5 px-1.5 text-[10px] font-semibold">ESC</Kbd>
     </div>
   )
 }

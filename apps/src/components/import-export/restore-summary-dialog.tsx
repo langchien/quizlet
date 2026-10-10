@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { CheckCircle2 } from "lucide-react"
+import { cn } from "cn"
 import type { RestoreSummaryResult } from "@/hooks/import-export/use-backup-restore"
 
 interface RestoreSummaryViewProps {
@@ -11,16 +12,19 @@ interface RestoreSummaryViewProps {
 
 export function RestoreSummaryView({
   summary,
-  className = "",
+  className,
 }: RestoreSummaryViewProps) {
   if (!summary) return null
 
   return (
     <div
-      className={`flex flex-col gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-xs text-emerald-800 dark:text-emerald-200 ${className}`}
+      className={cn(
+        "flex flex-col gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-xs text-emerald-900 dark:text-emerald-200",
+        className
+      )}
     >
       <div className="flex items-center gap-1.5 text-sm font-bold">
-        <CheckCircle2 className="size-4 text-emerald-600 dark:text-emerald-400" />
+        <CheckCircle2 className="size-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
         <span>Kết quả phục hồi dữ liệu:</span>
       </div>
       <div className="grid grid-cols-2 gap-2 pt-1 font-mono sm:grid-cols-3">

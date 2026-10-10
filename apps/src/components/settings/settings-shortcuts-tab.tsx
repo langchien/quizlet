@@ -11,33 +11,21 @@ import {
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
-import { toast } from "sonner"
+import { useShortcutsSettings } from "@/hooks/settings/use-shortcuts-settings"
+import { SettingsShortcutsTable } from "./settings-shortcuts-table"
 
 export interface SettingsShortcutsTabProps {
   keyboardShortcutsEnabled: boolean
   setKeyboardShortcutsEnabled: (enabled: boolean) => void
 }
 
-const SHORTCUT_ITEMS = [
-  { action: "Lật thẻ Flashcard / Xác nhận", key: "Space" },
-  { action: "Chuyển thẻ Trước / Kế tiếp", keys: ["←", "→"] },
-  { action: "Đánh giá thẻ: Chưa biết / Lặp lại", key: "1" },
-  { action: "Đánh giá thẻ: Đã nhớ / Tốt", key: "2" },
-  { action: "Phát âm âm thanh tiếng Nhật (TTS)", key: "A" },
-  { action: "Bật / Tắt xáo trộn (Shuffle)", key: "S" },
-  { action: "Lật ngược câu hỏi / trả lời (Reverse)", key: "R" },
-  { action: "Tìm kiếm toàn cục", key: "Ctrl + K / ⌘ + K" },
-  { action: "Mở bảng tra cứu phím tắt", key: "?" },
-]
-
 export function SettingsShortcutsTab({
   keyboardShortcutsEnabled,
   setKeyboardShortcutsEnabled,
 }: SettingsShortcutsTabProps) {
-  const handleResetShortcuts = () => {
-    setKeyboardShortcutsEnabled(true)
-    toast.success("Đã khôi phục phím tắt về mặc định.")
-  }
+  const { handleResetShortcuts } = useShortcutsSettings(
+    setKeyboardShortcutsEnabled
+  )
 
   return (
     <Card>
@@ -54,42 +42,13 @@ export function SettingsShortcutsTab({
             <Switch
               checked={keyboardShortcutsEnabled}
               onCheckedChange={setKeyboardShortcutsEnabled}
+              aria-label="Bật phím tắt bàn phím"
             />
           </div>
         </div>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
-        <div className="border-border/60 divide-border/40 divide-y rounded-xl border">
-          <div className="bg-muted/20 flex items-center justify-between p-3 text-xs font-semibold">
-            <span className="text-foreground">Thao tác</span>
-            <span className="text-foreground">Phím bấm mặc định</span>
-          </div>
-
-          {SHORTCUT_ITEMS.map((item, index) => (
-            <div
-              key={index}
-              className="flex items-center justify-between p-3 text-xs"
-            >
-              <span className="text-muted-foreground">{item.action}</span>
-              {item.keys ? (
-                <div className="flex items-center gap-1">
-                  {item.keys.map((k) => (
-                    <kbd
-                      key={k}
-                      className="border-border bg-card rounded border px-2 py-0.5 font-mono text-[11px] font-semibold"
-                    >
-                      {k}
-                    </kbd>
-                  ))}
-                </div>
-              ) : (
-                <kbd className="border-border bg-card rounded border px-2 py-0.5 font-mono text-[11px] font-semibold">
-                  {item.key}
-                </kbd>
-              )}
-            </div>
-          ))}
-        </div>
+        <SettingsShortcutsTable />
 
         <div className="flex items-center justify-between pt-2">
           <p className="text-muted-foreground text-xs">

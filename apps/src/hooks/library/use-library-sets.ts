@@ -1,7 +1,6 @@
 "use client"
 
 import * as React from "react"
-import { useSearchParams } from "next/navigation"
 import { toast } from "sonner"
 import {
   getUserSetsAction,
@@ -9,41 +8,22 @@ import {
   deleteSetAction,
 } from "@/actions/sets"
 import { getFoldersFlatAction } from "@/actions/folders"
+import { useLibraryFilters } from "./use-library-filters"
+import { useLibraryModals } from "./use-library-modals"
 import type { LibraryStudySetItem, LibraryFolderItem } from "@/types/library"
 
+/**
+ * Hook tổng hợp quản lý dữ liệu và toàn bộ nghiệp vụ trang Thư viện
+ */
 export function useLibrarySets() {
-  const searchParams = useSearchParams()
-  const folderParam = searchParams.get("folderId")
+  const filters = useLibraryFilters()
+  const modals = useLibraryModals()
 
-  const [viewMode, setViewMode] = React.useState<"grid" | "list">("grid")
   const [sets, setSets] = React.useState<LibraryStudySetItem[]>([])
   const [folders, setFolders] = React.useState<LibraryFolderItem[]>([])
   const [loading, setLoading] = React.useState(true)
 
-  // Filters
-  const [search, setSearch] = React.useState("")
-  const [selectedFolder, setSelectedFolder] = React.useState<string>(
-    folderParam || "all"
-  )
-  const [sortBy, setSortBy] = React.useState("updatedAt")
-  const [sortOrder, setSortOrder] = React.useState("desc")
-
-  // Modals
-  const [createModalOpen, setCreateModalOpen] = React.useState(false)
-  const [editingSet, setEditingSet] =
-    React.useState<LibraryStudySetItem | null>(null)
-  const [mergeModalOpen, setMergeModalOpen] = React.useState(false)
-  const [setToDelete, setSetToDelete] =
-    React.useState<LibraryStudySetItem | null>(null)
-
-  // Sync folderParam
-  React.useEffect(() => {
-    if (folderParam) {
-      setSelectedFolder(folderParam)
-    }
-  }, [folderParam])
-
-  // Fetch Folders
+  // Tải danh sách thư mục
   React.useEffect(() => {
     getFoldersFlatAction()
       .then((res) => {
@@ -51,18 +31,20 @@ export function useLibrarySets() {
           setFolders(res.data)
         }
       })
-      .catch((err) => console.error("Error loading folders:", err))
+      .catch((err) => console.error("Lỗi tải danh sách thư mục:", err))
   }, [])
 
-  // Fetch Sets
+  // Tải danh sách bộ thẻ theo bộ lọc
   const fetchSets = React.useCallback(async () => {
     setLoading(true)
     try {
       const res = await getUserSetsAction({
-        search: search.trim() || undefined,
-        folderId: selectedFolder !== "all" ? selectedFolder : undefined,
-        sortBy: sortBy as "updatedAt" | "createdAt" | "name" | "cardCount",
-        sortOrder: sortOrder as "asc" | "desc",
+        search: filters.search.trim() || undefined,
+        folderId:
+          filters.selectedFolder !== "all" ? filters.selectedFolder : undefined,
+        sortBy: filters.sortBy as
+          "updatedAt" | "createdAt" | "name" | "cardCount",
+        sortOrder: filters.sortOrder as "asc" | "desc",
         limit: 100,
       })
 
@@ -72,25 +54,30 @@ export function useLibrarySets() {
         toast.error(res.error || "Không thể tải danh sách bộ thẻ")
       }
     } catch (err) {
-      console.error("Error fetching sets:", err)
+      console.error("Lỗi khi tải bộ thẻ:", err)
       toast.error("Không thể tải danh sách bộ thẻ")
     } finally {
       setLoading(false)
     }
-  }, [search, selectedFolder, sortBy, sortOrder])
+  }, [
+    filters.search,
+    filters.selectedFolder,
+    filters.sortBy,
+    filters.sortOrder,
+  ])
 
   React.useEffect(() => {
     fetchSets()
   }, [fetchSets])
 
-  // Listen to global refresh event
+  // Lắng nghe sự kiện refresh từ cửa sổ
   React.useEffect(() => {
     const handleRefresh = () => fetchSets()
     window.addEventListener("refresh-library", handleRefresh)
     return () => window.removeEventListener("refresh-library", handleRefresh)
   }, [fetchSets])
 
-  // Actions
+  // Xử lý nhân bản bộ thẻ
   const handleDuplicate = React.useCallback(
     async (id: string, name: string) => {
       try {
@@ -110,9 +97,10 @@ export function useLibrarySets() {
     [fetchSets]
   )
 
+  // Xử lý xác nhận xoá bộ thẻ
   const confirmDelete = React.useCallback(async () => {
-    if (!setToDelete) return
-    const { id, name } = setToDelete
+    if (!modals.setToDelete) return
+    const { id, name } = modals.setToDelete
 
     try {
       const res = await deleteSetAction(id)
@@ -125,34 +113,20 @@ export function useLibrarySets() {
     } catch {
       toast.error("Lỗi khi xoá bộ thẻ")
     } finally {
-      setSetToDelete(null)
+      modals.closeDeleteDialog()
     }
-  }, [setToDelete, fetchSets])
+  }, [modals, fetchSets])
 
   return {
-    viewMode,
-    setViewMode,
+    ...filters,
+    ...modals,
     sets,
     folders,
     loading,
-    search,
-    setSearch,
-    selectedFolder,
-    setSelectedFolder,
-    sortBy,
-    setSortBy,
-    sortOrder,
-    setSortOrder,
-    createModalOpen,
-    setCreateModalOpen,
-    editingSet,
-    setEditingSet,
-    mergeModalOpen,
-    setMergeModalOpen,
-    setToDelete,
-    setSetToDelete,
     fetchSets,
     handleDuplicate,
     confirmDelete,
   }
 }
+
+export type UseLibrarySetsReturn = ReturnType<typeof useLibrarySets>

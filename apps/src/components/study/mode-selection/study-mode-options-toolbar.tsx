@@ -2,8 +2,6 @@
 
 import * as React from "react"
 import { SlidersHorizontal } from "lucide-react"
-import { Switch } from "@/components/ui/switch"
-import { Label } from "@/components/ui/label"
 import {
   Select,
   SelectContent,
@@ -11,6 +9,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { StudyOptionSwitchCard } from "./study-option-switch-card"
+import { StudyOptionSelectCard } from "./study-option-select-card"
 
 export interface StudyModeTagItem {
   id: string
@@ -52,50 +52,25 @@ export function StudyModeOptionsToolbar({
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {/* 1. Đảo mặt thẻ */}
-        <div className="border-border/60 bg-background/50 flex items-center justify-between rounded-2xl border p-3.5">
-          <div className="flex flex-col gap-0.5">
-            <Label
-              htmlFor="opt-reverse"
-              className="text-foreground cursor-pointer text-xs font-bold"
-            >
-              Đảo mặt thẻ (Reverse)
-            </Label>
-            <p className="text-muted-foreground text-[10px]">
-              Hỏi tiếng Việt → tiếng Nhật
-            </p>
-          </div>
-          <Switch
-            id="opt-reverse"
-            checked={isReverse}
-            onCheckedChange={setIsReverse}
-          />
-        </div>
+        <StudyOptionSwitchCard
+          id="opt-reverse"
+          label="Đảo mặt thẻ (Reverse)"
+          description="Hỏi tiếng Việt → tiếng Nhật"
+          checked={isReverse}
+          onCheckedChange={setIsReverse}
+        />
 
         {/* 2. Xáo trộn thứ tự */}
-        <div className="border-border/60 bg-background/50 flex items-center justify-between rounded-2xl border p-3.5">
-          <div className="flex flex-col gap-0.5">
-            <Label
-              htmlFor="opt-shuffle"
-              className="text-foreground cursor-pointer text-xs font-bold"
-            >
-              Xáo trộn thứ tự
-            </Label>
-            <p className="text-muted-foreground text-[10px]">
-              Đổi vị trí ngẫu nhiên
-            </p>
-          </div>
-          <Switch
-            id="opt-shuffle"
-            checked={isShuffle}
-            onCheckedChange={setIsShuffle}
-          />
-        </div>
+        <StudyOptionSwitchCard
+          id="opt-shuffle"
+          label="Xáo trộn thứ tự"
+          description="Đổi vị trí ngẫu nhiên"
+          checked={isShuffle}
+          onCheckedChange={setIsShuffle}
+        />
 
         {/* 3. Lọc theo SRS status */}
-        <div className="border-border/60 bg-background/50 flex flex-col gap-1.5 rounded-2xl border p-3.5">
-          <Label className="text-foreground text-xs font-bold">
-            Trạng thái SRS
-          </Label>
+        <StudyOptionSelectCard label="Trạng thái SRS">
           <Select
             value={selectedStatus}
             onValueChange={(val) => val && setSelectedStatus(val)}
@@ -111,13 +86,10 @@ export function StudyModeOptionsToolbar({
               <SelectItem value="Mastered">Đã thuộc (Mastered)</SelectItem>
             </SelectContent>
           </Select>
-        </div>
+        </StudyOptionSelectCard>
 
         {/* 4. Lọc theo nhãn (Tags) */}
-        <div className="border-border/60 bg-background/50 flex flex-col gap-1.5 rounded-2xl border p-3.5">
-          <Label className="text-foreground text-xs font-bold">
-            Lọc theo nhãn (Tag)
-          </Label>
+        <StudyOptionSelectCard label="Lọc theo nhãn (Tag)">
           <Select
             value={selectedTagId}
             onValueChange={(val) => val && setSelectedTagId(val)}
@@ -134,7 +106,7 @@ export function StudyModeOptionsToolbar({
               ))}
             </SelectContent>
           </Select>
-        </div>
+        </StudyOptionSelectCard>
       </div>
     </div>
   )

@@ -31,7 +31,7 @@ export function RestoreConfirmDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent size="md">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
+          <DialogTitle className="text-destructive flex items-center gap-2">
             <AlertTriangle className="size-5 shrink-0" />
             Xác nhận phục hồi dữ liệu
           </DialogTitle>
@@ -47,25 +47,26 @@ export function RestoreConfirmDialog({
         <DialogFooter className="gap-2 sm:gap-0">
           <Button
             variant="outline"
+            size="sm"
             onClick={() => onOpenChange(false)}
             disabled={restoring}
-            className="rounded-xl text-xs"
           >
             Huỷ bỏ
           </Button>
           <Button
+            variant="destructive"
+            size="sm"
             onClick={onConfirm}
             disabled={restoring}
-            className="gap-2 rounded-xl bg-amber-600 text-xs text-white hover:bg-amber-700"
           >
             {restoring ? (
               <>
-                <Loader2 className="size-4 animate-spin" />
+                <Loader2 data-icon="inline-start" className="animate-spin" />
                 <span>Đang phục hồi...</span>
               </>
             ) : (
               <>
-                <RotateCcw className="size-4" />
+                <RotateCcw data-icon="inline-start" />
                 <span>Xác nhận phục hồi ngay</span>
               </>
             )}

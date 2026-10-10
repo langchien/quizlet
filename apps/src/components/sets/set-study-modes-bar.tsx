@@ -14,7 +14,38 @@ import {
 import { cn } from "@/lib/utils"
 import type { StudyModeItem } from "@/types/set-detail"
 
-interface SetStudyModesBarProps {
+interface StudyModeButtonProps {
+  mode: StudyModeItem
+}
+
+/**
+ * Sub-component nút chọn chế độ học với hiệu ứng hover và icon gradient
+ */
+export function StudyModeButton({ mode }: StudyModeButtonProps) {
+  return (
+    <Link
+      href={mode.href}
+      className="group border-border bg-card hover:border-primary/50 relative flex flex-col items-center justify-center rounded-2xl border p-4 text-center shadow-2xs transition-all hover:shadow-md"
+    >
+      <div
+        className={cn(
+          "mb-2.5 flex size-11 items-center justify-center rounded-2xl bg-gradient-to-br text-white shadow-xs transition-transform group-hover:scale-110",
+          mode.color
+        )}
+      >
+        <mode.icon className="size-5" />
+      </div>
+      <span className="text-foreground group-hover:text-primary text-xs font-bold transition-colors">
+        {mode.title}
+      </span>
+      <span className="text-muted-foreground mt-0.5 text-[10px]">
+        {mode.desc}
+      </span>
+    </Link>
+  )
+}
+
+export interface SetStudyModesBarProps {
   setId: string
 }
 
@@ -65,7 +96,7 @@ export function SetStudyModesBar({ setId }: SetStudyModesBarProps) {
   ]
 
   return (
-    <div className="flex flex-col gap-4">
+    <section className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h2 className="text-foreground flex items-center gap-2 text-base font-bold">
           <Play className="text-primary size-4 fill-current" />
@@ -75,28 +106,9 @@ export function SetStudyModesBar({ setId }: SetStudyModesBarProps) {
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {studyModes.map((mode) => (
-          <Link
-            key={mode.title}
-            href={mode.href}
-            className="group border-border bg-card hover:border-primary/50 relative flex flex-col items-center justify-center rounded-2xl border p-4 text-center shadow-2xs transition-all hover:shadow-md"
-          >
-            <div
-              className={cn(
-                "mb-2.5 flex size-11 items-center justify-center rounded-2xl bg-gradient-to-br text-white shadow-xs transition-transform group-hover:scale-110",
-                mode.color
-              )}
-            >
-              <mode.icon className="size-5" />
-            </div>
-            <span className="text-foreground group-hover:text-primary text-xs font-bold transition-colors">
-              {mode.title}
-            </span>
-            <span className="text-muted-foreground mt-0.5 text-[10px]">
-              {mode.desc}
-            </span>
-          </Link>
+          <StudyModeButton key={mode.title} mode={mode} />
         ))}
       </div>
-    </div>
+    </section>
   )
 }

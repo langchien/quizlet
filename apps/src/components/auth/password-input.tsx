@@ -3,7 +3,12 @@
 import * as React from "react"
 import { Eye, EyeOff, Lock } from "lucide-react"
 import { Input } from "@/components/ui/input"
-import { cn } from "@/lib/utils"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group"
 
 export interface PasswordInputProps extends Omit<
   React.ComponentProps<typeof Input>,
@@ -15,34 +20,34 @@ export interface PasswordInputProps extends Omit<
 export const PasswordInput = React.forwardRef<
   HTMLInputElement,
   PasswordInputProps
->(({ className, showIcon = true, ...props }, ref) => {
+>(({ className, showIcon = true, disabled, ...props }, ref) => {
   const [showPassword, setShowPassword] = React.useState(false)
 
   return (
-    <div className="relative">
+    <InputGroup className={className}>
       {showIcon && (
-        <Lock className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+        <InputGroupAddon align="inline-start">
+          <Lock />
+        </InputGroupAddon>
       )}
-      <Input
+      <InputGroupInput
         ref={ref}
         type={showPassword ? "text" : "password"}
-        className={cn(showIcon ? "pl-9" : "pl-3", "pr-9", className)}
+        disabled={disabled}
         {...props}
       />
-      <button
-        type="button"
-        onClick={() => setShowPassword((prev) => !prev)}
-        className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 transition-colors"
-        tabIndex={-1}
-        title={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
-      >
-        {showPassword ? (
-          <EyeOff className="size-4" />
-        ) : (
-          <Eye className="size-4" />
-        )}
-      </button>
-    </div>
+      <InputGroupAddon align="inline-end">
+        <InputGroupButton
+          size="icon-xs"
+          disabled={disabled}
+          onClick={() => setShowPassword((prev) => !prev)}
+          title={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+          aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+        >
+          {showPassword ? <EyeOff /> : <Eye />}
+        </InputGroupButton>
+      </InputGroupAddon>
+    </InputGroup>
   )
 })
 

@@ -14,6 +14,7 @@ export interface UseAnkiImportOptions {
 }
 
 export function useAnkiImport(options?: UseAnkiImportOptions) {
+  const fileInputRef = React.useRef<HTMLInputElement>(null)
   const [file, setFile] = React.useState<File | null>(null)
   const [loadingPreview, setLoadingPreview] = React.useState(false)
   const [decks, setDecks] = React.useState<AnkiPreviewDeck[]>([])
@@ -24,6 +25,10 @@ export function useAnkiImport(options?: UseAnkiImportOptions) {
   const [folderId, setFolderId] = React.useState("")
   const [tags, setTags] = React.useState("anki")
   const [importing, setImporting] = React.useState(false)
+
+  const openFileDialog = React.useCallback(() => {
+    fileInputRef.current?.click()
+  }, [])
 
   const handleFileChange = async (selectedFile: File) => {
     setFile(selectedFile)
@@ -60,6 +65,16 @@ export function useAnkiImport(options?: UseAnkiImportOptions) {
     }
   }
 
+  const handleFileInputChange = React.useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const selected = e.target.files?.[0]
+      if (selected) {
+        handleFileChange(selected)
+      }
+    },
+    []
+  )
+
   const handleSelectDeck = (deckIdStr: string) => {
     setSelectedDeckId(deckIdStr)
     const deck = decks.find((d) => String(d.id) === deckIdStr)
@@ -72,6 +87,33 @@ export function useAnkiImport(options?: UseAnkiImportOptions) {
   const selectedDeck = React.useMemo(() => {
     return decks.find((d) => String(d.id) === selectedDeckId) || decks[0]
   }, [decks, selectedDeckId])
+
+  const deckOptions = React.useMemo(
+    () =>
+      decks.map((d) => ({
+        value: String(d.id),
+        label: `${d.name} (${d.cardCount} thẻ)`,
+      })),
+    [decks]
+  )
+
+  const fieldOptions = React.useMemo(() => {
+    if (!selectedDeck) return []
+    return [
+      { value: "none", label: "-- Không chọn / Không có --" },
+      ...selectedDeck.fields.map((f) => ({ value: f, label: f })),
+    ]
+  }, [selectedDeck])
+
+  const handleFieldMappingChange = React.useCallback(
+    (key: keyof AnkiFieldMapping, value: string) => {
+      setFieldMapping((prev) => ({
+        ...prev,
+        [key]: value === "none" ? "" : (value ?? ""),
+      }))
+    },
+    []
+  )
 
   const handleImport = async () => {
     if (!file) {
@@ -113,18 +155,27 @@ export function useAnkiImport(options?: UseAnkiImportOptions) {
     }
   }
 
+  const canImport = Boolean(file && setName.trim())
+
   return {
     file,
+    fileInputRef,
     loadingPreview,
     decks,
     selectedDeckId,
     selectedDeck,
+    deckOptions,
+    fieldOptions,
     fieldMapping,
     setName,
     description,
     folderId,
     tags,
     importing,
+    canImport,
+    openFileDialog,
+    handleFileInputChange,
+    handleFieldMappingChange,
     setFieldMapping,
     setSetName,
     setDescription,

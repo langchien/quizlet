@@ -3,6 +3,14 @@
 import * as React from "react"
 import { Button } from "@/components/ui/button"
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -11,7 +19,7 @@ import {
 } from "@/components/ui/select"
 import type { TagItem } from "@/types/set-detail"
 
-interface SetBulkTagDialogProps {
+export interface SetBulkTagDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   selectedCount: number
@@ -22,6 +30,9 @@ interface SetBulkTagDialogProps {
   isPending?: boolean
 }
 
+/**
+ * Hộp thoại gán nhãn hàng loạt cho các thẻ đã chọn sử dụng chuẩn Shadcn Dialog
+ */
 export function SetBulkTagDialog({
   open,
   onOpenChange,
@@ -32,25 +43,19 @@ export function SetBulkTagDialog({
   onSubmit,
   isPending = false,
 }: SetBulkTagDialogProps) {
-  if (!open) return null
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div
-        className="fixed inset-0 bg-black/60 backdrop-blur-xs"
-        onClick={() => onOpenChange(false)}
-      />
-      <div className="border-border bg-card animate-in zoom-in-95 relative z-50 flex w-full max-w-sm flex-col gap-4 rounded-2xl border p-5 shadow-xl">
-        <div className="flex flex-col gap-1">
-          <h3 className="text-foreground text-sm font-bold">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-sm gap-4">
+        <DialogHeader className="gap-1">
+          <DialogTitle className="text-sm font-bold">
             Gán nhãn cho {selectedCount} thẻ đã chọn
-          </h3>
-          <p className="text-muted-foreground text-xs leading-relaxed">
+          </DialogTitle>
+          <DialogDescription className="text-xs">
             Chọn nhãn phân loại bạn muốn gán cho tất cả các thẻ này.
-          </p>
-        </div>
+          </DialogDescription>
+        </DialogHeader>
 
-        <div className="flex flex-col gap-1.5">
+        <div className="py-1">
           <Select
             value={selectedTagId || undefined}
             onValueChange={(val) => onSelectTag(val || "")}
@@ -69,7 +74,7 @@ export function SetBulkTagDialog({
           </Select>
         </div>
 
-        <div className="flex justify-end gap-2 pt-1">
+        <DialogFooter className="gap-2 sm:justify-end">
           <Button
             variant="outline"
             size="sm"
@@ -81,8 +86,8 @@ export function SetBulkTagDialog({
           <Button size="sm" onClick={onSubmit} disabled={isPending}>
             {isPending ? "Đang gán..." : "Gán nhãn ngay"}
           </Button>
-        </div>
-      </div>
-    </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }

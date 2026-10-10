@@ -2,84 +2,138 @@
 
 import * as React from "react"
 import { Database, Zap } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import type { HealthCheckResponse } from "@/types"
 
-interface LandingDbStatusProps {
+interface DbStatusBadgeProps {
+  isConnected: boolean
+  loading: boolean
+}
+
+/**
+ * Sub-component hiển thị nhãn trạng thái kết nối cơ sở dữ liệu
+ */
+export function DbStatusBadge({ isConnected, loading }: DbStatusBadgeProps) {
+  const statusText = isConnected
+    ? "Đã kết nối PostgreSQL"
+    : loading
+      ? "Đang tải dữ liệu..."
+      : "Chưa kết nối"
+
+  return (
+    <Badge
+      variant={isConnected ? "success" : "warning"}
+      className="gap-1.5 px-2.5 py-0.5 font-semibold"
+    >
+      <span
+        className={`size-1.5 rounded-full ${isConnected ? "bg-emerald-500" : "bg-amber-500"}`}
+      />
+      {statusText}
+    </Badge>
+  )
+}
+
+interface DbStatusItemProps {
+  label: string
+  value: React.ReactNode
+  isCode?: boolean
+}
+
+/**
+ * Sub-component hiển thị từng dòng thông tin trạng thái
+ */
+export function DbStatusItem({
+  label,
+  value,
+  isCode = false,
+}: DbStatusItemProps) {
+  return (
+    <div className="flex justify-between">
+      <span>{label}</span>
+      {isCode ? (
+        <code className="text-foreground font-mono text-xs">{value}</code>
+      ) : (
+        <span className="text-foreground">{value}</span>
+      )}
+    </div>
+  )
+}
+
+interface DbStatusInfoListProps {
+  timestamp?: string
+}
+
+/**
+ * Sub-component danh sách thông tin cấu hình hệ thống
+ */
+export function DbStatusInfoList({ timestamp }: DbStatusInfoListProps) {
+  const formattedTime = timestamp
+    ? new Date(timestamp).toLocaleTimeString()
+    : "--"
+
+  return (
+    <div className="text-muted-foreground flex flex-col gap-2 text-sm">
+      <DbStatusItem label="API Endpoint:" value="/api/health" isCode />
+      <DbStatusItem label="Database:" value="PostgreSQL 15 (Docker: 54321)" />
+      <DbStatusItem label="ORM:" value="Prisma v7 (adapter-pg)" />
+      <DbStatusItem label="Thời gian phản hồi:" value={formattedTime} />
+    </div>
+  )
+}
+
+export interface LandingDbStatusProps {
   health?: HealthCheckResponse
   loadingHealth: boolean
-  onManualCheck: () => void
+  onManualCheck?: () => void
+  handleManualCheck?: () => void
 }
 
 export function LandingDbStatus({
   health,
   loadingHealth,
   onManualCheck,
+  handleManualCheck,
 }: LandingDbStatusProps) {
+  const triggerCheck = handleManualCheck ?? onManualCheck
   const isConnected = health?.database === "connected"
 
   return (
-    <div className="border-border/60 bg-card shadow-foreground/5 mt-8 w-full max-w-md rounded-2xl border p-6 text-left shadow-xl">
-      <div className="border-border/50 flex items-center justify-between border-b pb-4">
-        <div className="text-foreground flex items-center gap-2 font-medium">
+    <Card className="shadow-foreground/5 border-border/60 mt-8 w-full max-w-md shadow-xl">
+      <CardHeader className="border-border/50 border-b pb-4">
+        <CardTitle className="text-foreground flex items-center gap-2 text-sm font-medium">
           <Database className="size-4 text-emerald-500" />
           <span>Trạng thái kết nối</span>
-        </div>
-        <span
-          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-            isConnected
-              ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-              : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
-          }`}
-        >
-          <span
-            className={`size-1.5 rounded-full ${
-              isConnected ? "bg-emerald-500" : "bg-amber-500"
-            }`}
-          />
-          {isConnected
-            ? "Đã kết nối PostgreSQL"
-            : loadingHealth
-              ? "Đang tải dữ liệu..."
-              : "Chưa kết nối"}
-        </span>
-      </div>
+        </CardTitle>
+        <CardAction>
+          <DbStatusBadge isConnected={isConnected} loading={loadingHealth} />
+        </CardAction>
+      </CardHeader>
 
-      <div className="text-muted-foreground mt-4 flex flex-col gap-2 text-sm">
-        <div className="flex justify-between">
-          <span>API Endpoint:</span>
-          <code className="text-foreground font-mono text-xs">/api/health</code>
-        </div>
-        <div className="flex justify-between">
-          <span>Database:</span>
-          <span className="text-foreground">PostgreSQL 15 (Docker: 54321)</span>
-        </div>
-        <div className="flex justify-between">
-          <span>ORM:</span>
-          <span className="text-foreground">Prisma v7 (adapter-pg)</span>
-        </div>
-        <div className="flex justify-between">
-          <span>Thời gian phản hồi:</span>
-          <span className="text-foreground">
-            {health?.timestamp
-              ? new Date(health.timestamp).toLocaleTimeString()
-              : "--"}
-          </span>
-        </div>
-      </div>
+      <CardContent className="pt-4">
+        <DbStatusInfoList timestamp={health?.timestamp} />
+      </CardContent>
 
-      <div className="mt-5 flex gap-2">
+      <CardFooter className="border-t-0 bg-transparent p-4 pt-0">
         <Button
           variant="outline"
           size="sm"
           className="w-full"
-          onClick={onManualCheck}
+          onClick={triggerCheck}
           disabled={loadingHealth}
         >
-          <Zap className="mr-1.5 size-3.5" />
+          <Zap data-icon="inline-start" className="size-3.5" />
           {loadingHealth ? "Đang kiểm tra..." : "Kiểm tra lại"}
         </Button>
-      </div>
-    </div>
+      </CardFooter>
+    </Card>
   )
 }

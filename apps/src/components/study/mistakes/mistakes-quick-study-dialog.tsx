@@ -17,8 +17,8 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog"
-import { cn } from "@/lib/utils"
 import type { MistakeReviewMode } from "@/types/mistakes"
+import { MistakeReviewModeCard } from "./mistake-review-mode-card"
 
 interface MistakesQuickStudyDialogProps {
   open: boolean
@@ -79,34 +79,16 @@ export function MistakesQuickStudyDialog({
 
         <div className="grid grid-cols-1 gap-3 py-3">
           {REVIEW_MODES.map((m) => (
-            <button
+            <MistakeReviewModeCard
               key={m.mode}
-              type="button"
-              onClick={() => onChosenModeChange(m.mode)}
-              className={cn(
-                "border-border flex items-center gap-3.5 rounded-2xl border p-3.5 text-left transition-all",
-                chosenMode === m.mode
-                  ? "border-primary bg-primary/5 ring-primary/20 ring-2"
-                  : "hover:bg-muted/50"
-              )}
-            >
-              <div
-                className={cn(
-                  "flex size-10 shrink-0 items-center justify-center rounded-xl",
-                  m.color
-                )}
-              >
-                <m.icon className="size-5" />
-              </div>
-              <div>
-                <div className="text-foreground text-xs font-bold">
-                  {m.title}
-                </div>
-                <div className="text-muted-foreground text-[11px]">
-                  {m.desc}
-                </div>
-              </div>
-            </button>
+              mode={m.mode}
+              title={m.title}
+              desc={m.desc}
+              icon={m.icon}
+              color={m.color}
+              isSelected={chosenMode === m.mode}
+              onSelect={onChosenModeChange}
+            />
           ))}
         </div>
 

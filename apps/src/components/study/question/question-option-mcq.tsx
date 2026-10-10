@@ -1,8 +1,9 @@
 "use client"
 
 import * as React from "react"
-import { CheckCircle2, XCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { McqOptionInteractiveButton } from "./mcq-option-interactive-button"
+import { McqOptionExamButton } from "./mcq-option-exam-button"
 
 export type QuestionOptionMcqMode = "interactive" | "exam"
 
@@ -85,42 +86,17 @@ export function QuestionOptionMCQ({
           const isChosen = selectedOption === opt
           const isCorrectOpt = opt === correctAnswer
 
-          let style =
-            "border-border bg-background hover:border-primary/50 hover:bg-muted/50 text-foreground"
-          if (showFeedback) {
-            if (isCorrectOpt) {
-              style =
-                "border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold"
-            } else if (isChosen && !isCorrectOpt) {
-              style =
-                "border-rose-500 bg-rose-500/10 text-rose-600 dark:text-rose-400"
-            } else {
-              style = "opacity-40 border-border bg-background"
-            }
-          }
-
           return (
-            <button
+            <McqOptionInteractiveButton
               key={idx}
-              type="button"
-              disabled={showFeedback || disabled}
+              opt={opt}
+              label={optionLabel}
+              isChosen={isChosen}
+              isCorrectOpt={isCorrectOpt}
+              showFeedback={showFeedback}
+              disabled={disabled}
               onClick={() => handleClick(opt)}
-              className={cn(
-                "flex items-center gap-3 rounded-2xl border p-4 text-left text-sm font-medium transition-all duration-150",
-                style
-              )}
-            >
-              <span className="bg-muted text-muted-foreground flex size-6 shrink-0 items-center justify-center rounded-lg font-mono text-xs font-bold">
-                {optionLabel}
-              </span>
-              <span className="flex-1 leading-snug">{opt}</span>
-              {showFeedback && isCorrectOpt && (
-                <CheckCircle2 className="size-4 shrink-0 text-emerald-500" />
-              )}
-              {showFeedback && isChosen && !isCorrectOpt && (
-                <XCircle className="size-4 shrink-0 text-rose-500" />
-              )}
-            </button>
+            />
           )
         }
 
@@ -129,30 +105,14 @@ export function QuestionOptionMCQ({
         const isSelected = effectiveSelected === opt
 
         return (
-          <button
+          <McqOptionExamButton
             key={idx}
-            type="button"
+            opt={opt}
+            label={optionLabel}
+            isSelected={isSelected}
             disabled={disabled}
             onClick={() => handleClick(opt)}
-            className={cn(
-              "flex items-center gap-3 rounded-2xl border p-4 text-left text-sm font-medium transition-all duration-150",
-              isSelected
-                ? "border-purple-600 bg-purple-500/10 font-bold text-purple-700 shadow-xs ring-1 ring-purple-600 dark:text-purple-300"
-                : "border-border bg-background hover:bg-muted/50 text-foreground hover:border-purple-400"
-            )}
-          >
-            <span
-              className={cn(
-                "flex size-6 shrink-0 items-center justify-center rounded-lg font-mono text-xs font-bold",
-                isSelected
-                  ? "bg-purple-600 text-white"
-                  : "bg-muted text-muted-foreground"
-              )}
-            >
-              {optionLabel}
-            </span>
-            <span className="flex-1 leading-snug">{opt}</span>
-          </button>
+          />
         )
       })}
     </div>

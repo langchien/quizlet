@@ -1,10 +1,10 @@
 "use client"
 
 import * as React from "react"
-import Link from "next/link"
-import { ChevronLeft } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
+import { StudyHeaderExit } from "./study-header-exit"
+import { StudyHeaderProgress } from "./study-header-progress"
+import { StudyHeaderModeBadge } from "./study-header-mode-badge"
 
 export interface StudySessionHeaderProps {
   /** ID của bộ thẻ để liên kết nút thoát */
@@ -75,62 +75,35 @@ export function StudySessionHeader({
       )}
     >
       {/* Vùng trái: Nút Thoát & Tên bộ thẻ */}
-      <div className="flex shrink-0 items-center gap-2">
-        <Link
-          href={exitHref || `/sets/${setId}`}
-          className="text-muted-foreground hover:text-foreground flex items-center gap-1.5 text-xs font-semibold transition-colors"
-        >
-          <ChevronLeft className="size-4 shrink-0" />
-          <span>{exitLabel}</span>
-        </Link>
-        {setName && (
-          <Badge
-            variant="outline"
-            className="hidden max-w-[150px] truncate text-[10px] sm:inline-flex"
-          >
-            {setName}
-          </Badge>
-        )}
-      </div>
+      <StudyHeaderExit
+        exitHref={exitHref || `/sets/${setId}`}
+        exitLabel={exitLabel}
+        setName={setName}
+      />
 
       {/* Vùng trung tâm: Thanh tiến độ hoặc custom center content */}
       {centerContent ? (
         <div className="flex flex-1 items-center justify-center">
           {centerContent}
         </div>
-      ) : hasProgress ? (
-        <div className="flex items-center gap-3">
-          <div className="text-muted-foreground text-xs font-bold">
-            <span className="text-foreground text-sm font-black">
-              {current}
-            </span>{" "}
-            / {total}
-            {counterLabel && ` ${counterLabel}`}
-          </div>
-          <div className="bg-muted h-2 w-28 overflow-hidden rounded-full sm:w-44 md:w-56">
-            <div
-              className={cn(
-                "h-full transition-all duration-300",
-                progressColor
-              )}
-              style={{ width: `${calculatedProgress}%` }}
-            />
-          </div>
-        </div>
+      ) : hasProgress && current !== undefined && total !== undefined ? (
+        <StudyHeaderProgress
+          current={current}
+          total={total}
+          calculatedProgress={calculatedProgress}
+          progressColor={progressColor}
+          counterLabel={counterLabel}
+        />
       ) : null}
 
       {/* Vùng phải: Mode badge hoặc Action buttons */}
       <div className="flex shrink-0 items-center gap-1">
         {modeBadge && (
-          <div
-            className={cn(
-              "flex items-center gap-1 rounded-full px-3 py-1 text-xs font-bold",
-              modeBadge.className || "bg-primary/10 text-primary"
-            )}
-          >
-            {modeBadge.icon}
-            <span className="hidden sm:inline">{modeBadge.label}</span>
-          </div>
+          <StudyHeaderModeBadge
+            icon={modeBadge.icon}
+            label={modeBadge.label}
+            className={modeBadge.className}
+          />
         )}
         {rightActions}
       </div>

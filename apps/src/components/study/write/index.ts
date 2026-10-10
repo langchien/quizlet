@@ -1,5 +1,6 @@
 export * from "./write-header"
 export * from "./write-prompt-card"
+export * from "./write-prompt-example"
 export * from "./write-hint-box"
 export * from "./write-input-form"
 export * from "./write-feedback-view"

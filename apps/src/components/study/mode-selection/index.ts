@@ -1,4 +1,7 @@
 export * from "./study-mode-header"
+export * from "./study-mode-progress-indicator"
 export * from "./study-mode-options-toolbar"
+export * from "./study-option-switch-card"
+export * from "./study-option-select-card"
 export * from "./study-mode-card"
 export * from "./study-mode-grid"

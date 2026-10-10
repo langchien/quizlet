@@ -1,5 +1,7 @@
 export * from "./learn-header"
 export * from "./learn-question-card"
+export * from "./learn-question-header"
+export * from "./learn-question-prompt"
 export * from "./learn-mcq-options"
 export * from "./learn-tf-options"
 export * from "./learn-written-input"

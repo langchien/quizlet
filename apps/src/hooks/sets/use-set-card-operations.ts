@@ -44,6 +44,45 @@ export function useSetCardOperations({ cards }: UseSetCardOperationsProps) {
   const [bulkTagModalOpen, setBulkTagModalOpen] = React.useState(false)
   const [selectedTagIdForBulk, setSelectedTagIdForBulk] = React.useState("")
 
+  // Helpers mở/đóng modal ổn định (tránh sinh anonymous arrow functions)
+  const openEditSetModal = React.useCallback(() => {
+    setEditSetModalOpen(true)
+  }, [])
+
+  const openAddCardModal = React.useCallback(() => {
+    setEditingCard(null)
+    setCardModalOpen(true)
+  }, [])
+
+  const openEditCardModal = React.useCallback((card: CardItem) => {
+    setEditingCard(card)
+    setCardModalOpen(true)
+  }, [])
+
+  const openDeleteCardDialog = React.useCallback((card: CardItem) => {
+    setCardToDelete(card)
+  }, [])
+
+  const closeDeleteCardDialog = React.useCallback(() => {
+    setCardToDelete(null)
+  }, [])
+
+  const openBulkDeleteDialog = React.useCallback(() => {
+    setBulkDeleteOpen(true)
+  }, [])
+
+  const closeBulkDeleteDialog = React.useCallback(() => {
+    setBulkDeleteOpen(false)
+  }, [])
+
+  const openBulkTagDialog = React.useCallback(() => {
+    setBulkTagModalOpen(true)
+  }, [])
+
+  const closeBulkTagDialog = React.useCallback(() => {
+    setBulkTagModalOpen(false)
+  }, [])
+
   // Xoá 1 thẻ
   const confirmDeleteCard = React.useCallback(() => {
     if (!cardToDelete) return
@@ -173,9 +212,20 @@ export function useSetCardOperations({ cards }: UseSetCardOperationsProps) {
     setSelectedTagIdForBulk,
     isPending,
     speakJapanese,
+    openEditSetModal,
+    openAddCardModal,
+    openEditCardModal,
+    openDeleteCardDialog,
+    closeDeleteCardDialog,
+    openBulkDeleteDialog,
+    closeBulkDeleteDialog,
+    openBulkTagDialog,
+    closeBulkTagDialog,
     confirmDeleteCard,
     handleDuplicateCard,
     confirmBulkDelete,
     handleBulkTag,
   }
 }
+
+export type UseSetCardOperationsReturn = ReturnType<typeof useSetCardOperations>

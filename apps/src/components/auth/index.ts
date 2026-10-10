@@ -1,4 +1,6 @@
 export * from "./password-input"
 export * from "./auth-card-wrapper"
+export * from "./auth-demo-banner"
+export * from "./auth-submit-button"
 export * from "./login-form"
 export * from "./register-form"

@@ -13,7 +13,65 @@ import {
 import { SetCardRow } from "./set-card-row"
 import type { CardItem } from "@/types/set-detail"
 
-interface SetCardsTableProps {
+interface SetCardsTableHeadProps {
+  isAllSelected: boolean
+  onToggleSelectAll: () => void
+}
+
+/**
+ * Sub-component phần đầu bảng danh sách thẻ
+ */
+export function SetCardsTableHead({
+  isAllSelected,
+  onToggleSelectAll,
+}: SetCardsTableHeadProps) {
+  return (
+    <TableHeader>
+      <TableRow>
+        <TableHead className="w-10 text-center">
+          <button
+            type="button"
+            onClick={onToggleSelectAll}
+            className="text-muted-foreground hover:text-foreground rounded p-1"
+            title={isAllSelected ? "Bỏ chọn tất cả" : "Chọn tất cả"}
+            aria-label={isAllSelected ? "Bỏ chọn tất cả" : "Chọn tất cả"}
+          >
+            {isAllSelected ? (
+              <CheckSquare className="text-primary size-4" />
+            ) : (
+              <Square className="size-4" />
+            )}
+          </button>
+        </TableHead>
+        <TableHead className="w-12 text-center">#</TableHead>
+        <TableHead>Thuật ngữ & Cách đọc</TableHead>
+        <TableHead>Định nghĩa tiếng Việt</TableHead>
+        <TableHead className="hidden md:table-cell">Ví dụ</TableHead>
+        <TableHead className="hidden lg:table-cell">Nhãn</TableHead>
+        <TableHead className="w-28 text-center">SRS</TableHead>
+        <TableHead className="w-24 text-right">Thao tác</TableHead>
+      </TableRow>
+    </TableHeader>
+  )
+}
+
+/**
+ * Sub-component hàng hiển thị trạng thái bảng trống
+ */
+export function SetCardsTableEmpty() {
+  return (
+    <TableRow>
+      <TableCell
+        colSpan={8}
+        className="text-muted-foreground h-32 text-center text-xs"
+      >
+        Chưa có thẻ nào trong bộ thẻ này hoặc không khớp với kết quả tìm kiếm.
+      </TableCell>
+    </TableRow>
+  )
+}
+
+export interface SetCardsTableProps {
   cards: CardItem[]
   allCardsCount: number
   selectedCardIds: Set<string>
@@ -42,42 +100,13 @@ export function SetCardsTable({
   return (
     <div className="border-border bg-card overflow-hidden rounded-2xl border shadow-2xs">
       <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-10 text-center">
-              <button
-                type="button"
-                onClick={onToggleSelectAll}
-                className="text-muted-foreground hover:text-foreground rounded p-1"
-                title={isAllSelected ? "Bỏ chọn tất cả" : "Chọn tất cả"}
-              >
-                {isAllSelected ? (
-                  <CheckSquare className="text-primary size-4" />
-                ) : (
-                  <Square className="size-4" />
-                )}
-              </button>
-            </TableHead>
-            <TableHead className="w-12 text-center">#</TableHead>
-            <TableHead>Thuật ngữ & Cách đọc</TableHead>
-            <TableHead>Định nghĩa tiếng Việt</TableHead>
-            <TableHead className="hidden md:table-cell">Ví dụ</TableHead>
-            <TableHead className="hidden lg:table-cell">Nhãn</TableHead>
-            <TableHead className="w-28 text-center">SRS</TableHead>
-            <TableHead className="w-24 text-right">Thao tác</TableHead>
-          </TableRow>
-        </TableHeader>
+        <SetCardsTableHead
+          isAllSelected={isAllSelected}
+          onToggleSelectAll={onToggleSelectAll}
+        />
         <TableBody>
           {cards.length === 0 ? (
-            <TableRow>
-              <TableCell
-                colSpan={8}
-                className="text-muted-foreground h-32 text-center text-xs"
-              >
-                Chưa có thẻ nào trong bộ thẻ này hoặc không khớp với kết quả tìm
-                kiếm.
-              </TableCell>
-            </TableRow>
+            <SetCardsTableEmpty />
           ) : (
             cards.map((card, idx) => (
               <SetCardRow

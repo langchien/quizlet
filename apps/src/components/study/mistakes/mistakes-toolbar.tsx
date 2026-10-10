@@ -8,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { MistakesToolbarFilterItem } from "./mistakes-toolbar-filter-item"
 
 interface MistakesToolbarProps {
   selectedSetId: string
@@ -33,10 +34,7 @@ export function MistakesToolbar({
   return (
     <div className="border-border/60 bg-muted/40 mt-8 grid grid-cols-1 gap-3 rounded-2xl border p-3 sm:grid-cols-3">
       {/* Lọc theo Bộ thẻ */}
-      <div>
-        <label className="text-muted-foreground mb-1 block text-[11px] font-bold">
-          Bộ thẻ:
-        </label>
+      <MistakesToolbarFilterItem label="Bộ thẻ:">
         <Select
           value={selectedSetId}
           onValueChange={(val) =>
@@ -56,13 +54,10 @@ export function MistakesToolbar({
             ))}
           </SelectContent>
         </Select>
-      </div>
+      </MistakesToolbarFilterItem>
 
       {/* Lọc theo JLPT */}
-      <div>
-        <label className="text-muted-foreground mb-1 block text-[11px] font-bold">
-          Cấp độ JLPT:
-        </label>
+      <MistakesToolbarFilterItem label="Cấp độ JLPT:">
         <Select
           value={selectedJLPT}
           onValueChange={(val) =>
@@ -82,13 +77,10 @@ export function MistakesToolbar({
             <SelectItem value="N1">N1</SelectItem>
           </SelectContent>
         </Select>
-      </div>
+      </MistakesToolbarFilterItem>
 
       {/* Sắp xếp */}
-      <div>
-        <label className="text-muted-foreground mb-1 block text-[11px] font-bold">
-          Sắp xếp theo:
-        </label>
+      <MistakesToolbarFilterItem label="Sắp xếp theo:">
         <Select
           value={sortBy}
           onValueChange={(val) =>
@@ -109,7 +101,7 @@ export function MistakesToolbar({
             <SelectItem value="lastReviewDate">Mới ôn gần đây</SelectItem>
           </SelectContent>
         </Select>
-      </div>
+      </MistakesToolbarFilterItem>
     </div>
   )
 }

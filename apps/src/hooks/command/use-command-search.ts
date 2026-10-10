@@ -8,11 +8,15 @@ import type { SearchResults } from "@/types/command-palette"
 interface UseCommandSearchProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  onOpenCreateSet?: () => void
+  onOpenCreateFolder?: () => void
 }
 
 export function useCommandSearch({
   open,
   onOpenChange,
+  onOpenCreateSet,
+  onOpenCreateFolder,
 }: UseCommandSearchProps) {
   const router = useRouter()
   const [query, setQuery] = React.useState("")
@@ -46,28 +50,39 @@ export function useCommandSearch({
     }
   }, [open])
 
-  // Debounced search khi query thay đổi
+  // Debounced search khi query thay đổi với race-condition protection
   React.useEffect(() => {
-    if (!query.trim()) {
+    const trimmedQuery = query.trim()
+    if (!trimmedQuery) {
       setResults(null)
+      setLoading(false)
       return
     }
 
+    let isMounted = true
+    setLoading(true)
+
     const timer = setTimeout(async () => {
-      setLoading(true)
       try {
-        const res = await globalSearchAction(query.trim(), 5)
-        if (res.success && res.data) {
+        const res = await globalSearchAction(trimmedQuery, 5)
+        if (isMounted && res.success && res.data) {
           setResults(res.data.results as unknown as SearchResults)
         }
       } catch (err) {
-        console.error("Search error:", err)
+        if (isMounted) {
+          console.error("Search error:", err)
+        }
       } finally {
-        setLoading(false)
+        if (isMounted) {
+          setLoading(false)
+        }
       }
     }, 250)
 
-    return () => clearTimeout(timer)
+    return () => {
+      isMounted = false
+      clearTimeout(timer)
+    }
   }, [query])
 
   const handleSelect = React.useCallback(
@@ -77,6 +92,20 @@ export function useCommandSearch({
     },
     [onOpenChange, router]
   )
+
+  const handleCreateSet = React.useCallback(() => {
+    onOpenChange(false)
+    onOpenCreateSet?.()
+  }, [onOpenChange, onOpenCreateSet])
+
+  const handleCreateFolder = React.useCallback(() => {
+    onOpenChange(false)
+    onOpenCreateFolder?.()
+  }, [onOpenChange, onOpenCreateFolder])
+
+  const clearQuery = React.useCallback(() => {
+    setQuery("")
+  }, [])
 
   const hasResults = Boolean(
     results &&
@@ -89,10 +118,13 @@ export function useCommandSearch({
   return {
     query,
     setQuery,
+    clearQuery,
     loading,
     results,
     inputRef,
     handleSelect,
+    handleCreateSet,
+    handleCreateFolder,
     hasResults,
   }
 }

@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/select"
 import { Field, FieldLabel } from "@/components/ui/field"
 import type { FlattenedFolder } from "@/hooks/import-export/use-folders-tree"
+import { cn } from "cn"
 
 interface TargetFolderSelectProps {
   value: string
@@ -17,6 +18,7 @@ interface TargetFolderSelectProps {
   folders: FlattenedFolder[]
   disabled?: boolean
   id?: string
+  className?: string
 }
 
 export function TargetFolderSelect({
@@ -25,6 +27,7 @@ export function TargetFolderSelect({
   folders,
   disabled,
   id = "target-folder-select",
+  className,
 }: TargetFolderSelectProps) {
   const folderOptions = React.useMemo(
     () => [
@@ -35,7 +38,7 @@ export function TargetFolderSelect({
   )
 
   return (
-    <Field className="w-full">
+    <Field className={cn(className)}>
       <FieldLabel htmlFor={id} className="text-xs font-semibold">
         Lưu vào thư mục
       </FieldLabel>

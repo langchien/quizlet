@@ -51,7 +51,7 @@ export function useStatsFilter({
   } | null>(null)
 
   // Thay đổi năm Heatmap
-  const handleYearChange = (year: string) => {
+  const handleYearChange = React.useCallback((year: string) => {
     setHeatmapYear(year)
     startHeatmapTransition(async () => {
       const res = await getHeatmapDataAction(year)
@@ -61,10 +61,10 @@ export function useStatsFilter({
         toast.error(res.error || "Không thể tải dữ liệu nhiệt năm này.")
       }
     })
-  }
+  }, [])
 
   // Thay đổi khoảng thời gian Analytics
-  const handleTimeRangeChange = (range: string) => {
+  const handleTimeRangeChange = React.useCallback((range: string) => {
     setTimeRange(range)
     startDailyTransition(async () => {
       const res = await getDailyStatsAction(range)
@@ -74,7 +74,7 @@ export function useStatsFilter({
         toast.error(res.error || "Không thể tải dữ liệu theo khoảng thời gian.")
       }
     })
-  }
+  }, [])
 
   // Tải lịch sử phiên học
   const loadSessions = React.useCallback((page: number, mode: string) => {
@@ -88,19 +88,25 @@ export function useStatsFilter({
     })
   }, [])
 
-  const handleModeChange = (mode: string) => {
-    setSelectedModeFilter(mode)
-    setSessionPage(1)
-    loadSessions(1, mode)
-  }
+  const handleModeChange = React.useCallback(
+    (mode: string) => {
+      setSelectedModeFilter(mode)
+      setSessionPage(1)
+      loadSessions(1, mode)
+    },
+    [loadSessions]
+  )
 
-  const handlePageChange = (newPage: number) => {
-    setSessionPage(newPage)
-    loadSessions(newPage, selectedModeFilter)
-  }
+  const handlePageChange = React.useCallback(
+    (newPage: number) => {
+      setSessionPage(newPage)
+      loadSessions(newPage, selectedModeFilter)
+    },
+    [loadSessions, selectedModeFilter]
+  )
 
   // Xử lý tải file JSON báo cáo
-  const handleExportData = async () => {
+  const handleExportData = React.useCallback(async () => {
     try {
       const res = await fetch("/api/stats/export")
       if (!res.ok) throw new Error("Không thể xuất file")
@@ -118,7 +124,7 @@ export function useStatsFilter({
       console.error(err)
       toast.error("Có lỗi xảy ra khi xuất báo cáo.")
     }
-  }
+  }, [])
 
   // Chia nhỏ Heatmap thành các tuần (mỗi tuần 7 ngày từ CN -> T7)
   const heatmapWeeks = React.useMemo(() => {
@@ -156,8 +162,14 @@ export function useStatsFilter({
     return weeks
   }, [heatmapData])
 
-  const totalHeatmapCards = heatmapData.reduce((acc, c) => acc + c.count, 0)
-  const activeDaysCount = heatmapData.filter((c) => c.count > 0).length
+  const totalHeatmapCards = React.useMemo(
+    () => heatmapData.reduce((acc, c) => acc + c.count, 0),
+    [heatmapData]
+  )
+  const activeDaysCount = React.useMemo(
+    () => heatmapData.filter((c) => c.count > 0).length,
+    [heatmapData]
+  )
 
   return {
     heatmapData,
@@ -182,3 +194,5 @@ export function useStatsFilter({
     handleExportData,
   }
 }
+
+export type UseStatsFilterReturn = ReturnType<typeof useStatsFilter>

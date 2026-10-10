@@ -14,6 +14,7 @@ export interface UseCsvImportOptions {
 }
 
 export function useCsvImport(options?: UseCsvImportOptions) {
+  const fileInputRef = React.useRef<HTMLInputElement>(null)
   const [file, setFile] = React.useState<File | null>(null)
   const [rawContent, setRawContent] = React.useState("")
   const [delimiter, setDelimiter] = React.useState(",")
@@ -30,6 +31,10 @@ export function useCsvImport(options?: UseCsvImportOptions) {
   const [tags, setTags] = React.useState("")
   const [loadingPreview, setLoadingPreview] = React.useState(false)
   const [importing, setImporting] = React.useState(false)
+
+  const openFileDialog = React.useCallback(() => {
+    fileInputRef.current?.click()
+  }, [])
 
   const handleFileChange = async (selectedFile: File) => {
     setFile(selectedFile)
@@ -65,6 +70,17 @@ export function useCsvImport(options?: UseCsvImportOptions) {
       setLoadingPreview(false)
     }
   }
+
+  const handleFileInputChange = React.useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const selected = e.target.files?.[0]
+      if (selected) {
+        handleFileChange(selected)
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [delimiter]
+  )
 
   const handleTextChange = async (text: string) => {
     setRawContent(text)
@@ -125,6 +141,48 @@ export function useCsvImport(options?: UseCsvImportOptions) {
         .finally(() => setLoadingPreview(false))
     }
   }
+
+  const headerOptions = React.useMemo(
+    () =>
+      previewHeaders.map((h, idx) => ({
+        value: String(idx),
+        label: `Cột ${idx + 1}: ${h}`,
+      })),
+    [previewHeaders]
+  )
+
+  const optionalHeaderOptions = React.useMemo(
+    () => [{ value: "-1", label: "-- Không có --" }, ...headerOptions],
+    [headerOptions]
+  )
+
+  const updateTermIndex = React.useCallback((val: string) => {
+    setColumnMapping((prev) => ({
+      ...prev,
+      termIndex: Number(val),
+    }))
+  }, [])
+
+  const updateReadingIndex = React.useCallback((val: string) => {
+    setColumnMapping((prev) => ({
+      ...prev,
+      readingIndex: val && Number(val) >= 0 ? Number(val) : undefined,
+    }))
+  }, [])
+
+  const updateDefinitionIndex = React.useCallback((val: string) => {
+    setColumnMapping((prev) => ({
+      ...prev,
+      definitionIndex: Number(val),
+    }))
+  }, [])
+
+  const updateExampleIndex = React.useCallback((val: string) => {
+    setColumnMapping((prev) => ({
+      ...prev,
+      exampleIndex: val && Number(val) >= 0 ? Number(val) : undefined,
+    }))
+  }, [])
 
   const handleImport = async () => {
     if (!file && !rawContent.trim()) {
@@ -190,20 +248,32 @@ export function useCsvImport(options?: UseCsvImportOptions) {
     }
   }
 
+  const canImport = Boolean((file || rawContent.trim()) && setName.trim())
+
   return {
     file,
+    fileInputRef,
     rawContent,
     delimiter,
     hasHeader,
     previewHeaders,
     previewRows,
     columnMapping,
+    headerOptions,
+    optionalHeaderOptions,
     setName,
     description,
     folderId,
     tags,
     loadingPreview,
     importing,
+    canImport,
+    openFileDialog,
+    handleFileInputChange,
+    updateTermIndex,
+    updateReadingIndex,
+    updateDefinitionIndex,
+    updateExampleIndex,
     setDelimiter,
     handleDelimiterChange,
     setHasHeader,

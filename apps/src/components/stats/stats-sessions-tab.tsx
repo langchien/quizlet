@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select"
 import type { SessionsHistoryResponse } from "@/schemas/stats"
 
-const STUDY_MODE_CONFIG: Record<
+export const STUDY_MODE_CONFIG: Record<
   string,
   { label: string; icon: string; color: string }
 > = {
@@ -33,7 +33,184 @@ const STUDY_MODE_CONFIG: Record<
   Listen: { label: "Nghe & viết", icon: "🎧", color: "text-cyan-500" },
 }
 
-interface StatsSessionsTabProps {
+interface StatsSessionsHeaderProps {
+  totalSessions: number
+  isPending: boolean
+  selectedMode: string
+  onModeChange: (mode: string) => void
+}
+
+/**
+ * Sub-component phần đầu trang lịch sử phiên học và bộ lọc chế độ
+ */
+export function StatsSessionsHeader({
+  totalSessions,
+  isPending,
+  selectedMode,
+  onModeChange,
+}: StatsSessionsHeaderProps) {
+  return (
+    <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+      <div>
+        <h3 className="text-foreground text-sm font-bold">
+          Nhật ký tất cả các phiên học tập
+          {isPending && (
+            <Loader2 className="text-primary ml-2 inline-block size-4 animate-spin" />
+          )}
+        </h3>
+        <p className="text-muted-foreground text-xs">
+          Tổng cộng {totalSessions} phiên học được lưu trong hệ thống
+        </p>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <span className="text-muted-foreground text-xs font-medium">
+          Chế độ:
+        </span>
+        <Select
+          value={selectedMode}
+          onValueChange={(val) => val && onModeChange(val)}
+          disabled={isPending}
+        >
+          <SelectTrigger className="h-8 w-44 text-xs font-medium">
+            <SelectValue placeholder="Tất cả chế độ" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tất cả chế độ</SelectItem>
+            <SelectItem value="Flashcard">🃏 Flashcard</SelectItem>
+            <SelectItem value="Learn">📖 Học thích ứng</SelectItem>
+            <SelectItem value="Test">📝 Kiểm tra</SelectItem>
+            <SelectItem value="Match">🧩 Ghép từ</SelectItem>
+            <SelectItem value="Write">✍️ Viết đáp án</SelectItem>
+            <SelectItem value="Listen">🎧 Nghe & viết</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
+  )
+}
+
+type SessionItem = NonNullable<SessionsHistoryResponse>["sessions"][number]
+
+interface StatsSessionRowProps {
+  session: SessionItem
+}
+
+/**
+ * Sub-component hiển thị từng hàng phiên học trong bảng
+ */
+export function StatsSessionRow({ session }: StatsSessionRowProps) {
+  const modeMeta = STUDY_MODE_CONFIG[session.mode] || {
+    label: session.mode,
+    icon: "📚",
+    color: "text-foreground",
+  }
+  const formattedDate = new Date(session.startedAt).toLocaleDateString(
+    "vi-VN",
+    {
+      hour: "2-digit",
+      minute: "2-digit",
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    }
+  )
+
+  return (
+    <TableRow className="hover:bg-muted/30">
+      <TableCell>
+        <div className="flex items-center gap-2">
+          <span className="text-base">{modeMeta.icon}</span>
+          <span className="text-foreground text-xs font-bold">
+            {modeMeta.label}
+          </span>
+        </div>
+      </TableCell>
+      <TableCell>
+        <span className="text-muted-foreground text-xs font-medium">
+          {session.studySet?.name || "Luyện tập tự do"}
+        </span>
+      </TableCell>
+      <TableCell>
+        <span className="text-muted-foreground text-xs">{formattedDate}</span>
+      </TableCell>
+      <TableCell>
+        <span className="text-muted-foreground text-xs">
+          {Math.round(session.duration / 60)} phút ({session.duration}s)
+        </span>
+      </TableCell>
+      <TableCell>
+        <span className="text-foreground text-xs font-medium">
+          {session.correctCards} / {session.totalCards} thẻ
+        </span>
+      </TableCell>
+      <TableCell className="text-right">
+        <Badge
+          variant={
+            session.score >= 80
+              ? "default"
+              : session.score >= 50
+                ? "secondary"
+                : "outline"
+          }
+          className="text-xs font-bold"
+        >
+          {Math.round(session.score)}%
+        </Badge>
+      </TableCell>
+    </TableRow>
+  )
+}
+
+interface StatsSessionsPaginationProps {
+  currentPage: number
+  totalPages: number
+  isPending: boolean
+  onPageChange: (page: number) => void
+}
+
+/**
+ * Sub-component thanh phân trang bảng phiên học
+ */
+export function StatsSessionsPagination({
+  currentPage,
+  totalPages,
+  isPending,
+  onPageChange,
+}: StatsSessionsPaginationProps) {
+  return (
+    <div className="border-border/50 flex items-center justify-between border-t px-6 py-4">
+      <span className="text-muted-foreground text-xs">
+        Trang {currentPage} / {totalPages}
+      </span>
+
+      <div className="flex items-center gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={currentPage <= 1 || isPending}
+          onClick={() => onPageChange(Math.max(1, currentPage - 1))}
+          className="rounded-xl text-xs"
+        >
+          <ChevronLeft data-icon="inline-start" className="size-3.5" />
+          <span>Trước</span>
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={currentPage >= totalPages || isPending}
+          onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
+          className="rounded-xl text-xs"
+        >
+          <span>Sau</span>
+          <ChevronRight data-icon="inline-end" className="size-3.5" />
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+export interface StatsSessionsTabProps {
   sessionsData: SessionsHistoryResponse | null
   sessionPage: number
   selectedModeFilter: string
@@ -52,45 +229,12 @@ export function StatsSessionsTab({
 }: StatsSessionsTabProps) {
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-        <div>
-          <h3 className="text-foreground text-sm font-bold">
-            Nhật ký tất cả các phiên học tập
-            {isSessionPending && (
-              <Loader2 className="text-primary ml-2 inline-block size-4 animate-spin" />
-            )}
-          </h3>
-          <p className="text-muted-foreground text-xs">
-            Tổng cộng {sessionsData?.pagination.total ?? 0} phiên học được lưu
-            trong hệ thống
-          </p>
-        </div>
-
-        {/* Bộ lọc Mode */}
-        <div className="flex items-center gap-2">
-          <span className="text-muted-foreground text-xs font-medium">
-            Chế độ:
-          </span>
-          <Select
-            value={selectedModeFilter}
-            onValueChange={(val) => val && onModeChange(val)}
-            disabled={isSessionPending}
-          >
-            <SelectTrigger className="h-8 w-44 text-xs font-medium">
-              <SelectValue placeholder="Tất cả chế độ" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Tất cả chế độ</SelectItem>
-              <SelectItem value="Flashcard">🃏 Flashcard</SelectItem>
-              <SelectItem value="Learn">📖 Học thích ứng</SelectItem>
-              <SelectItem value="Test">📝 Kiểm tra</SelectItem>
-              <SelectItem value="Match">🧩 Ghép từ</SelectItem>
-              <SelectItem value="Write">✍️ Viết đáp án</SelectItem>
-              <SelectItem value="Listen">🎧 Nghe & viết</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
+      <StatsSessionsHeader
+        totalSessions={sessionsData?.pagination.total ?? 0}
+        isPending={isSessionPending}
+        selectedMode={selectedModeFilter}
+        onModeChange={onModeChange}
+      />
 
       {/* Bảng Danh sách Phiên học */}
       <div
@@ -111,70 +255,9 @@ export function StatsSessionsTab({
           </TableHeader>
           <TableBody>
             {sessionsData?.sessions && sessionsData.sessions.length > 0 ? (
-              sessionsData.sessions.map((s) => {
-                const modeMeta = STUDY_MODE_CONFIG[s.mode] || {
-                  label: s.mode,
-                  icon: "📚",
-                  color: "text-foreground",
-                }
-                const formattedDate = new Date(s.startedAt).toLocaleDateString(
-                  "vi-VN",
-                  {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "numeric",
-                  }
-                )
-
-                return (
-                  <TableRow key={s.id} className="hover:bg-muted/30">
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <span className="text-base">{modeMeta.icon}</span>
-                        <span className="text-foreground text-xs font-bold">
-                          {modeMeta.label}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-muted-foreground text-xs font-medium">
-                        {s.studySet?.name || "Luyện tập tự do"}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-muted-foreground text-xs">
-                        {formattedDate}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-muted-foreground text-xs">
-                        {Math.round(s.duration / 60)} phút ({s.duration}s)
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-foreground text-xs font-medium">
-                        {s.correctCards} / {s.totalCards} thẻ
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Badge
-                        variant={
-                          s.score >= 80
-                            ? "default"
-                            : s.score >= 50
-                              ? "secondary"
-                              : "outline"
-                        }
-                        className="text-xs font-bold"
-                      >
-                        {Math.round(s.score)}%
-                      </Badge>
-                    </TableCell>
-                  </TableRow>
-                )
-              })
+              sessionsData.sessions.map((s) => (
+                <StatsSessionRow key={s.id} session={s} />
+              ))
             ) : (
               <TableRow>
                 <TableCell
@@ -188,47 +271,13 @@ export function StatsSessionsTab({
           </TableBody>
         </Table>
 
-        {/* Phân trang */}
         {sessionsData && sessionsData.pagination.totalPages > 1 && (
-          <div className="border-border/50 flex items-center justify-between border-t px-6 py-4">
-            <span className="text-muted-foreground text-xs">
-              Trang {sessionsData.pagination.page} /{" "}
-              {sessionsData.pagination.totalPages}
-            </span>
-
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={sessionPage <= 1 || isSessionPending}
-                onClick={() => onPageChange(Math.max(1, sessionPage - 1))}
-                className="gap-1 rounded-xl text-xs"
-              >
-                <ChevronLeft className="size-3.5" />
-                <span>Trước</span>
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={
-                  sessionPage >= sessionsData.pagination.totalPages ||
-                  isSessionPending
-                }
-                onClick={() =>
-                  onPageChange(
-                    Math.min(
-                      sessionsData.pagination.totalPages,
-                      sessionPage + 1
-                    )
-                  )
-                }
-                className="gap-1 rounded-xl text-xs"
-              >
-                <span>Sau</span>
-                <ChevronRight className="size-3.5" />
-              </Button>
-            </div>
-          </div>
+          <StatsSessionsPagination
+            currentPage={sessionPage}
+            totalPages={sessionsData.pagination.totalPages}
+            isPending={isSessionPending}
+            onPageChange={onPageChange}
+          />
         )}
       </div>
     </div>

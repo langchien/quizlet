@@ -12,7 +12,7 @@ interface TagEmptyStateProps {
 export function TagEmptyState({ search, onCreateClick }: TagEmptyStateProps) {
   return (
     <div className="border-border bg-card/40 flex flex-col items-center justify-center rounded-2xl border border-dashed py-16 text-center">
-      <div className="flex size-12 items-center justify-center rounded-2xl bg-purple-500/10 text-purple-500">
+      <div className="bg-primary/10 text-primary flex size-12 items-center justify-center rounded-2xl">
         <TagIcon className="size-6" />
       </div>
       <h3 className="text-foreground mt-4 text-base font-semibold">

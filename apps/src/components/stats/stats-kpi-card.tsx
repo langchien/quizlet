@@ -4,7 +4,45 @@ import * as React from "react"
 import { ArrowUpRight, ArrowDownRight } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 
-interface StatsKpiCardProps {
+interface StatsKpiGrowthBadgeProps {
+  growthPercent?: number
+  growthDiff?: number
+}
+
+/**
+ * Sub-component nhãn hiển thị mức độ tăng trưởng (tích cực / tiêu cực)
+ */
+export function StatsKpiGrowthBadge({
+  growthPercent,
+  growthDiff,
+}: StatsKpiGrowthBadgeProps) {
+  const isPositive =
+    growthPercent !== undefined ? growthPercent >= 0 : (growthDiff ?? 0) >= 0
+
+  return (
+    <Badge
+      variant={isPositive ? "default" : "secondary"}
+      className="gap-1 text-[10px] font-bold"
+    >
+      {isPositive ? (
+        <ArrowUpRight
+          data-icon="inline-start"
+          className="size-3 text-emerald-400"
+        />
+      ) : (
+        <ArrowDownRight
+          data-icon="inline-start"
+          className="size-3 text-rose-400"
+        />
+      )}
+      {growthPercent !== undefined
+        ? `${Math.abs(growthPercent)}%`
+        : `${isPositive ? "+" : ""}${growthDiff}%`}
+    </Badge>
+  )
+}
+
+export interface StatsKpiCardProps {
   label: string
   value: React.ReactNode
   unit?: string
@@ -24,8 +62,6 @@ export function StatsKpiCard({
   valueClassName = "text-foreground",
 }: StatsKpiCardProps) {
   const hasGrowth = growthPercent !== undefined || growthDiff !== undefined
-  const isPositive =
-    growthPercent !== undefined ? growthPercent >= 0 : (growthDiff ?? 0) >= 0
 
   return (
     <div className="flex flex-col gap-1">
@@ -38,19 +74,10 @@ export function StatsKpiCard({
           </span>
         )}
         {hasGrowth && (
-          <Badge
-            variant={isPositive ? "default" : "secondary"}
-            className="gap-1 text-[10px] font-bold"
-          >
-            {isPositive ? (
-              <ArrowUpRight className="size-3 text-emerald-400" />
-            ) : (
-              <ArrowDownRight className="size-3 text-rose-400" />
-            )}
-            {growthPercent !== undefined
-              ? `${Math.abs(growthPercent)}%`
-              : `${isPositive ? "+" : ""}${growthDiff}%`}
-          </Badge>
+          <StatsKpiGrowthBadge
+            growthPercent={growthPercent}
+            growthDiff={growthDiff}
+          />
         )}
       </div>
       {previousSubtext && (

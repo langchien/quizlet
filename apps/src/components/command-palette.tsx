@@ -10,6 +10,8 @@ import {
   CommandFoldersGroup,
   CommandTagsGroup,
   CommandFooter,
+  CommandLoading,
+  CommandEmptyState,
 } from "@/components/command"
 import type { CommandPaletteProps } from "@/types/command-palette"
 
@@ -22,12 +24,20 @@ export function CommandPalette({
   const {
     query,
     setQuery,
+    clearQuery,
     loading,
     results,
     inputRef,
     handleSelect,
+    handleCreateSet,
+    handleCreateFolder,
     hasResults,
-  } = useCommandSearch({ open, onOpenChange })
+  } = useCommandSearch({
+    open,
+    onOpenChange,
+    onOpenCreateSet,
+    onOpenCreateFolder,
+  })
 
   if (!open) return null
 
@@ -41,7 +51,7 @@ export function CommandPalette({
 
       {/* Modal Box */}
       <div
-        className="border-border bg-card animate-in zoom-in-95 relative z-50 w-full max-w-2xl overflow-hidden rounded-2xl border shadow-2xl duration-150"
+        className="animate-in zoom-in-95 border-border bg-card relative z-50 w-full max-w-2xl overflow-hidden rounded-2xl border shadow-2xl duration-150"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Search Header */}
@@ -49,36 +59,20 @@ export function CommandPalette({
           inputRef={inputRef}
           query={query}
           onQueryChange={setQuery}
+          onClearQuery={clearQuery}
         />
 
         {/* Search Content */}
-        <div className="max-h-[60vh] space-y-4 overflow-y-auto p-3">
-          {loading && (
-            <div className="text-muted-foreground py-8 text-center text-xs">
-              <span className="mr-2 inline-block animate-spin">⏳</span>
-              Đang tìm kiếm...
-            </div>
-          )}
+        <div className="flex max-h-[60vh] flex-col gap-4 overflow-y-auto p-3">
+          {loading && <CommandLoading />}
 
           {/* Quick Actions (Khi chưa gõ từ khoá) */}
           {!query.trim() && (
             <CommandQuickActions
               onSelect={handleSelect}
-              onOpenCreateSet={
-                onOpenCreateSet
-                  ? () => {
-                      onOpenChange(false)
-                      onOpenCreateSet()
-                    }
-                  : undefined
-              }
+              onOpenCreateSet={onOpenCreateSet ? handleCreateSet : undefined}
               onOpenCreateFolder={
-                onOpenCreateFolder
-                  ? () => {
-                      onOpenChange(false)
-                      onOpenCreateFolder()
-                    }
-                  : undefined
+                onOpenCreateFolder ? handleCreateFolder : undefined
               }
             />
           )}
@@ -87,11 +81,9 @@ export function CommandPalette({
           {query.trim() && !loading && (
             <>
               {!hasResults ? (
-                <div className="text-muted-foreground py-10 text-center text-sm">
-                  Không tìm thấy kết quả phù hợp cho &quot;{query}&quot;
-                </div>
+                <CommandEmptyState query={query} />
               ) : (
-                <div className="space-y-4">
+                <div className="flex flex-col gap-4">
                   {results && (
                     <>
                       <CommandSetsGroup

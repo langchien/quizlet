@@ -1,3 +1,4 @@
+// Components chính
 export * from "./dashboard-welcome-banner"
 export * from "./dashboard-kpi-grid"
 export * from "./dashboard-goal-banner"
@@ -5,3 +6,17 @@ export * from "./dashboard-performance-charts"
 export * from "./dashboard-recent-sessions"
 export * from "./dashboard-recent-sets"
 export * from "./dashboard-goal-dialog"
+
+// Sub-components tái sử dụng
+export * from "./welcome-banner-header"
+export * from "./welcome-banner-actions"
+export * from "./goal-banner-info"
+export * from "./goal-dialog-fields"
+export * from "./goal-dialog-footer"
+export * from "./dashboard-kpi-card"
+export * from "./weekly-progress-chart"
+export * from "./mode-accuracy-chart"
+export * from "./recent-session-card"
+export * from "./recent-sessions-empty"
+export * from "./recent-set-card"
+export * from "./recent-sets-empty"

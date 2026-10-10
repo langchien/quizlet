@@ -1,7 +1,5 @@
 "use client"
 
-import * as React from "react"
-import Link from "next/link"
 import {
   Card,
   CardContent,
@@ -12,6 +10,8 @@ import {
 } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
+import Link from "next/link"
+import * as React from "react"
 
 interface AuthCardWrapperProps {
   icon: React.ReactNode
@@ -37,27 +37,25 @@ export function AuthCardWrapper({
   return (
     <Card
       className={cn(
-        "border-border/70 bg-card/85 hover:shadow-primary/5 shadow-2xl backdrop-blur-xl transition-all",
+        "border-border/70 bg-card/85 hover:shadow-primary/5 shadow-2xl backdrop-blur-xl transition-all md:min-w-lg",
         className
       )}
     >
-      <CardHeader className="flex flex-col gap-2 pb-6 text-center">
-        <div className="bg-primary/10 text-primary ring-primary/25 mx-auto mb-2 flex size-12 items-center justify-center rounded-2xl ring-1">
+      <CardHeader className="flex flex-col items-center gap-2 pb-6 text-center">
+        <div className="bg-primary/10 text-primary ring-primary/25 mb-2 flex size-12 items-center justify-center rounded-2xl ring-1">
           {icon}
         </div>
         <CardTitle className="text-2xl font-bold tracking-tight">
           {title}
         </CardTitle>
-        <CardDescription className="text-muted-foreground">
-          {description}
-        </CardDescription>
+        <CardDescription>{description}</CardDescription>
       </CardHeader>
 
       <CardContent className="flex flex-col gap-5">{children}</CardContent>
 
-      <Separator className="bg-border/60" />
+      <Separator />
 
-      <CardFooter className="text-muted-foreground flex items-center justify-center p-6 text-center text-xs">
+      <CardFooter className="text-muted-foreground justify-center text-xs">
         <span>{footerText}</span>
         <Link
           href={footerLinkHref}

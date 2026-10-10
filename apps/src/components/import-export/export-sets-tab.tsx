@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { Layers, Download } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
+import { buttonVariants } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -10,6 +10,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { ExportSetRow } from "./export-set-row"
+import { cn } from "cn"
 import type { UserSetSummary } from "@/hooks/import-export/use-export-sets"
 
 interface ExportSetsTabProps {
@@ -35,9 +37,9 @@ export function ExportSetsTab({ userSets, loadingSets }: ExportSetsTabProps) {
           <a
             href="/api/export/all"
             download
-            className="bg-muted hover:bg-muted/80 text-foreground flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-medium transition-colors"
+            className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
           >
-            <Download className="size-3.5" />
+            <Download data-icon="inline-start" />
             <span>Xuất tất cả bộ thẻ (.json)</span>
           </a>
         </div>
@@ -54,37 +56,7 @@ export function ExportSetsTab({ userSets, loadingSets }: ExportSetsTabProps) {
         ) : (
           <div className="border-border divide-border/60 divide-y rounded-xl border">
             {userSets.map((set) => (
-              <div
-                key={set.id}
-                className="hover:bg-muted/30 flex items-center justify-between p-3 text-xs transition-colors"
-              >
-                <div className="flex min-w-0 items-center gap-2">
-                  <span className="text-foreground truncate font-semibold">
-                    {set.name}
-                  </span>
-                  <Badge variant="secondary" className="shrink-0 text-[10px]">
-                    {set.cardCount} thẻ
-                  </Badge>
-                </div>
-                <div className="flex shrink-0 items-center gap-2">
-                  <a
-                    href={`/api/export/set/${set.id}?format=json`}
-                    download
-                    className="hover:bg-primary/10 hover:text-primary rounded-lg border px-2.5 py-1 text-[11px] font-medium transition-colors"
-                    title="Tải về định dạng JSON"
-                  >
-                    JSON
-                  </a>
-                  <a
-                    href={`/api/export/set/${set.id}?format=csv`}
-                    download
-                    className="hover:bg-primary/10 hover:text-primary rounded-lg border px-2.5 py-1 text-[11px] font-medium transition-colors"
-                    title="Tải về định dạng CSV"
-                  >
-                    CSV
-                  </a>
-                </div>
-              </div>
+              <ExportSetRow key={set.id} set={set} />
             ))}
           </div>
         )}

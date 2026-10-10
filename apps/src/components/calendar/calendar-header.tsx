@@ -24,12 +24,13 @@ export function CalendarHeader({ todayDueCount = 0 }: CalendarHeaderProps) {
       </div>
 
       {todayDueCount > 0 && (
-        <Link href="/study/mistakes">
-          <Button className="gap-2 rounded-xl bg-emerald-600 text-xs text-white shadow-xs hover:bg-emerald-700">
-            <RotateCcw className="size-4" />
-            <span>Ôn tập {todayDueCount} thẻ hôm nay</span>
-          </Button>
-        </Link>
+        <Button
+          render={<Link href="/study/mistakes" />}
+          className="gap-2 rounded-xl bg-emerald-600 text-xs text-white shadow-xs hover:bg-emerald-700"
+        >
+          <RotateCcw className="size-4" />
+          <span>Ôn tập {todayDueCount} thẻ hôm nay</span>
+        </Button>
       )}
     </div>
   )

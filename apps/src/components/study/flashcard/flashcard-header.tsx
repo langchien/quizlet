@@ -10,8 +10,8 @@ import {
   Maximize2,
   Minimize2,
 } from "lucide-react"
-import { cn } from "@/lib/utils"
 import { StudySessionHeader } from "@/components/study/study-session-header"
+import { FlashcardHeaderAction } from "./flashcard-header-action"
 
 interface FlashcardHeaderProps {
   setId: string
@@ -50,73 +50,51 @@ export function FlashcardHeader({
       progressColor="bg-primary"
       rightActions={
         <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={onToggleShuffle}
-            className={cn(
-              "rounded-lg p-2 transition-colors",
-              isShuffle
-                ? "bg-primary/10 text-primary font-bold"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground"
-            )}
+          <FlashcardHeaderAction
+            icon={<Shuffle className="size-4" />}
             title="Xáo trộn thứ tự"
-          >
-            <Shuffle className="size-4" />
-          </button>
+            isActive={isShuffle}
+            onClick={onToggleShuffle}
+          />
 
-          <button
-            type="button"
-            onClick={onToggleReverse}
-            className={cn(
-              "rounded-lg p-2 transition-colors",
-              isReverse
-                ? "bg-primary/10 text-primary font-bold"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground"
-            )}
+          <FlashcardHeaderAction
+            icon={<Rotate3D className="size-4" />}
             title="Đổi mặt thẻ (Hỏi định nghĩa trước)"
-          >
-            <Rotate3D className="size-4" />
-          </button>
+            isActive={isReverse}
+            onClick={onToggleReverse}
+          />
 
-          <button
-            type="button"
-            onClick={onToggleAutoPlay}
-            className={cn(
-              "rounded-lg p-2 transition-colors",
-              isAutoPlay
-                ? "bg-emerald-500/10 font-bold text-emerald-600 dark:text-emerald-400"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground"
-            )}
+          <FlashcardHeaderAction
+            icon={
+              isAutoPlay ? (
+                <Pause className="size-4" />
+              ) : (
+                <Play className="size-4" />
+              )
+            }
             title="Tự động phát thẻ (Auto-play)"
-          >
-            {isAutoPlay ? (
-              <Pause className="size-4" />
-            ) : (
-              <Play className="size-4" />
-            )}
-          </button>
+            isActive={isAutoPlay}
+            activeClassName="bg-emerald-500/10 font-bold text-emerald-600 dark:text-emerald-400"
+            onClick={onToggleAutoPlay}
+          />
 
-          <button
-            type="button"
-            onClick={onOpenCheatsheet}
-            className="text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-2 transition-colors"
+          <FlashcardHeaderAction
+            icon={<Keyboard className="size-4" />}
             title="Bảng phím tắt (?)"
-          >
-            <Keyboard className="size-4" />
-          </button>
+            onClick={onOpenCheatsheet}
+          />
 
-          <button
-            type="button"
-            onClick={onToggleFullscreen}
-            className="text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-2 transition-colors"
+          <FlashcardHeaderAction
+            icon={
+              isFullscreen ? (
+                <Minimize2 className="size-4" />
+              ) : (
+                <Maximize2 className="size-4" />
+              )
+            }
             title="Toàn màn hình"
-          >
-            {isFullscreen ? (
-              <Minimize2 className="size-4" />
-            ) : (
-              <Maximize2 className="size-4" />
-            )}
-          </button>
+            onClick={onToggleFullscreen}
+          />
         </div>
       }
     />

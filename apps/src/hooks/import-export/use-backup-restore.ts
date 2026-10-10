@@ -18,11 +18,31 @@ export interface UseBackupRestoreOptions {
 }
 
 export function useBackupRestore(options?: UseBackupRestoreOptions) {
+  const fileInputRef = React.useRef<HTMLInputElement>(null)
   const [restoreFile, setRestoreFile] = React.useState<File | null>(null)
   const [restoreConfirmOpen, setRestoreConfirmOpen] = React.useState(false)
   const [restoring, setRestoring] = React.useState(false)
   const [restoreSummary, setRestoreSummary] =
     React.useState<RestoreSummaryResult | null>(null)
+
+  const openFileDialog = React.useCallback(() => {
+    fileInputRef.current?.click()
+  }, [])
+
+  const handleFileSelect = React.useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setRestoreFile(e.target.files?.[0] || null)
+    },
+    []
+  )
+
+  const handleRequestRestore = React.useCallback(() => {
+    if (!restoreFile) {
+      toast.error("Vui lòng chọn file sao lưu JSON trước.")
+      return
+    }
+    setRestoreConfirmOpen(true)
+  }, [restoreFile])
 
   const handleRestoreSubmit = async () => {
     if (!restoreFile) {
@@ -54,12 +74,18 @@ export function useBackupRestore(options?: UseBackupRestoreOptions) {
   }
 
   const resetSummary = () => setRestoreSummary(null)
+  const canRestore = Boolean(restoreFile)
 
   return {
     restoreFile,
+    fileInputRef,
     restoreConfirmOpen,
     restoring,
     restoreSummary,
+    canRestore,
+    openFileDialog,
+    handleFileSelect,
+    handleRequestRestore,
     setRestoreFile,
     setRestoreConfirmOpen,
     handleRestoreSubmit,

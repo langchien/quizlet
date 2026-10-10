@@ -4,6 +4,33 @@ import * as React from "react"
 import { Tag } from "lucide-react"
 import type { SearchResults } from "@/types/command-palette"
 
+interface CommandTagItemProps {
+  tag: SearchResults["tags"][number]
+  onSelect: (url: string) => void
+}
+
+function CommandTagItem({ tag, onSelect }: CommandTagItemProps) {
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(`/tags/${tag.id}`)}
+      className="inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-medium transition-opacity hover:opacity-80"
+      style={{
+        borderColor: `${tag.color}40`,
+        backgroundColor: `${tag.color}15`,
+        color: tag.color,
+      }}
+    >
+      <span
+        className="size-2 rounded-full"
+        style={{ backgroundColor: tag.color }}
+      />
+      <span>{tag.name}</span>
+      <span className="text-[10px] opacity-70">({tag.cardCount})</span>
+    </button>
+  )
+}
+
 interface CommandTagsGroupProps {
   tags: SearchResults["tags"]
   onSelect: (url: string) => void
@@ -20,24 +47,7 @@ export function CommandTagsGroup({ tags, onSelect }: CommandTagsGroupProps) {
       </div>
       <div className="flex flex-wrap gap-1.5 p-1">
         {tags.map((tag) => (
-          <button
-            key={tag.id}
-            type="button"
-            onClick={() => onSelect(`/tags/${tag.id}`)}
-            className="inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-medium transition-opacity hover:opacity-80"
-            style={{
-              borderColor: `${tag.color}40`,
-              backgroundColor: `${tag.color}15`,
-              color: tag.color,
-            }}
-          >
-            <span
-              className="size-2 rounded-full"
-              style={{ backgroundColor: tag.color }}
-            />
-            <span>{tag.name}</span>
-            <span className="text-[10px] opacity-70">({tag.cardCount})</span>
-          </button>
+          <CommandTagItem key={tag.id} tag={tag} onSelect={onSelect} />
         ))}
       </div>
     </div>

@@ -4,6 +4,7 @@ import * as React from "react"
 import { Volume2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import type { WriteCardItem } from "@/types/write"
+import { WritePromptExample } from "./write-prompt-example"
 
 interface WritePromptCardProps {
   currentCard: WriteCardItem
@@ -49,19 +50,10 @@ export function WritePromptCard({
           {currentCard.definition}
         </h2>
 
-        {/* Example Context if available */}
-        {currentCard.example && (
-          <div className="bg-muted/40 mx-auto mt-4 max-w-lg rounded-2xl p-3 text-left">
-            <div className="font-japanese text-foreground text-xs font-medium">
-              {currentCard.example}
-            </div>
-            {currentCard.exampleTranslation && (
-              <div className="text-muted-foreground mt-0.5 text-[11px]">
-                {currentCard.exampleTranslation}
-              </div>
-            )}
-          </div>
-        )}
+        <WritePromptExample
+          example={currentCard.example}
+          exampleTranslation={currentCard.exampleTranslation}
+        />
       </div>
     </div>
   )

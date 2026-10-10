@@ -4,6 +4,19 @@ import * as React from "react"
 import { toast } from "sonner"
 import { previewTextAction, importTextAction } from "@/actions/import"
 
+export const TERM_SEPARATOR_OPTIONS = [
+  { value: "\t", label: "Dấu Tab ( \\t )" },
+  { value: " - ", label: "Gạch ngang ( - )" },
+  { value: ":", label: "Dấu hai chấm ( : )" },
+  { value: ",", label: "Dấu phẩy ( , )" },
+]
+
+export const CARD_SEPARATOR_OPTIONS = [
+  { value: "\n", label: "Xuống dòng ( \\n )" },
+  { value: "\n\n", label: "Hai dòng trống ( \\n\\n )" },
+  { value: ";", label: "Dấu chấm phẩy ( ; )" },
+]
+
 export interface UseTextImportOptions {
   onSuccess?: (data: {
     setId: string
@@ -107,6 +120,8 @@ export function useTextImport(options?: UseTextImportOptions) {
     }
   }
 
+  const canImport = Boolean(content.trim() && setName.trim())
+
   return {
     content,
     termSeparator,
@@ -117,6 +132,7 @@ export function useTextImport(options?: UseTextImportOptions) {
     tags,
     previewCards,
     importing,
+    canImport,
     handleContentChange,
     handleTermSeparatorChange,
     handleCardSeparatorChange,

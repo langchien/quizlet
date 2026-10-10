@@ -3,11 +3,13 @@
 import * as React from "react"
 import { BarChart3 } from "lucide-react"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { useStatsFilter } from "@/hooks/stats/use-stats-filter"
-import { StatsExportMenu } from "@/components/stats/stats-export-menu"
-import { StatsOverviewTab } from "@/components/stats/stats-overview-tab"
-import { StatsAnalyticsTab } from "@/components/stats/stats-analytics-tab"
-import { StatsSessionsTab } from "@/components/stats/stats-sessions-tab"
+import { useStatsFilter } from "@/hooks/stats"
+import {
+  StatsExportMenu,
+  StatsOverviewTab,
+  StatsAnalyticsTab,
+  StatsSessionsTab,
+} from "@/components/stats"
 import type {
   DailyStatsResponse,
   HeatmapDataResponse,
@@ -34,27 +36,7 @@ export function StatsClient({
 }: StatsClientProps) {
   const [activeTab, setActiveTab] = React.useState("overview")
 
-  const {
-    heatmapYear,
-    isHeatmapPending,
-    handleYearChange,
-    dailyStats,
-    timeRange,
-    isDailyPending,
-    handleTimeRangeChange,
-    sessionsData,
-    sessionPage,
-    selectedModeFilter,
-    isSessionPending,
-    handleModeChange,
-    handlePageChange,
-    hoveredCell,
-    setHoveredCell,
-    heatmapWeeks,
-    totalHeatmapCards,
-    activeDaysCount,
-    handleExportData,
-  } = useStatsFilter({
+  const stats = useStatsFilter({
     initialHeatmapData,
     initialDailyStats,
     initialSessionsData,
@@ -75,7 +57,7 @@ export function StatsClient({
           </p>
         </div>
 
-        <StatsExportMenu onExport={handleExportData} />
+        <StatsExportMenu onExport={stats.handleExportData} />
       </div>
 
       {/* 3 Tabs Điều hướng */}
@@ -109,24 +91,24 @@ export function StatsClient({
         <TabsContent value="overview" className="m-0">
           <StatsOverviewTab
             weeklySummary={initialWeeklySummary}
-            heatmapYear={heatmapYear}
-            isHeatmapPending={isHeatmapPending}
-            onYearChange={handleYearChange}
-            totalHeatmapCards={totalHeatmapCards}
-            activeDaysCount={activeDaysCount}
-            heatmapWeeks={heatmapWeeks}
-            hoveredCell={hoveredCell}
-            setHoveredCell={setHoveredCell}
+            heatmapYear={stats.heatmapYear}
+            isHeatmapPending={stats.isHeatmapPending}
+            onYearChange={stats.handleYearChange}
+            totalHeatmapCards={stats.totalHeatmapCards}
+            activeDaysCount={stats.activeDaysCount}
+            heatmapWeeks={stats.heatmapWeeks}
+            hoveredCell={stats.hoveredCell}
+            setHoveredCell={stats.setHoveredCell}
           />
         </TabsContent>
 
         {/* TAB 2: PHÂN TÍCH CHI TIẾT (ANALYTICS) */}
         <TabsContent value="analytics" className="m-0">
           <StatsAnalyticsTab
-            dailyStats={dailyStats}
-            timeRange={timeRange}
-            isDailyPending={isDailyPending}
-            onTimeRangeChange={handleTimeRangeChange}
+            dailyStats={stats.dailyStats}
+            timeRange={stats.timeRange}
+            isDailyPending={stats.isDailyPending}
+            onTimeRangeChange={stats.handleTimeRangeChange}
             srsDistribution={initialSrsDistribution}
             topSets={initialTopSets}
           />
@@ -135,12 +117,12 @@ export function StatsClient({
         {/* TAB 3: LỊCH SỬ PHIÊN HỌC (SESSION HISTORY) */}
         <TabsContent value="history" className="m-0">
           <StatsSessionsTab
-            sessionsData={sessionsData}
-            sessionPage={sessionPage}
-            selectedModeFilter={selectedModeFilter}
-            isSessionPending={isSessionPending}
-            onModeChange={handleModeChange}
-            onPageChange={handlePageChange}
+            sessionsData={stats.sessionsData}
+            sessionPage={stats.sessionPage}
+            selectedModeFilter={stats.selectedModeFilter}
+            isSessionPending={stats.isSessionPending}
+            onModeChange={stats.handleModeChange}
+            onPageChange={stats.handlePageChange}
           />
         </TabsContent>
       </Tabs>

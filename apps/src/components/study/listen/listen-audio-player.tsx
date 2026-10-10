@@ -1,9 +1,10 @@
 "use client"
 
 import * as React from "react"
-import { Volume2, Gauge } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
+import { Volume2 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { ListenPlaybackRateBar } from "./listen-playback-rate-bar"
+import { ListenSoundwave } from "./listen-soundwave"
 
 interface ListenAudioPlayerProps {
   playbackRate: number
@@ -12,8 +13,6 @@ interface ListenAudioPlayerProps {
   isPlaying: boolean
   jlptLevel?: string | null
 }
-
-const PLAYBACK_RATES = [0.5, 0.8, 1.0, 1.2]
 
 export function ListenAudioPlayer({
   playbackRate,
@@ -24,39 +23,12 @@ export function ListenAudioPlayer({
 }: ListenAudioPlayerProps) {
   return (
     <div>
-      {/* Speed & Audio Controls Bar */}
-      <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-1.5">
-          <Gauge className="text-muted-foreground size-3.5" />
-          <span className="text-muted-foreground text-xs font-medium">
-            Tốc độ:
-          </span>
-          {PLAYBACK_RATES.map((r) => (
-            <button
-              key={r}
-              type="button"
-              onClick={() => {
-                onPlaybackRateChange(r)
-                onPlayAudio(r)
-              }}
-              className={cn(
-                "rounded-md px-2 py-0.5 text-xs font-bold transition-colors",
-                playbackRate === r
-                  ? "bg-cyan-500 text-white shadow-2xs"
-                  : "text-muted-foreground hover:bg-muted"
-              )}
-            >
-              {r}x
-            </button>
-          ))}
-        </div>
-
-        {jlptLevel && (
-          <Badge variant="outline" className="text-[10px]">
-            {jlptLevel}
-          </Badge>
-        )}
-      </div>
+      <ListenPlaybackRateBar
+        playbackRate={playbackRate}
+        onPlaybackRateChange={onPlaybackRateChange}
+        onPlayAudio={onPlayAudio}
+        jlptLevel={jlptLevel}
+      />
 
       {/* Big Audio Speaker Action Button */}
       <div className="my-8 flex flex-col items-center justify-center">
@@ -77,22 +49,7 @@ export function ListenAudioPlayer({
           />
         </button>
 
-        {/* Soundwave animation bars */}
-        <div className="mt-4 flex items-center gap-1">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div
-              key={i}
-              className={cn(
-                "w-1 rounded-full bg-cyan-500 transition-all duration-150",
-                isPlaying ? "h-6 animate-bounce" : "h-1 opacity-30"
-              )}
-              style={{
-                animationDelay: `${i * 80}ms`,
-                animationDuration: "400ms",
-              }}
-            />
-          ))}
-        </div>
+        <ListenSoundwave isPlaying={isPlaying} />
 
         <p className="text-muted-foreground mt-2 text-xs font-medium">
           Nhấn vào loa để nghe lại (hoặc ấn phím Cách)

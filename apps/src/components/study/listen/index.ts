@@ -1,4 +1,7 @@
 export * from "./listen-header"
 export * from "./listen-audio-player"
+export * from "./listen-playback-rate-bar"
+export * from "./listen-soundwave"
 export * from "./listen-answer-form"
+export * from "./listen-hint-alert"
 export * from "./listen-result-card"

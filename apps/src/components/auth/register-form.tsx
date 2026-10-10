@@ -1,66 +1,25 @@
 "use client"
 
 import * as React from "react"
-import { useRouter } from "next/navigation"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { toast } from "sonner"
+import { UserPlus, Mail, User } from "lucide-react"
 import {
-  UserPlus,
-  Mail,
-  User,
-  ArrowRight,
-  Loader2,
-  CheckCircle2,
-} from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { RegisterBodySchema, type RegisterBody } from "@/schemas/auth"
-import { useAuthStore } from "@/stores/useAuthStore"
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group"
+import { useRegisterForm } from "@/hooks/auth"
 import { AuthCardWrapper } from "./auth-card-wrapper"
 import { PasswordInput } from "./password-input"
+import { AuthSubmitButton } from "./auth-submit-button"
 
 export function RegisterForm() {
-  const router = useRouter()
-  const { register: registerUser, isLoading } = useAuthStore()
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<RegisterBody>({
-    resolver: zodResolver(RegisterBodySchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-    },
-  })
-
-  // Đăng ký
-  const onSubmit = async (data: RegisterBody) => {
-    try {
-      await registerUser(data)
-      toast.success("Tạo tài khoản thành công!", {
-        description:
-          "Chào mừng bạn đến với NihoMemo. Hãy bắt đầu học ngay nhé!",
-        icon: <CheckCircle2 className="size-4 text-emerald-500" />,
-      })
-      router.push("/")
-      router.refresh()
-    } catch (err: unknown) {
-      const errObj = err as { error?: string; message?: string } | undefined
-      const errorMsg =
-        errObj?.error ||
-        errObj?.message ||
-        "Đăng ký không thành công. Vui lòng thử lại."
-      toast.error("Lỗi đăng ký", {
-        description: errorMsg,
-      })
-    }
-  }
+  const { register, errors, isLoading, handleSubmit } = useRegisterForm()
 
   return (
     <AuthCardWrapper
@@ -71,107 +30,86 @@ export function RegisterForm() {
       footerLinkText="Đăng nhập ngay"
       footerLinkHref="/login"
     >
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-        {/* Họ và tên */}
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="name" className="text-xs font-semibold">
-            Họ và tên
-          </Label>
-          <div className="relative">
-            <User className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-            <Input
-              id="name"
-              type="text"
-              placeholder="Nguyễn Văn A"
-              className="pr-3 pl-9"
+      <form onSubmit={handleSubmit}>
+        <FieldGroup>
+          {/* Họ và tên */}
+          <Field data-invalid={!!errors.name}>
+            <FieldLabel htmlFor="name">Họ và tên</FieldLabel>
+            <InputGroup>
+              <InputGroupAddon align="inline-start">
+                <User />
+              </InputGroupAddon>
+              <InputGroupInput
+                id="name"
+                type="text"
+                placeholder="Nguyễn Văn A"
+                disabled={isLoading}
+                aria-invalid={!!errors.name}
+                {...register("name")}
+              />
+            </InputGroup>
+            {errors.name && <FieldError>{errors.name.message}</FieldError>}
+          </Field>
+
+          {/* Email */}
+          <Field data-invalid={!!errors.email}>
+            <FieldLabel htmlFor="email">Địa chỉ Email</FieldLabel>
+            <InputGroup>
+              <InputGroupAddon align="inline-start">
+                <Mail />
+              </InputGroupAddon>
+              <InputGroupInput
+                id="email"
+                type="email"
+                placeholder="name@example.com"
+                disabled={isLoading}
+                aria-invalid={!!errors.email}
+                {...register("email")}
+              />
+            </InputGroup>
+            {errors.email && <FieldError>{errors.email.message}</FieldError>}
+          </Field>
+
+          {/* Password */}
+          <Field data-invalid={!!errors.password}>
+            <FieldLabel htmlFor="password">
+              Mật khẩu (tối thiểu 6 ký tự)
+            </FieldLabel>
+            <PasswordInput
+              id="password"
+              placeholder="••••••••"
               disabled={isLoading}
-              {...register("name")}
+              aria-invalid={!!errors.password}
+              {...register("password")}
             />
-          </div>
-          {errors.name && (
-            <p className="text-destructive text-xs font-medium">
-              {errors.name.message}
-            </p>
-          )}
-        </div>
+            {errors.password && (
+              <FieldError>{errors.password.message}</FieldError>
+            )}
+          </Field>
 
-        {/* Email */}
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="email" className="text-xs font-semibold">
-            Địa chỉ Email
-          </Label>
-          <div className="relative">
-            <Mail className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-            <Input
-              id="email"
-              type="email"
-              placeholder="name@example.com"
-              className="pr-3 pl-9"
+          {/* Confirm Password */}
+          <Field data-invalid={!!errors.confirmPassword}>
+            <FieldLabel htmlFor="confirmPassword">Xác nhận mật khẩu</FieldLabel>
+            <PasswordInput
+              id="confirmPassword"
+              placeholder="••••••••"
               disabled={isLoading}
-              {...register("email")}
+              aria-invalid={!!errors.confirmPassword}
+              {...register("confirmPassword")}
             />
-          </div>
-          {errors.email && (
-            <p className="text-destructive text-xs font-medium">
-              {errors.email.message}
-            </p>
-          )}
-        </div>
+            {errors.confirmPassword && (
+              <FieldError>{errors.confirmPassword.message}</FieldError>
+            )}
+          </Field>
 
-        {/* Password */}
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="password" className="text-xs font-semibold">
-            Mật khẩu (tối thiểu 6 ký tự)
-          </Label>
-          <PasswordInput
-            id="password"
-            placeholder="••••••••"
-            disabled={isLoading}
-            {...register("password")}
-          />
-          {errors.password && (
-            <p className="text-destructive text-xs font-medium">
-              {errors.password.message}
-            </p>
-          )}
-        </div>
-
-        {/* Confirm Password */}
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="confirmPassword" className="text-xs font-semibold">
-            Xác nhận mật khẩu
-          </Label>
-          <PasswordInput
-            id="confirmPassword"
-            placeholder="••••••••"
-            disabled={isLoading}
-            {...register("confirmPassword")}
-          />
-          {errors.confirmPassword && (
-            <p className="text-destructive text-xs font-medium">
-              {errors.confirmPassword.message}
-            </p>
-          )}
-        </div>
-
-        {/* Submit Button */}
-        <Button
-          type="submit"
-          className="shadow-primary/20 mt-2 w-full gap-2 shadow-md transition-all active:scale-[0.99]"
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <>
-              <Loader2 className="size-4 animate-spin" />
-              <span>Đang tạo tài khoản...</span>
-            </>
-          ) : (
-            <>
-              <span>Hoàn tất đăng ký</span>
-              <ArrowRight className="size-4" />
-            </>
-          )}
-        </Button>
+          {/* Submit Button */}
+          <AuthSubmitButton
+            isLoading={isLoading}
+            loadingText="Đang tạo tài khoản..."
+          >
+            Hoàn tất đăng ký
+          </AuthSubmitButton>
+        </FieldGroup>
       </form>
     </AuthCardWrapper>
   )

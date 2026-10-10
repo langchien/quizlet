@@ -1,11 +1,12 @@
 "use client"
 
 import * as React from "react"
-import { CheckCircle2, XCircle, HelpCircle, Lightbulb } from "lucide-react"
+import { CheckCircle2, XCircle, HelpCircle } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import type { ListenCardItem, ListenStatus } from "@/types/listen"
+import { ListenHintAlert } from "./listen-hint-alert"
 
 interface ListenAnswerFormProps {
   inputRef: React.RefObject<HTMLInputElement | null>
@@ -41,33 +42,11 @@ export function ListenAnswerForm({
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Gợi ý khi gõ sai */}
-      {failedAttempts > 0 && status === "listening" && (
-        <div className="mx-auto flex w-full max-w-md flex-col gap-2 rounded-2xl bg-amber-500/10 p-3.5 text-xs text-amber-600 dark:text-amber-400">
-          <div className="flex items-center gap-2 font-bold">
-            <Lightbulb className="size-4 shrink-0" />
-            <span>Gợi ý:</span>
-          </div>
-
-          {failedAttempts === 1 && (
-            <p>
-              Từ này bắt đầu bằng ký tự: &quot;
-              <b>{currentCard.term.charAt(0)}</b>&quot; (Gồm{" "}
-              {currentCard.term.length} ký tự)
-            </p>
-          )}
-
-          {failedAttempts >= 2 && (
-            <div className="flex flex-col gap-1">
-              <p>
-                Cách đọc Hiragana: <b>{currentCard.reading}</b>
-              </p>
-              <p>
-                Ý nghĩa tiếng Việt: <i>{currentCard.definition}</i>
-              </p>
-            </div>
-          )}
-        </div>
+      {status === "listening" && (
+        <ListenHintAlert
+          failedAttempts={failedAttempts}
+          currentCard={currentCard}
+        />
       )}
 
       {/* Form nhập đáp án */}
