@@ -1,6 +1,13 @@
 "use client"
 
 import * as React from "react"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 interface MistakesToolbarProps {
   selectedSetId: string
@@ -30,19 +37,25 @@ export function MistakesToolbar({
         <label className="text-muted-foreground mb-1 block text-[11px] font-bold">
           Bộ thẻ:
         </label>
-        <select
+        <Select
           value={selectedSetId}
-          onChange={(e) => onFilterChange(e.target.value, selectedJLPT, sortBy)}
+          onValueChange={(val) =>
+            val && onFilterChange(val, selectedJLPT, sortBy)
+          }
           disabled={isFilterPending}
-          className="border-input bg-card text-foreground h-9 w-full rounded-xl border px-3 text-xs font-medium focus:outline-none"
         >
-          <option value="all">Tất cả bộ thẻ</option>
-          {uniqueSets.map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.name}
-            </option>
-          ))}
-        </select>
+          <SelectTrigger className="h-9 w-full text-xs font-medium">
+            <SelectValue placeholder="Tất cả bộ thẻ" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tất cả bộ thẻ</SelectItem>
+            {uniqueSets.map((s) => (
+              <SelectItem key={s.id} value={s.id}>
+                {s.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Lọc theo JLPT */}
@@ -50,21 +63,25 @@ export function MistakesToolbar({
         <label className="text-muted-foreground mb-1 block text-[11px] font-bold">
           Cấp độ JLPT:
         </label>
-        <select
+        <Select
           value={selectedJLPT}
-          onChange={(e) =>
-            onFilterChange(selectedSetId, e.target.value, sortBy)
+          onValueChange={(val) =>
+            val && onFilterChange(selectedSetId, val, sortBy)
           }
           disabled={isFilterPending}
-          className="border-input bg-card text-foreground h-9 w-full rounded-xl border px-3 text-xs font-medium focus:outline-none"
         >
-          <option value="all">Tất cả cấp độ</option>
-          <option value="N5">N5</option>
-          <option value="N4">N4</option>
-          <option value="N3">N3</option>
-          <option value="N2">N2</option>
-          <option value="N1">N1</option>
-        </select>
+          <SelectTrigger className="h-9 w-full text-xs font-medium">
+            <SelectValue placeholder="Tất cả cấp độ" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tất cả cấp độ</SelectItem>
+            <SelectItem value="N5">N5</SelectItem>
+            <SelectItem value="N4">N4</SelectItem>
+            <SelectItem value="N3">N3</SelectItem>
+            <SelectItem value="N2">N2</SelectItem>
+            <SelectItem value="N1">N1</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Sắp xếp */}
@@ -72,18 +89,26 @@ export function MistakesToolbar({
         <label className="text-muted-foreground mb-1 block text-[11px] font-bold">
           Sắp xếp theo:
         </label>
-        <select
+        <Select
           value={sortBy}
-          onChange={(e) =>
-            onFilterChange(selectedSetId, selectedJLPT, e.target.value)
+          onValueChange={(val) =>
+            val && onFilterChange(selectedSetId, selectedJLPT, val)
           }
           disabled={isFilterPending}
-          className="border-input bg-card text-foreground h-9 w-full rounded-xl border px-3 text-xs font-medium focus:outline-none"
         >
-          <option value="incorrectCount">Số lần sai nhiều nhất</option>
-          <option value="leastAccurate">Độ chính xác thấp nhất</option>
-          <option value="lastReviewDate">Mới ôn gần đây</option>
-        </select>
+          <SelectTrigger className="h-9 w-full text-xs font-medium">
+            <SelectValue placeholder="Sắp xếp theo" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="incorrectCount">
+              Số lần sai nhiều nhất
+            </SelectItem>
+            <SelectItem value="leastAccurate">
+              Độ chính xác thấp nhất
+            </SelectItem>
+            <SelectItem value="lastReviewDate">Mới ôn gần đây</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
     </div>
   )

@@ -12,6 +12,13 @@ import {
   TableHead,
   TableCell,
 } from "@/components/ui/table"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import type { SessionsHistoryResponse } from "@/schemas/stats"
 
 const STUDY_MODE_CONFIG: Record<
@@ -64,20 +71,24 @@ export function StatsSessionsTab({
           <span className="text-muted-foreground text-xs font-medium">
             Chế độ:
           </span>
-          <select
+          <Select
             value={selectedModeFilter}
-            onChange={(e) => onModeChange(e.target.value)}
+            onValueChange={(val) => val && onModeChange(val)}
             disabled={isSessionPending}
-            className="bg-card border-border text-foreground rounded-xl border px-3 py-1.5 text-xs focus:outline-none"
           >
-            <option value="all">Tất cả chế độ</option>
-            <option value="Flashcard">🃏 Flashcard</option>
-            <option value="Learn">📖 Học thích ứng</option>
-            <option value="Test">📝 Kiểm tra</option>
-            <option value="Match">🧩 Ghép từ</option>
-            <option value="Write">✍️ Viết đáp án</option>
-            <option value="Listen">🎧 Nghe & viết</option>
-          </select>
+            <SelectTrigger className="h-8 w-44 text-xs font-medium">
+              <SelectValue placeholder="Tất cả chế độ" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tất cả chế độ</SelectItem>
+              <SelectItem value="Flashcard">🃏 Flashcard</SelectItem>
+              <SelectItem value="Learn">📖 Học thích ứng</SelectItem>
+              <SelectItem value="Test">📝 Kiểm tra</SelectItem>
+              <SelectItem value="Match">🧩 Ghép từ</SelectItem>
+              <SelectItem value="Write">✍️ Viết đáp án</SelectItem>
+              <SelectItem value="Listen">🎧 Nghe & viết</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 

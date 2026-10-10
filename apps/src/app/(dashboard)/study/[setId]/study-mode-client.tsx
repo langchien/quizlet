@@ -18,6 +18,13 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 
 interface TagItem {
@@ -256,17 +263,21 @@ export function StudyModeClient({ setDetail, tags }: StudyModeClientProps) {
             <Label className="text-foreground text-xs font-bold">
               Trạng thái SRS
             </Label>
-            <select
+            <Select
               value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
-              className="border-input bg-background text-foreground h-8 w-full rounded-xl border px-2.5 text-xs font-medium"
+              onValueChange={(val) => val && setSelectedStatus(val)}
             >
-              <option value="All">Tất cả trạng thái</option>
-              <option value="New">Thẻ mới (New)</option>
-              <option value="Learning">Đang học (Learning)</option>
-              <option value="Review">Cần ôn (Review)</option>
-              <option value="Mastered">Đã thuộc (Mastered)</option>
-            </select>
+              <SelectTrigger className="h-8 w-full text-xs font-medium">
+                <SelectValue placeholder="Tất cả trạng thái" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All">Tất cả trạng thái</SelectItem>
+                <SelectItem value="New">Thẻ mới (New)</SelectItem>
+                <SelectItem value="Learning">Đang học (Learning)</SelectItem>
+                <SelectItem value="Review">Cần ôn (Review)</SelectItem>
+                <SelectItem value="Mastered">Đã thuộc (Mastered)</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           {/* 4. Lọc theo nhãn (Tags) */}
@@ -274,18 +285,22 @@ export function StudyModeClient({ setDetail, tags }: StudyModeClientProps) {
             <Label className="text-foreground text-xs font-bold">
               Lọc theo nhãn (Tag)
             </Label>
-            <select
+            <Select
               value={selectedTagId}
-              onChange={(e) => setSelectedTagId(e.target.value)}
-              className="border-input bg-background text-foreground h-8 w-full rounded-xl border px-2.5 text-xs font-medium"
+              onValueChange={(val) => val && setSelectedTagId(val)}
             >
-              <option value="All">Tất cả các nhãn</option>
-              {tags.map((t) => (
-                <option key={t.id} value={t.id}>
-                  🏷️ {t.name}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger className="h-8 w-full text-xs font-medium">
+                <SelectValue placeholder="Tất cả các nhãn" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All">Tất cả các nhãn</SelectItem>
+                {tags.map((t) => (
+                  <SelectItem key={t.id} value={t.id}>
+                    🏷️ {t.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </div>

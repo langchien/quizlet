@@ -2,6 +2,13 @@
 
 import * as React from "react"
 import { Button } from "@/components/ui/button"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import type { TagItem } from "@/types/set-detail"
 
 interface SetBulkTagDialogProps {
@@ -44,18 +51,22 @@ export function SetBulkTagDialog({
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <select
-            value={selectedTagId}
-            onChange={(e) => onSelectTag(e.target.value)}
-            className="border-input bg-background w-full rounded-xl border px-3 py-2 text-xs"
+          <Select
+            value={selectedTagId || undefined}
+            onValueChange={(val) => onSelectTag(val || "")}
+            disabled={isPending}
           >
-            <option value="">-- Chọn nhãn --</option>
-            {availableTags.map((t) => (
-              <option key={t.id} value={t.id}>
-                🏷️ {t.name}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="w-full text-xs">
+              <SelectValue placeholder="-- Chọn nhãn --" />
+            </SelectTrigger>
+            <SelectContent>
+              {availableTags.map((t) => (
+                <SelectItem key={t.id} value={t.id}>
+                  🏷️ {t.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="flex justify-end gap-2 pt-1">
