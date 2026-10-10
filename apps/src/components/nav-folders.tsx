@@ -35,7 +35,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { SidebarDeleteDialog } from "@/components/layout/sidebar-parts/sidebar-delete-dialog"
+import { ConfirmDeleteDialog } from "@/components/common"
 import { useSidebarFolders } from "@/hooks/sidebar"
 import type { FolderNode, FolderToDelete } from "@/types/sidebar"
 
@@ -257,10 +257,17 @@ export function NavFolders({
         )}
       </SidebarMenu>
 
-      <SidebarDeleteDialog
-        folderToDelete={folderToDelete}
+      <ConfirmDeleteDialog
+        isOpen={!!folderToDelete}
+        targetItem={folderToDelete}
+        isDeleting={false}
+        title="Xác nhận xoá thư mục"
+        description={(item) =>
+          `Bạn có chắc chắn muốn xoá thư mục "${item.name}"? Các bộ thẻ bên trong sẽ được tự động chuyển ra thư mục gốc.`
+        }
+        confirmText="Xoá thư mục"
         onClose={() => setFolderToDelete(null)}
-        onConfirmDelete={confirmDeleteFolder}
+        onConfirm={confirmDeleteFolder}
       />
     </SidebarGroup>
   )

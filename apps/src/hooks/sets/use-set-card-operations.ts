@@ -9,6 +9,7 @@ import {
   bulkTagCardsAction,
 } from "@/actions/cards"
 import type { CardItem } from "@/types/set-detail"
+import { useBatchSelection, useAudioPronounce } from "@/hooks/common"
 
 interface UseSetCardOperationsProps {
   cards: CardItem[]
@@ -21,10 +22,16 @@ export function useSetCardOperations({ cards }: UseSetCardOperationsProps) {
   // Tìm kiếm thẻ
   const [searchCard, setSearchCard] = React.useState("")
 
-  // Chọn thẻ (Selection)
-  const [selectedCardIds, setSelectedCardIds] = React.useState<Set<string>>(
-    new Set()
-  )
+  // Tái sử dụng Shared Hook: useBatchSelection
+  const {
+    selectedIds: selectedCardIds,
+    toggle: toggleSelectCard,
+    toggleAll: toggleSelectAll,
+    deselectAll: clearSelection,
+  } = useBatchSelection<CardItem>({ items: cards })
+
+  // Tái sử dụng Shared Hook: useAudioPronounce
+  const { speak: speakJapanese } = useAudioPronounce()
 
   // Trạng thái Modals & Dialogs
   const [cardModalOpen, setCardModalOpen] = React.useState(false)
@@ -36,45 +43,6 @@ export function useSetCardOperations({ cards }: UseSetCardOperationsProps) {
   // Trạng thái gán nhãn hàng loạt
   const [bulkTagModalOpen, setBulkTagModalOpen] = React.useState(false)
   const [selectedTagIdForBulk, setSelectedTagIdForBulk] = React.useState("")
-
-  // Phát âm tiếng Nhật (TTS)
-  const speakJapanese = React.useCallback((text: string) => {
-    if (typeof window !== "undefined" && "speechSynthesis" in window) {
-      window.speechSynthesis.cancel()
-      const utterance = new SpeechSynthesisUtterance(text)
-      utterance.lang = "ja-JP"
-      utterance.rate = 0.9
-      window.speechSynthesis.speak(utterance)
-    } else {
-      toast.error("Trình duyệt không hỗ trợ phát âm tự động")
-    }
-  }, [])
-
-  // Xử lý chọn tất cả / bỏ chọn tất cả
-  const toggleSelectAll = React.useCallback(() => {
-    if (selectedCardIds.size === cards.length) {
-      setSelectedCardIds(new Set())
-    } else {
-      setSelectedCardIds(new Set(cards.map((c) => c.id)))
-    }
-  }, [cards, selectedCardIds.size])
-
-  // Xử lý chọn từng thẻ
-  const toggleSelectCard = React.useCallback((id: string) => {
-    setSelectedCardIds((prev) => {
-      const next = new Set(prev)
-      if (next.has(id)) {
-        next.delete(id)
-      } else {
-        next.add(id)
-      }
-      return next
-    })
-  }, [])
-
-  const clearSelection = React.useCallback(() => {
-    setSelectedCardIds(new Set())
-  }, [])
 
   // Xoá 1 thẻ
   const confirmDeleteCard = React.useCallback(() => {
@@ -123,7 +91,7 @@ export function useSetCardOperations({ cards }: UseSetCardOperationsProps) {
       try {
         await Promise.all(ids.map((id) => deleteCardAction(id)))
         toast.success(`Đã xoá ${ids.length} thẻ thành công`)
-        setSelectedCardIds(new Set())
+        clearSelection()
         router.refresh()
       } catch {
         toast.error("Lỗi khi xoá hàng loạt")
@@ -131,7 +99,7 @@ export function useSetCardOperations({ cards }: UseSetCardOperationsProps) {
         setBulkDeleteOpen(false)
       }
     })
-  }, [selectedCardIds, router])
+  }, [selectedCardIds, clearSelection, router])
 
   // Gán nhãn nhiều thẻ (Bulk Tag)
   const handleBulkTag = React.useCallback(() => {
@@ -140,16 +108,23 @@ export function useSetCardOperations({ cards }: UseSetCardOperationsProps) {
       return
     }
 
+    const cardIds = Array.from(selectedCardIds)
+    if (cardIds.length === 0) {
+      toast.error("Chưa chọn thẻ nào để gán nhãn")
+      return
+    }
+
     startTransition(async () => {
       try {
         const res = await bulkTagCardsAction({
-          cardIds: Array.from(selectedCardIds),
+          cardIds,
           tagIds: [selectedTagIdForBulk],
           action: "add",
         })
 
         if (res.success) {
-          toast.success("Đã gán nhãn cho các thẻ đã chọn")
+          toast.success(`Đã gán nhãn cho ${cardIds.length} thẻ`)
+          clearSelection()
           setBulkTagModalOpen(false)
           setSelectedTagIdForBulk("")
           router.refresh()
@@ -157,22 +132,20 @@ export function useSetCardOperations({ cards }: UseSetCardOperationsProps) {
           toast.error(res.error || "Gán nhãn thất bại")
         }
       } catch {
-        toast.error("Lỗi khi gán nhãn")
+        toast.error("Lỗi khi gán nhãn hàng loạt")
       }
     })
-  }, [selectedCardIds, selectedTagIdForBulk, router])
+  }, [selectedCardIds, selectedTagIdForBulk, clearSelection, router])
 
-  // Danh sách thẻ sau khi lọc tìm kiếm
+  // Lọc thẻ theo từ khóa tìm kiếm
   const filteredCards = React.useMemo(() => {
     if (!searchCard.trim()) return cards
-    const q = searchCard.toLowerCase()
+    const q = searchCard.toLowerCase().trim()
     return cards.filter(
-      (card) =>
-        card.term.toLowerCase().includes(q) ||
-        card.reading.toLowerCase().includes(q) ||
-        card.definition.toLowerCase().includes(q) ||
-        card.example?.toLowerCase().includes(q) ||
-        card.tags.some((t) => t.name.toLowerCase().includes(q))
+      (c) =>
+        c.term.toLowerCase().includes(q) ||
+        c.reading.toLowerCase().includes(q) ||
+        c.definition.toLowerCase().includes(q)
     )
   }, [cards, searchCard])
 
