@@ -1,11 +1,30 @@
 "use client"
 
 import * as React from "react"
-import { Search, LayoutGrid, List } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { NativeSelect as Select } from "@/components/ui/native-select"
-import { cn } from "@/lib/utils"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group"
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import type { LibraryFolderItem } from "@/types/library"
+import { LayoutGrid, List, Search, X } from "lucide-react"
+
+const SORT_OPTIONS = [
+  { value: "updatedAt-desc", label: "Mới cập nhật" },
+  { value: "createdAt-desc", label: "Mới tạo nhất" },
+  { value: "name-asc", label: "Tên (A → Z)" },
+  { value: "cardCount-desc", label: "Nhiều thẻ nhất" },
+]
 
 interface LibraryToolbarProps {
   search: string
@@ -32,84 +51,128 @@ export function LibraryToolbar({
   viewMode,
   onViewModeChange,
 }: LibraryToolbarProps) {
+  const folderOptions = React.useMemo(
+    () => [
+      { value: "all", label: "Tất cả thư mục" },
+      { value: "none", label: "Chưa vào thư mục" },
+      ...folders.map((f) => ({ value: f.id, label: `📁 ${f.name}` })),
+    ],
+    [folders]
+  )
+
   return (
     <div className="border-border bg-card/60 flex flex-col gap-3 rounded-2xl border p-3 shadow-2xs sm:flex-row sm:items-center sm:justify-between">
-      {/* Search Input */}
-      <div className="relative max-w-md flex-1">
-        <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-        <Input
+      {/* Search Input với InputGroup */}
+      <InputGroup className="h-9 max-w-md flex-1">
+        <InputGroupAddon align="inline-start">
+          <Search className="text-muted-foreground size-4" />
+        </InputGroupAddon>
+        <InputGroupInput
           placeholder="Tìm theo tên bộ thẻ, mô tả..."
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="h-9 pl-9 text-xs"
+          aria-label="Tìm kiếm bộ thẻ"
+          className="text-xs"
         />
-      </div>
+        {search && (
+          <InputGroupAddon align="inline-end">
+            <InputGroupButton
+              size="icon-xs"
+              onClick={() => onSearchChange("")}
+              title="Xóa tìm kiếm"
+              aria-label="Xóa nội dung tìm kiếm"
+            >
+              <X className="size-3.5" />
+            </InputGroupButton>
+          </InputGroupAddon>
+        )}
+      </InputGroup>
 
       {/* Filter dropdowns & View toggle */}
       <div className="flex flex-wrap items-center gap-2">
         {/* Filter by Folder */}
-        <div className="min-w-[140px]">
+        <div className="min-w-64">
           <Select
+            items={folderOptions}
             value={selectedFolder}
-            onChange={(e) => onSelectedFolderChange(e.target.value)}
-            className="h-9 text-xs"
+            onValueChange={(val) => val && onSelectedFolderChange(val)}
           >
-            <option value="all">Tất cả thư mục</option>
-            <option value="none">Chưa vào thư mục</option>
-            {folders.map((f) => (
-              <option key={f.id} value={f.id}>
-                📁 {f.name}
-              </option>
-            ))}
+            <SelectTrigger
+              aria-label="Lọc theo thư mục"
+              className="h-9 w-full text-xs"
+            >
+              <SelectValue placeholder="Tất cả thư mục" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                {folderOptions.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
           </Select>
         </div>
 
         {/* Sort By */}
-        <div className="min-w-[130px]">
+        <div className="min-w-40">
           <Select
+            items={SORT_OPTIONS}
             value={`${sortBy}-${sortOrder}`}
-            onChange={(e) => {
-              const [sb, so] = e.target.value.split("-")
+            onValueChange={(val) => {
+              if (!val) return
+              const [sb, so] = val.split("-")
               onSortChange(sb, so)
             }}
-            className="h-9 text-xs"
           >
-            <option value="updatedAt-desc">Mới cập nhật</option>
-            <option value="createdAt-desc">Mới tạo nhất</option>
-            <option value="name-asc">Tên (A → Z)</option>
-            <option value="cardCount-desc">Nhiều thẻ nhất</option>
+            <SelectTrigger
+              aria-label="Sắp xếp danh sách"
+              className="h-9 w-full text-xs"
+            >
+              <SelectValue placeholder="Sắp xếp theo" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                {SORT_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
           </Select>
         </div>
 
-        {/* Grid / List View Toggle */}
-        <div className="border-border bg-muted/40 flex items-center rounded-xl border p-0.5">
-          <button
-            type="button"
-            onClick={() => onViewModeChange("grid")}
-            className={cn(
-              "rounded-lg p-1.5 transition-colors",
-              viewMode === "grid"
-                ? "bg-background text-foreground shadow-2xs"
-                : "text-muted-foreground hover:text-foreground"
-            )}
+        {/* Grid / List View Toggle với ToggleGroup */}
+        <ToggleGroup
+          value={[viewMode]}
+          onValueChange={(val) => {
+            const nextMode = val[0]
+            if (nextMode === "grid" || nextMode === "list") {
+              onViewModeChange(nextMode)
+            }
+          }}
+          spacing={0}
+          className="border-border bg-muted/40 rounded-xl border p-0.5"
+        >
+          <ToggleGroupItem
+            value="grid"
+            aria-label="Xem dạng lưới"
             title="Xem dạng lưới"
+            className="text-muted-foreground hover:text-foreground aria-pressed:bg-background aria-pressed:text-foreground size-7 rounded-lg p-0 aria-pressed:shadow-2xs"
           >
             <LayoutGrid className="size-3.5" />
-          </button>
-          <button
-            type="button"
-            onClick={() => onViewModeChange("list")}
-            className={cn(
-              "rounded-lg p-1.5 transition-colors",
-              viewMode === "list"
-                ? "bg-background text-foreground shadow-2xs"
-                : "text-muted-foreground hover:text-foreground"
-            )}
+          </ToggleGroupItem>
+          <ToggleGroupItem
+            value="list"
+            aria-label="Xem dạng danh sách"
             title="Xem dạng danh sách"
+            className="text-muted-foreground hover:text-foreground aria-pressed:bg-background aria-pressed:text-foreground size-7 rounded-lg p-0 aria-pressed:shadow-2xs"
           >
             <List className="size-3.5" />
-          </button>
-        </div>
+          </ToggleGroupItem>
+        </ToggleGroup>
       </div>
     </div>
   )

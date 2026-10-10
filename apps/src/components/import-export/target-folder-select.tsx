@@ -1,7 +1,14 @@
 "use client"
 
 import * as React from "react"
-import { NativeSelect as Select } from "@/components/ui/native-select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Field, FieldLabel } from "@/components/ui/field"
 import type { FlattenedFolder } from "@/hooks/import-export/use-folders-tree"
 
 interface TargetFolderSelectProps {
@@ -17,27 +24,39 @@ export function TargetFolderSelect({
   onChange,
   folders,
   disabled,
-  id,
+  id = "target-folder-select",
 }: TargetFolderSelectProps) {
+  const folderOptions = React.useMemo(
+    () => [
+      { value: "root", label: "Thư mục gốc (Root)" },
+      ...folders.map((f) => ({ value: f.id, label: `📁 ${f.name}` })),
+    ],
+    [folders]
+  )
+
   return (
-    <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="text-xs font-semibold">
+    <Field className="w-full">
+      <FieldLabel htmlFor={id} className="text-xs font-semibold">
         Lưu vào thư mục
-      </label>
+      </FieldLabel>
       <Select
         id={id}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
+        items={folderOptions}
+        value={value || "root"}
+        onValueChange={(val) => onChange(val === "root" ? "" : (val ?? ""))}
         disabled={disabled}
-        className="w-full"
       >
-        <option value="">Thư mục gốc (Root)</option>
-        {folders.map((f) => (
-          <option key={f.id} value={f.id}>
-            {f.name}
-          </option>
-        ))}
+        <SelectTrigger id={id} className="w-full">
+          <SelectValue placeholder="Thư mục gốc (Root)" />
+        </SelectTrigger>
+        <SelectContent>
+          {folderOptions.map((f) => (
+            <SelectItem key={f.value} value={f.value}>
+              {f.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
       </Select>
-    </div>
+    </Field>
   )
 }

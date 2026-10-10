@@ -70,7 +70,7 @@ export function ShortcutsCheatsheetModal({
 }: ShortcutsCheatsheetModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-xl">
+      <DialogContent size="xl">
         <DialogHeader>
           <div className="flex items-center gap-2">
             <div className="bg-primary/10 text-primary flex size-8 items-center justify-center rounded-lg">

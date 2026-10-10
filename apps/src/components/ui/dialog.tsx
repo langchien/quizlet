@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog"
+import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "cn"
 
 import { Button } from "@/components/ui/button"
@@ -39,23 +40,47 @@ function DialogOverlay({
   )
 }
 
+const dialogContentVariants = cva(
+  "bg-popover text-popover-foreground ring-foreground/10 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl p-4 text-sm ring-1 duration-100 outline-none",
+  {
+    variants: {
+      size: {
+        sm: "sm:max-w-sm",
+        md: "sm:max-w-md",
+        default: "sm:max-w-lg",
+        lg: "sm:max-w-xl",
+        xl: "sm:max-w-2xl",
+        "2xl": "sm:max-w-3xl",
+        "3xl": "sm:max-w-4xl",
+        full: "sm:max-w-[calc(100%-4rem)]",
+      },
+    },
+    defaultVariants: {
+      size: "default",
+    },
+  }
+)
+
+export interface DialogContentProps
+  extends
+    DialogPrimitive.Popup.Props,
+    VariantProps<typeof dialogContentVariants> {
+  showCloseButton?: boolean
+}
+
 function DialogContent({
   className,
   children,
+  size,
   showCloseButton = true,
   ...props
-}: DialogPrimitive.Popup.Props & {
-  showCloseButton?: boolean
-}) {
+}: DialogContentProps) {
   return (
     <DialogPortal>
       <DialogOverlay />
       <DialogPrimitive.Popup
         data-slot="dialog-content"
-        className={cn(
-          "bg-popover text-popover-foreground ring-foreground/10 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl p-4 text-sm ring-1 duration-100 outline-none sm:max-w-sm",
-          className
-        )}
+        className={cn(dialogContentVariants({ size }), className)}
         {...props}
       >
         {children}
@@ -156,4 +181,5 @@ export {
   DialogPortal,
   DialogTitle,
   DialogTrigger,
+  dialogContentVariants,
 }

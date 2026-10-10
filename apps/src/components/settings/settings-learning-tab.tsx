@@ -11,9 +11,20 @@ import {
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
-import { NativeSelect as Select } from "@/components/ui/native-select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  Field,
+  FieldLabel,
+  FieldDescription,
+  FieldGroup,
+} from "@/components/ui/field"
 import { Separator } from "@/components/ui/separator"
 import { SrsModeOption } from "@/hooks/settings/use-learning-preferences"
 import { VoiceOption } from "@/hooks/useTTS"
@@ -36,6 +47,30 @@ export interface SettingsLearningTabProps {
   handleTestTTS: () => void
 }
 
+const SRS_MODE_OPTIONS = [
+  {
+    value: "auto",
+    label:
+      "Tự động thích ứng (Adaptive SM-2 theo tốc độ trả lời - Khuyên dùng)",
+  },
+  {
+    value: "simple",
+    label: "Đơn giản kiểu Quizlet (4 mức: Repeat / Hard / Okay / Easy)",
+  },
+  {
+    value: "advanced",
+    label: "Nâng cao SM-2 chuẩn (Thuật toán SuperMemo-2 6 cấp độ 0-5)",
+  },
+]
+
+const TTS_RATE_OPTIONS = [
+  { value: "0.75", label: "0.75x (Chậm - phù hợp luyện nghe phát âm chuẩn)" },
+  { value: "0.9", label: "0.9x (Chậm vừa phải)" },
+  { value: "1", label: "1.0x (Tốc độ tự nhiên bình thường)" },
+  { value: "1.25", label: "1.25x (Nhanh vừa)" },
+  { value: "1.5", label: "1.5x (Nhanh - tăng phản xạ)" },
+]
+
 export function SettingsLearningTab({
   srsMode,
   setSrsMode,
@@ -53,6 +88,20 @@ export function SettingsLearningTab({
   isPlaying,
   handleTestTTS,
 }: SettingsLearningTabProps) {
+  const voiceOptions = React.useMemo(
+    () => [
+      {
+        value: "default",
+        label: "-- Tự động chọn giọng chuẩn của hệ thống --",
+      },
+      ...voices.map((v) => ({
+        value: v.voiceURI,
+        label: `${v.name} (${v.lang})`,
+      })),
+    ],
+    [voices]
+  )
+
   return (
     <div className="flex flex-col gap-6">
       {/* Cấu hình SRS & Mục tiêu học */}
@@ -67,75 +116,85 @@ export function SettingsLearningTab({
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-5">
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="srsMode">Chế độ SRS mặc định</Label>
-            <Select
-              id="srsMode"
-              value={srsMode}
-              onChange={(e) => setSrsMode(e.target.value as SrsModeOption)}
-            >
-              <option value="auto">
-                Tự động thích ứng (Adaptive SM-2 theo tốc độ trả lời - Khuyên
-                dùng)
-              </option>
-              <option value="simple">
-                Đơn giản kiểu Quizlet (4 mức: Repeat / Hard / Okay / Easy)
-              </option>
-              <option value="advanced">
-                Nâng cao SM-2 chuẩn (Thuật toán SuperMemo-2 6 cấp độ 0-5)
-              </option>
-            </Select>
-            <p className="text-muted-foreground text-xs">
-              {srsMode === "auto" &&
-                "Hệ thống tự động đo thời gian phản hồi: trả lời đúng dưới 5s coi là Dễ, trên 15s coi là Khó."}
-              {srsMode === "simple" &&
-                "Bạn tự chọn mức độ nhớ thẻ: Lặp lại (0 ngày), Khó (1 ngày), Bình thường (3 ngày), Dễ (7 ngày)."}
-              {srsMode === "advanced" &&
-                "Thuật toán SM-2 đầy đủ tính hệ số Ease Factor và chu kỳ Interval toán học nghiêm ngặt."}
-            </p>
-          </div>
+          <FieldGroup className="gap-5">
+            <Field>
+              <FieldLabel htmlFor="srsMode" className="text-xs font-semibold">
+                Chế độ SRS mặc định
+              </FieldLabel>
+              <Select
+                items={SRS_MODE_OPTIONS}
+                value={srsMode}
+                onValueChange={(val) => val && setSrsMode(val as SrsModeOption)}
+              >
+                <SelectTrigger id="srsMode" className="w-full">
+                  <SelectValue placeholder="Chọn chế độ SRS" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SRS_MODE_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FieldDescription>
+                {srsMode === "auto" &&
+                  "Hệ thống tự động đo thời gian phản hồi: trả lời đúng dưới 5s coi là Dễ, trên 15s coi là Khó."}
+                {srsMode === "simple" &&
+                  "Bạn tự chọn mức độ nhớ thẻ: Lặp lại (0 ngày), Khó (1 ngày), Bình thường (3 ngày), Dễ (7 ngày)."}
+                {srsMode === "advanced" &&
+                  "Thuật toán SM-2 đầy đủ tính hệ số Ease Factor và chu kỳ Interval toán học nghiêm ngặt."}
+              </FieldDescription>
+            </Field>
 
-          <Separator />
+            <Separator />
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="dailyGoalCards">
-                Mục tiêu thẻ cần học mỗi ngày
-              </Label>
-              <Input
-                id="dailyGoalCards"
-                type="number"
-                min="5"
-                max="500"
-                value={dailyGoalCards}
-                onChange={(e) =>
-                  setDailyGoalCards(Number(e.target.value) || 20)
-                }
-              />
-              <p className="text-muted-foreground text-[11px]">
-                Số lượng thẻ học hoặc ôn tập để duy trì chuỗi Streak.
-              </p>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Field>
+                <FieldLabel
+                  htmlFor="dailyGoalCards"
+                  className="text-xs font-semibold"
+                >
+                  Mục tiêu thẻ cần học mỗi ngày
+                </FieldLabel>
+                <Input
+                  id="dailyGoalCards"
+                  type="number"
+                  min="5"
+                  max="500"
+                  value={dailyGoalCards}
+                  onChange={(e) =>
+                    setDailyGoalCards(Number(e.target.value) || 20)
+                  }
+                />
+                <FieldDescription className="text-[11px]">
+                  Số lượng thẻ học hoặc ôn tập để duy trì chuỗi Streak.
+                </FieldDescription>
+              </Field>
+
+              <Field>
+                <FieldLabel
+                  htmlFor="dailyTimeTarget"
+                  className="text-xs font-semibold"
+                >
+                  Mục tiêu thời gian học (phút/ngày)
+                </FieldLabel>
+                <Input
+                  id="dailyTimeTarget"
+                  type="number"
+                  min="5"
+                  max="180"
+                  value={dailyTimeTarget}
+                  onChange={(e) =>
+                    setDailyTimeTarget(Number(e.target.value) || 15)
+                  }
+                />
+                <FieldDescription className="text-[11px]">
+                  Thời gian luyện tập hàng ngày hiển thị trên Dashboard.
+                </FieldDescription>
+              </Field>
             </div>
-
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="dailyTimeTarget">
-                Mục tiêu thời gian học (phút/ngày)
-              </Label>
-              <Input
-                id="dailyTimeTarget"
-                type="number"
-                min="5"
-                max="180"
-                value={dailyTimeTarget}
-                onChange={(e) =>
-                  setDailyTimeTarget(Number(e.target.value) || 15)
-                }
-              />
-              <p className="text-muted-foreground text-[11px]">
-                Thời gian luyện tập hàng ngày hiển thị trên Dashboard.
-              </p>
-            </div>
-          </div>
+          </FieldGroup>
         </CardContent>
       </Card>
 
@@ -153,9 +212,9 @@ export function SettingsLearningTab({
         <CardContent className="flex flex-col gap-5">
           <div className="flex items-center justify-between">
             <div className="flex flex-col gap-0.5">
-              <Label className="text-sm font-semibold">
+              <span className="text-foreground text-sm font-semibold">
                 Tự động phát âm khi xem thẻ
-              </Label>
+              </span>
               <p className="text-muted-foreground text-xs">
                 Tự động đọc từ tiếng Nhật khi mở hoặc lật sang mặt trước thẻ
                 học.
@@ -164,48 +223,58 @@ export function SettingsLearningTab({
             <Switch
               checked={autoPlayAudio}
               onCheckedChange={(checked) => setAutoPlayAudio(checked)}
+              aria-label="Tự động phát âm khi xem thẻ"
             />
           </div>
 
           <Separator />
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="ttsRate">Tốc độ phát âm: {ttsRate}x</Label>
+            <Field>
+              <FieldLabel htmlFor="ttsRate" className="text-xs font-semibold">
+                Tốc độ phát âm: {ttsRate}x
+              </FieldLabel>
               <Select
-                id="ttsRate"
+                items={TTS_RATE_OPTIONS}
                 value={String(ttsRate)}
-                onChange={(e) => setTtsRate(Number(e.target.value))}
+                onValueChange={(val) => val && setTtsRate(Number(val))}
               >
-                <option value="0.75">
-                  0.75x (Chậm - phù hợp luyện nghe phát âm chuẩn)
-                </option>
-                <option value="0.9">0.9x (Chậm vừa phải)</option>
-                <option value="1">1.0x (Tốc độ tự nhiên bình thường)</option>
-                <option value="1.25">1.25x (Nhanh vừa)</option>
-                <option value="1.5">1.5x (Nhanh - tăng phản xạ)</option>
+                <SelectTrigger id="ttsRate" className="w-full">
+                  <SelectValue placeholder="Chọn tốc độ phát âm" />
+                </SelectTrigger>
+                <SelectContent>
+                  {TTS_RATE_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
               </Select>
-            </div>
+            </Field>
 
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="ttsVoice">
+            <Field>
+              <FieldLabel htmlFor="ttsVoice" className="text-xs font-semibold">
                 Giọng đọc tiếng Nhật (Voice ja-JP)
-              </Label>
+              </FieldLabel>
               <Select
-                id="ttsVoice"
-                value={ttsVoice}
-                onChange={(e) => setTtsVoice(e.target.value)}
+                items={voiceOptions}
+                value={ttsVoice || "default"}
+                onValueChange={(val) =>
+                  setTtsVoice(val === "default" ? "" : (val ?? ""))
+                }
               >
-                <option value="">
-                  -- Tự động chọn giọng chuẩn của hệ thống --
-                </option>
-                {voices.map((v) => (
-                  <option key={v.voiceURI} value={v.voiceURI}>
-                    {v.name} ({v.lang})
-                  </option>
-                ))}
+                <SelectTrigger id="ttsVoice" className="w-full">
+                  <SelectValue placeholder="-- Tự động chọn giọng chuẩn của hệ thống --" />
+                </SelectTrigger>
+                <SelectContent>
+                  {voiceOptions.map((v) => (
+                    <SelectItem key={v.value} value={v.value}>
+                      {v.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
               </Select>
-            </div>
+            </Field>
           </div>
 
           <div className="bg-muted/40 border-border/80 flex items-center justify-between rounded-xl border p-3">

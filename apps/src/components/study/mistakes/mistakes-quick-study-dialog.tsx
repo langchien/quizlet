@@ -65,7 +65,7 @@ export function MistakesQuickStudyDialog({
 }: MistakesQuickStudyDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent size="md">
         <DialogHeader>
           <DialogTitle className="text-foreground flex items-center gap-2 text-base font-bold">
             <Sparkles className="size-5 text-rose-500" />

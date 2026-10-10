@@ -11,7 +11,14 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { NativeSelect as Select } from "@/components/ui/native-select"
+import { Checkbox } from "@/components/ui/checkbox"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import {
   Card,
   CardContent,
@@ -27,9 +34,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { Field, FieldLabel, FieldGroup } from "@/components/ui/field"
 import { TargetFolderSelect } from "./target-folder-select"
 import { useCsvImport } from "@/hooks/import-export/use-csv-import"
 import type { FlattenedFolder } from "@/hooks/import-export/use-folders-tree"
+
+const DELIMITER_OPTIONS = [
+  { value: ",", label: "Dấu phẩy ( , )" },
+  { value: "\t", label: "Dấu Tab ( \\t )" },
+  { value: ";", label: "Dấu chấm phẩy ( ; )" },
+  { value: "|", label: "Dấu gạch đứng ( | )" },
+]
 
 interface ImportCsvTabProps {
   folders: FlattenedFolder[]
@@ -64,6 +79,20 @@ export function ImportCsvTab({ folders, onSuccess }: ImportCsvTabProps) {
   } = useCsvImport({
     onSuccess: (data) => onSuccess?.(data.setId),
   })
+
+  const headerOptions = React.useMemo(
+    () =>
+      previewHeaders.map((h, idx) => ({
+        value: String(idx),
+        label: `Cột ${idx + 1}: ${h}`,
+      })),
+    [previewHeaders]
+  )
+
+  const optionalHeaderOptions = React.useMemo(
+    () => [{ value: "-1", label: "-- Không có --" }, ...headerOptions],
+    [headerOptions]
+  )
 
   return (
     <Card>
@@ -107,18 +136,22 @@ export function ImportCsvTab({ folders, onSuccess }: ImportCsvTabProps) {
         </div>
 
         {/* Or paste content directly */}
-        <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-semibold">
+        <Field>
+          <FieldLabel
+            htmlFor="raw-csv-content"
+            className="text-xs font-semibold"
+          >
             Hoặc dán nội dung CSV/TSV vào đây:
-          </label>
+          </FieldLabel>
           <Textarea
+            id="raw-csv-content"
             rows={4}
             value={rawContent}
             onChange={(e) => handleTextChange(e.target.value)}
             placeholder={`Term,Reading,Definition,Example\n食べる,たべる,Ăn,ご飯を食べる\n飲む,のむ,Uống,水を飲む`}
             className="font-mono text-xs"
           />
-        </div>
+        </Field>
 
         {loadingPreview && (
           <div className="text-muted-foreground flex items-center justify-center gap-2 py-4 text-xs">
@@ -130,75 +163,101 @@ export function ImportCsvTab({ folders, onSuccess }: ImportCsvTabProps) {
         {/* CSV Settings & Column Mapping */}
         {previewHeaders.length > 0 && (
           <div className="flex flex-col gap-6 pt-2">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-              <div className="flex flex-col gap-1.5 md:col-span-2">
-                <label className="text-xs font-semibold">Tên bộ thẻ *</label>
-                <Input
-                  value={setName}
-                  onChange={(e) => setSetName(e.target.value)}
-                  placeholder="VD: Từ vựng N4 CSV"
+            <FieldGroup className="gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <Field className="md:col-span-2">
+                  <FieldLabel
+                    htmlFor="csv-set-name"
+                    className="text-xs font-semibold"
+                  >
+                    Tên bộ thẻ *
+                  </FieldLabel>
+                  <Input
+                    id="csv-set-name"
+                    value={setName}
+                    onChange={(e) => setSetName(e.target.value)}
+                    placeholder="VD: Từ vựng N4 CSV"
+                  />
+                </Field>
+                <TargetFolderSelect
+                  value={folderId}
+                  onChange={setFolderId}
+                  folders={folders}
                 />
               </div>
-              <TargetFolderSelect
-                value={folderId}
-                onChange={setFolderId}
-                folders={folders}
-              />
-            </div>
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold">Gán nhãn chung</label>
-                <Input
-                  value={tags}
-                  onChange={(e) => setTags(e.target.value)}
-                  placeholder="n4, từ vựng"
-                />
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <Field>
+                  <FieldLabel
+                    htmlFor="csv-tags"
+                    className="text-xs font-semibold"
+                  >
+                    Gán nhãn chung
+                  </FieldLabel>
+                  <Input
+                    id="csv-tags"
+                    value={tags}
+                    onChange={(e) => setTags(e.target.value)}
+                    placeholder="n4, từ vựng"
+                  />
+                </Field>
+                <Field>
+                  <FieldLabel
+                    htmlFor="csv-desc"
+                    className="text-xs font-semibold"
+                  >
+                    Mô tả (tuỳ chọn)
+                  </FieldLabel>
+                  <Input
+                    id="csv-desc"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Bộ thẻ tạo từ CSV..."
+                  />
+                </Field>
               </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold">
-                  Mô tả (tuỳ chọn)
-                </label>
-                <Input
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Bộ thẻ tạo từ CSV..."
-                />
-              </div>
-            </div>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold">
-                  Dấu phân cách (Delimiter)
-                </label>
-                <Select
-                  value={delimiter}
-                  onChange={(e) => handleDelimiterChange(e.target.value)}
-                  className="w-full"
-                >
-                  <option value=",">Dấu phẩy ( , )</option>
-                  <option value="	">Dấu Tab ( \t )</option>
-                  <option value=";">Dấu chấm phẩy ( ; )</option>
-                  <option value="|">Dấu gạch đứng ( | )</option>
-                </Select>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:items-end">
+                <Field>
+                  <FieldLabel
+                    htmlFor="csv-delimiter"
+                    className="text-xs font-semibold"
+                  >
+                    Dấu phân cách (Delimiter)
+                  </FieldLabel>
+                  <Select
+                    items={DELIMITER_OPTIONS}
+                    value={delimiter}
+                    onValueChange={(val) => val && handleDelimiterChange(val)}
+                  >
+                    <SelectTrigger id="csv-delimiter" className="w-full">
+                      <SelectValue placeholder="Chọn dấu phân cách" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {DELIMITER_OPTIONS.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+
+                <div className="flex items-center gap-2 pb-2">
+                  <Checkbox
+                    id="csv-header-check"
+                    checked={hasHeader}
+                    onCheckedChange={(checked) => setHasHeader(!!checked)}
+                  />
+                  <FieldLabel
+                    htmlFor="csv-header-check"
+                    className="cursor-pointer text-xs font-medium select-none"
+                  >
+                    Dòng đầu tiên là tiêu đề (Header)
+                  </FieldLabel>
+                </div>
               </div>
-              <div className="flex items-center gap-2 pt-6">
-                <input
-                  type="checkbox"
-                  id="csv-header-check"
-                  checked={hasHeader}
-                  onChange={(e) => setHasHeader(e.target.checked)}
-                  className="border-border text-primary focus:ring-primary size-4 rounded"
-                />
-                <label
-                  htmlFor="csv-header-check"
-                  className="cursor-pointer text-xs font-medium select-none"
-                >
-                  Dòng đầu tiên là tiêu đề (Header)
-                </label>
-              </div>
-            </div>
+            </FieldGroup>
 
             {/* Column mapping selectors */}
             <div className="border-border/60 bg-muted/30 flex flex-col gap-3 rounded-2xl border p-4">
@@ -208,111 +267,139 @@ export function ImportCsvTab({ folders, onSuccess }: ImportCsvTabProps) {
               </div>
 
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4">
-                <div className="flex flex-col gap-1">
-                  <label className="text-foreground text-[11px] font-medium">
+                <Field>
+                  <FieldLabel
+                    htmlFor="col-term"
+                    className="text-foreground text-[11px] font-medium"
+                  >
                     Từ vựng (Term) *
-                  </label>
+                  </FieldLabel>
                   <Select
+                    items={headerOptions}
                     value={String(columnMapping.termIndex)}
-                    onChange={(e) =>
+                    onValueChange={(val) =>
+                      val &&
                       setColumnMapping((prev) => ({
                         ...prev,
-                        termIndex: Number(e.target.value),
+                        termIndex: Number(val),
                       }))
                     }
-                    className="w-full"
                   >
-                    {previewHeaders.map((h, idx) => (
-                      <option key={idx} value={String(idx)}>
-                        Cột {idx + 1}: {h}
-                      </option>
-                    ))}
+                    <SelectTrigger id="col-term" className="w-full">
+                      <SelectValue placeholder="Chọn cột từ vựng" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {headerOptions.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
                   </Select>
-                </div>
+                </Field>
 
-                <div className="flex flex-col gap-1">
-                  <label className="text-foreground text-[11px] font-medium">
+                <Field>
+                  <FieldLabel
+                    htmlFor="col-reading"
+                    className="text-foreground text-[11px] font-medium"
+                  >
                     Cách đọc (Reading)
-                  </label>
+                  </FieldLabel>
                   <Select
+                    items={optionalHeaderOptions}
                     value={
                       columnMapping.readingIndex !== undefined &&
                       columnMapping.readingIndex !== null
                         ? String(columnMapping.readingIndex)
                         : "-1"
                     }
-                    onChange={(e) =>
+                    onValueChange={(val) =>
                       setColumnMapping((prev) => ({
                         ...prev,
                         readingIndex:
-                          Number(e.target.value) >= 0
-                            ? Number(e.target.value)
-                            : undefined,
+                          val && Number(val) >= 0 ? Number(val) : undefined,
                       }))
                     }
-                    className="w-full"
                   >
-                    <option value="-1">-- Không có (dùng Term) --</option>
-                    {previewHeaders.map((h, idx) => (
-                      <option key={idx} value={String(idx)}>
-                        Cột {idx + 1}: {h}
-                      </option>
-                    ))}
+                    <SelectTrigger id="col-reading" className="w-full">
+                      <SelectValue placeholder="-- Không chọn (dùng Term) --" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {optionalHeaderOptions.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
                   </Select>
-                </div>
+                </Field>
 
-                <div className="flex flex-col gap-1">
-                  <label className="text-foreground text-[11px] font-medium">
+                <Field>
+                  <FieldLabel
+                    htmlFor="col-def"
+                    className="text-foreground text-[11px] font-medium"
+                  >
                     Định nghĩa (Definition) *
-                  </label>
+                  </FieldLabel>
                   <Select
+                    items={headerOptions}
                     value={String(columnMapping.definitionIndex)}
-                    onChange={(e) =>
+                    onValueChange={(val) =>
+                      val &&
                       setColumnMapping((prev) => ({
                         ...prev,
-                        definitionIndex: Number(e.target.value),
+                        definitionIndex: Number(val),
                       }))
                     }
-                    className="w-full"
                   >
-                    {previewHeaders.map((h, idx) => (
-                      <option key={idx} value={String(idx)}>
-                        Cột {idx + 1}: {h}
-                      </option>
-                    ))}
+                    <SelectTrigger id="col-def" className="w-full">
+                      <SelectValue placeholder="Chọn cột định nghĩa" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {headerOptions.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
                   </Select>
-                </div>
+                </Field>
 
-                <div className="flex flex-col gap-1">
-                  <label className="text-foreground text-[11px] font-medium">
+                <Field>
+                  <FieldLabel
+                    htmlFor="col-example"
+                    className="text-foreground text-[11px] font-medium"
+                  >
                     Ví dụ (Example)
-                  </label>
+                  </FieldLabel>
                   <Select
+                    items={optionalHeaderOptions}
                     value={
                       columnMapping.exampleIndex !== undefined &&
                       columnMapping.exampleIndex !== null
                         ? String(columnMapping.exampleIndex)
                         : "-1"
                     }
-                    onChange={(e) =>
+                    onValueChange={(val) =>
                       setColumnMapping((prev) => ({
                         ...prev,
                         exampleIndex:
-                          Number(e.target.value) >= 0
-                            ? Number(e.target.value)
-                            : undefined,
+                          val && Number(val) >= 0 ? Number(val) : undefined,
                       }))
                     }
-                    className="w-full"
                   >
-                    <option value="-1">-- Không có --</option>
-                    {previewHeaders.map((h, idx) => (
-                      <option key={idx} value={String(idx)}>
-                        Cột {idx + 1}: {h}
-                      </option>
-                    ))}
+                    <SelectTrigger id="col-example" className="w-full">
+                      <SelectValue placeholder="-- Không có --" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {optionalHeaderOptions.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
                   </Select>
-                </div>
+                </Field>
               </div>
             </div>
 

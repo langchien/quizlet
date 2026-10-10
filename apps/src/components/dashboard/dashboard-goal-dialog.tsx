@@ -36,7 +36,7 @@ export function DashboardGoalDialog({
 }: DashboardGoalDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="rounded-2xl sm:max-w-md">
+      <DialogContent size="md" className="rounded-2xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-base font-bold">
             <Target className="text-primary size-5" />

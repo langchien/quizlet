@@ -9,8 +9,14 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
-import { NativeSelect as Select } from "@/components/ui/native-select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Field, FieldLabel } from "@/components/ui/field"
 import { Separator } from "@/components/ui/separator"
 import { FontSizeOption } from "@/hooks/settings/use-learning-preferences"
 import { cn } from "@/lib/utils"
@@ -23,6 +29,18 @@ export interface SettingsAppearanceTabProps {
   japaneseFont: string
   setJapaneseFont: (font: string) => void
 }
+
+const FONT_SIZE_OPTIONS = [
+  { value: "sm", label: "Nhỏ gọn (Thích hợp màn hình nhỏ)" },
+  { value: "md", label: "Tiêu chuẩn (Khuyên dùng)" },
+  { value: "lg", label: "Lớn & Rõ nét (Dễ nhìn chữ Hán phức tạp)" },
+]
+
+const JAPANESE_FONT_OPTIONS = [
+  { value: "noto", label: "Noto Sans JP (Chuẩn mực Google Fonts)" },
+  { value: "gothic", label: "Zen Kaku Gothic (Hiện đại, nét thanh)" },
+  { value: "maru", label: "Kosugi Maru (Tròn trịa dễ thương)" },
+]
 
 export function SettingsAppearanceTab({
   theme,
@@ -92,37 +110,52 @@ export function SettingsAppearanceTab({
         <Separator />
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="fontSize">Kích cỡ font thẻ học</Label>
+          <Field>
+            <FieldLabel htmlFor="fontSize" className="text-xs font-semibold">
+              Kích cỡ font thẻ học
+            </FieldLabel>
             <Select
-              id="fontSize"
+              items={FONT_SIZE_OPTIONS}
               value={fontSize}
-              onChange={(e) => setFontSize(e.target.value as FontSizeOption)}
+              onValueChange={(val) => val && setFontSize(val as FontSizeOption)}
             >
-              <option value="sm">Nhỏ gọn (Thích hợp màn hình nhỏ)</option>
-              <option value="md">Tiêu chuẩn (Khuyên dùng)</option>
-              <option value="lg">
-                Lớn & Rõ nét (Dễ nhìn chữ Hán phức tạp)
-              </option>
+              <SelectTrigger id="fontSize" className="w-full">
+                <SelectValue placeholder="Chọn kích cỡ font" />
+              </SelectTrigger>
+              <SelectContent>
+                {FONT_SIZE_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
             </Select>
-          </div>
+          </Field>
 
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="japaneseFont">Font chữ tiếng Nhật hiển thị</Label>
-            <Select
-              id="japaneseFont"
-              value={japaneseFont}
-              onChange={(e) => setJapaneseFont(e.target.value)}
+          <Field>
+            <FieldLabel
+              htmlFor="japaneseFont"
+              className="text-xs font-semibold"
             >
-              <option value="noto">
-                Noto Sans JP (Chuẩn mực Google Fonts)
-              </option>
-              <option value="gothic">
-                Zen Kaku Gothic (Hiện đại, nét thanh)
-              </option>
-              <option value="maru">Kosugi Maru (Tròn trịa dễ thương)</option>
+              Font chữ tiếng Nhật hiển thị
+            </FieldLabel>
+            <Select
+              items={JAPANESE_FONT_OPTIONS}
+              value={japaneseFont}
+              onValueChange={(val) => val && setJapaneseFont(val)}
+            >
+              <SelectTrigger id="japaneseFont" className="w-full">
+                <SelectValue placeholder="Chọn font chữ" />
+              </SelectTrigger>
+              <SelectContent>
+                {JAPANESE_FONT_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
             </Select>
-          </div>
+          </Field>
         </div>
       </CardContent>
     </Card>

@@ -41,6 +41,7 @@ export function useCardForm({
 
   const {
     register,
+    control,
     handleSubmit,
     reset,
     setValue,
@@ -250,6 +251,7 @@ export function useCardForm({
     setTagInput,
     imagePreview,
     register,
+    control,
     handleSubmit,
     errors,
     handleImageChange,

@@ -11,7 +11,13 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { NativeSelect as Select } from "@/components/ui/native-select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import {
   Card,
   CardContent,
@@ -27,6 +33,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { Field, FieldLabel, FieldGroup } from "@/components/ui/field"
 import { TargetFolderSelect } from "./target-folder-select"
 import { useAnkiImport } from "@/hooks/import-export/use-anki-import"
 import type { FlattenedFolder } from "@/hooks/import-export/use-folders-tree"
@@ -60,6 +67,23 @@ export function ImportAnkiTab({ folders, onSuccess }: ImportAnkiTabProps) {
   } = useAnkiImport({
     onSuccess: (data) => onSuccess?.(data.setId),
   })
+
+  const deckOptions = React.useMemo(
+    () =>
+      decks.map((d) => ({
+        value: String(d.id),
+        label: `${d.name} (${d.cardCount} thẻ)`,
+      })),
+    [decks]
+  )
+
+  const fieldOptions = React.useMemo(() => {
+    if (!selectedDeck) return []
+    return [
+      { value: "none", label: "-- Không chọn / Không có --" },
+      ...selectedDeck.fields.map((f) => ({ value: f, label: f })),
+    ]
+  }, [selectedDeck])
 
   return (
     <Card>
@@ -121,67 +145,89 @@ export function ImportAnkiTab({ folders, onSuccess }: ImportAnkiTabProps) {
         {/* Preview & Configuration */}
         {selectedDeck && !loadingPreview && (
           <div className="flex flex-col gap-6 pt-2">
-            {/* Deck Selection if multiple */}
-            {decks.length > 1 && (
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold">
-                  Chọn Deck trong file:
-                </label>
-                <Select
-                  value={selectedDeckId}
-                  onChange={(e) => handleSelectDeck(e.target.value)}
-                  className="w-full"
-                >
-                  {decks.map((d) => (
-                    <option key={d.id} value={String(d.id)}>
-                      {d.name} ({d.cardCount} thẻ)
-                    </option>
-                  ))}
-                </Select>
-              </div>
-            )}
+            <FieldGroup className="gap-4">
+              {/* Deck Selection if multiple */}
+              {decks.length > 1 && (
+                <Field>
+                  <FieldLabel
+                    htmlFor="deck-select"
+                    className="text-xs font-semibold"
+                  >
+                    Chọn Deck trong file:
+                  </FieldLabel>
+                  <Select
+                    items={deckOptions}
+                    value={selectedDeckId}
+                    onValueChange={(val) => val && handleSelectDeck(val)}
+                  >
+                    <SelectTrigger id="deck-select" className="w-full">
+                      <SelectValue placeholder="Chọn Deck..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {deckOptions.map((d) => (
+                        <SelectItem key={d.value} value={d.value}>
+                          {d.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+              )}
 
-            {/* Set Configuration */}
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-              <div className="flex flex-col gap-1.5 md:col-span-2">
-                <label className="text-xs font-semibold">
-                  Tên bộ thẻ mới *
-                </label>
-                <Input
-                  value={setName}
-                  onChange={(e) => setSetName(e.target.value)}
-                  placeholder="VD: Từ vựng Minna Bài 1"
+              {/* Set Configuration */}
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <Field className="md:col-span-2">
+                  <FieldLabel
+                    htmlFor="set-name-input"
+                    className="text-xs font-semibold"
+                  >
+                    Tên bộ thẻ mới *
+                  </FieldLabel>
+                  <Input
+                    id="set-name-input"
+                    value={setName}
+                    onChange={(e) => setSetName(e.target.value)}
+                    placeholder="VD: Từ vựng Minna Bài 1"
+                  />
+                </Field>
+                <TargetFolderSelect
+                  value={folderId}
+                  onChange={setFolderId}
+                  folders={folders}
                 />
               </div>
-              <TargetFolderSelect
-                value={folderId}
-                onChange={setFolderId}
-                folders={folders}
-              />
-            </div>
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold">
-                  Gán nhãn (cách nhau bởi dấu phẩy)
-                </label>
-                <Input
-                  value={tags}
-                  onChange={(e) => setTags(e.target.value)}
-                  placeholder="anki, n5, bài 1"
-                />
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <Field>
+                  <FieldLabel
+                    htmlFor="set-tags-input"
+                    className="text-xs font-semibold"
+                  >
+                    Gán nhãn (cách nhau bởi dấu phẩy)
+                  </FieldLabel>
+                  <Input
+                    id="set-tags-input"
+                    value={tags}
+                    onChange={(e) => setTags(e.target.value)}
+                    placeholder="anki, n5, bài 1"
+                  />
+                </Field>
+                <Field>
+                  <FieldLabel
+                    htmlFor="set-desc-input"
+                    className="text-xs font-semibold"
+                  >
+                    Mô tả (tuỳ chọn)
+                  </FieldLabel>
+                  <Input
+                    id="set-desc-input"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Bộ thẻ nhập từ Anki..."
+                  />
+                </Field>
               </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold">
-                  Mô tả (tuỳ chọn)
-                </label>
-                <Input
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Bộ thẻ nhập từ Anki..."
-                />
-              </div>
-            </div>
+            </FieldGroup>
 
             {/* Field Mapping */}
             <div className="border-border/60 bg-muted/30 flex flex-col gap-3 rounded-2xl border p-4">
@@ -196,97 +242,125 @@ export function ImportAnkiTab({ folders, onSuccess }: ImportAnkiTabProps) {
               </div>
 
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4">
-                <div className="flex flex-col gap-1">
-                  <label className="text-foreground text-[11px] font-medium">
+                <Field>
+                  <FieldLabel
+                    htmlFor="map-term"
+                    className="text-foreground text-[11px] font-medium"
+                  >
                     Từ vựng / Thuật ngữ (Term) *
-                  </label>
+                  </FieldLabel>
                   <Select
-                    value={fieldMapping.term || ""}
-                    onChange={(e) =>
+                    items={fieldOptions}
+                    value={fieldMapping.term || "none"}
+                    onValueChange={(val) =>
                       setFieldMapping((prev) => ({
                         ...prev,
-                        term: e.target.value,
+                        term: val === "none" ? "" : (val ?? ""),
                       }))
                     }
-                    className="w-full"
                   >
-                    <option value="">-- Chọn trường --</option>
-                    {selectedDeck.fields.map((f) => (
-                      <option key={f} value={f}>
-                        {f}
-                      </option>
-                    ))}
+                    <SelectTrigger id="map-term" className="w-full">
+                      <SelectValue placeholder="-- Chọn trường --" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {fieldOptions.map((f) => (
+                        <SelectItem key={f.value} value={f.value}>
+                          {f.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
                   </Select>
-                </div>
+                </Field>
 
-                <div className="flex flex-col gap-1">
-                  <label className="text-foreground text-[11px] font-medium">
+                <Field>
+                  <FieldLabel
+                    htmlFor="map-reading"
+                    className="text-foreground text-[11px] font-medium"
+                  >
                     Cách đọc / Furigana (Reading)
-                  </label>
+                  </FieldLabel>
                   <Select
-                    value={fieldMapping.reading || ""}
-                    onChange={(e) =>
+                    items={fieldOptions}
+                    value={fieldMapping.reading || "none"}
+                    onValueChange={(val) =>
                       setFieldMapping((prev) => ({
                         ...prev,
-                        reading: e.target.value,
+                        reading: val === "none" ? "" : (val ?? ""),
                       }))
                     }
-                    className="w-full"
                   >
-                    <option value="">-- Không chọn (dùng Term) --</option>
-                    {selectedDeck.fields.map((f) => (
-                      <option key={f} value={f}>
-                        {f}
-                      </option>
-                    ))}
+                    <SelectTrigger id="map-reading" className="w-full">
+                      <SelectValue placeholder="-- Không chọn (dùng Term) --" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {fieldOptions.map((f) => (
+                        <SelectItem key={f.value} value={f.value}>
+                          {f.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
                   </Select>
-                </div>
+                </Field>
 
-                <div className="flex flex-col gap-1">
-                  <label className="text-foreground text-[11px] font-medium">
+                <Field>
+                  <FieldLabel
+                    htmlFor="map-def"
+                    className="text-foreground text-[11px] font-medium"
+                  >
                     Định nghĩa / Nghĩa (Definition) *
-                  </label>
+                  </FieldLabel>
                   <Select
-                    value={fieldMapping.definition || ""}
-                    onChange={(e) =>
+                    items={fieldOptions}
+                    value={fieldMapping.definition || "none"}
+                    onValueChange={(val) =>
                       setFieldMapping((prev) => ({
                         ...prev,
-                        definition: e.target.value,
+                        definition: val === "none" ? "" : (val ?? ""),
                       }))
                     }
-                    className="w-full"
                   >
-                    <option value="">-- Chọn trường --</option>
-                    {selectedDeck.fields.map((f) => (
-                      <option key={f} value={f}>
-                        {f}
-                      </option>
-                    ))}
+                    <SelectTrigger id="map-def" className="w-full">
+                      <SelectValue placeholder="-- Chọn trường --" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {fieldOptions.map((f) => (
+                        <SelectItem key={f.value} value={f.value}>
+                          {f.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
                   </Select>
-                </div>
+                </Field>
 
-                <div className="flex flex-col gap-1">
-                  <label className="text-foreground text-[11px] font-medium">
+                <Field>
+                  <FieldLabel
+                    htmlFor="map-example"
+                    className="text-foreground text-[11px] font-medium"
+                  >
                     Câu ví dụ (Example)
-                  </label>
+                  </FieldLabel>
                   <Select
-                    value={fieldMapping.example || ""}
-                    onChange={(e) =>
+                    items={fieldOptions}
+                    value={fieldMapping.example || "none"}
+                    onValueChange={(val) =>
                       setFieldMapping((prev) => ({
                         ...prev,
-                        example: e.target.value,
+                        example: val === "none" ? "" : (val ?? ""),
                       }))
                     }
-                    className="w-full"
                   >
-                    <option value="">-- Không có --</option>
-                    {selectedDeck.fields.map((f) => (
-                      <option key={f} value={f}>
-                        {f}
-                      </option>
-                    ))}
+                    <SelectTrigger id="map-example" className="w-full">
+                      <SelectValue placeholder="-- Không có --" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {fieldOptions.map((f) => (
+                        <SelectItem key={f.value} value={f.value}>
+                          {f.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
                   </Select>
-                </div>
+                </Field>
               </div>
             </div>
 

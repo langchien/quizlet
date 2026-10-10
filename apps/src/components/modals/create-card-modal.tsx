@@ -48,6 +48,7 @@ export function CreateCardModal({
     setTagInput,
     imagePreview,
     register,
+    control,
     handleSubmit,
     errors,
     handleImageChange,
@@ -66,7 +67,7 @@ export function CreateCardModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent size="xl">
         <DialogHeader>
           <div className="flex items-center gap-2">
             <div className="flex size-9 items-center justify-center rounded-xl bg-amber-500/10 text-amber-500">
@@ -98,6 +99,7 @@ export function CreateCardModal({
             {/* TAB 1: Cơ bản */}
             <CardFormBasicTab
               register={register}
+              control={control}
               errors={errors}
               selectedTags={selectedTags}
               availableTags={availableTags}

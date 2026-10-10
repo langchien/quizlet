@@ -5,7 +5,13 @@ import { FileText, CheckCircle2, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { NativeSelect as Select } from "@/components/ui/native-select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import {
   Card,
   CardContent,
@@ -21,9 +27,23 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { Field, FieldLabel, FieldGroup } from "@/components/ui/field"
 import { TargetFolderSelect } from "./target-folder-select"
 import { useTextImport } from "@/hooks/import-export/use-text-import"
 import type { FlattenedFolder } from "@/hooks/import-export/use-folders-tree"
+
+const TERM_SEPARATOR_OPTIONS = [
+  { value: "\t", label: "Dấu Tab ( \\t )" },
+  { value: " - ", label: "Gạch ngang ( - )" },
+  { value: ":", label: "Dấu hai chấm ( : )" },
+  { value: ",", label: "Dấu phẩy ( , )" },
+]
+
+const CARD_SEPARATOR_OPTIONS = [
+  { value: "\n", label: "Xuống dòng ( \\n )" },
+  { value: "\n\n", label: "Hai dòng trống ( \\n\\n )" },
+  { value: ";", label: "Dấu chấm phẩy ( ; )" },
+]
 
 interface ImportTextTabProps {
   folders: FlattenedFolder[]
@@ -66,98 +86,128 @@ export function ImportTextTab({ folders, onSuccess }: ImportTextTabProps) {
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-6">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <div className="flex flex-col gap-1.5 md:col-span-2">
-            <label className="text-xs font-semibold">Tên bộ thẻ *</label>
-            <Input
-              value={setName}
-              onChange={(e) => setSetName(e.target.value)}
-              placeholder="VD: Từ vựng sao chép từ Quizlet"
-            />
-          </div>
-          <TargetFolderSelect
-            value={folderId}
-            onChange={setFolderId}
-            folders={folders}
-          />
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold">Gán nhãn chung</label>
-            <Input
-              value={tags}
-              onChange={(e) => setTags(e.target.value)}
-              placeholder="quizlet, n5"
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold">Mô tả (tuỳ chọn)</label>
-            <Input
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Bộ thẻ nhập từ văn bản..."
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold">
-              Dấu phân cách giữa Từ & Nghĩa
-            </label>
-            <Select
-              value={termSeparator}
-              onChange={(e) => handleTermSeparatorChange(e.target.value)}
-              className="w-full"
-            >
-              <option value="	">Dấu Tab ( \t )</option>
-              <option value=" - ">Gạch ngang ( - )</option>
-              <option value=":">Dấu hai chấm ( : )</option>
-              <option value=",">Dấu phẩy ( , )</option>
-            </Select>
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold">
-              Dấu phân cách giữa các thẻ
-            </label>
-            <Select
-              value={cardSeparator}
-              onChange={(e) => handleCardSeparatorChange(e.target.value)}
-              className="w-full"
-            >
-              <option
-                value="&#10;"
+        <FieldGroup className="gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <Field className="md:col-span-2">
+              <FieldLabel
+                htmlFor="text-set-name"
+                className="text-xs font-semibold"
               >
-                Xuống dòng ( \n )
-              </option>
-              <option
-                value="&#10;&#10;"
-              >
-                Hai dòng trống ( \n\n )
-              </option>
-              <option value=";">Dấu chấm phẩy ( ; )</option>
-            </Select>
+                Tên bộ thẻ *
+              </FieldLabel>
+              <Input
+                id="text-set-name"
+                value={setName}
+                onChange={(e) => setSetName(e.target.value)}
+                placeholder="VD: Từ vựng sao chép từ Quizlet"
+              />
+            </Field>
+            <TargetFolderSelect
+              value={folderId}
+              onChange={setFolderId}
+              folders={folders}
+            />
           </div>
-        </div>
 
-        <div className="flex flex-col gap-1.5">
-          <div className="flex items-center justify-between">
-            <label className="text-xs font-semibold">
-              Dán danh sách từ vựng vào đây:
-            </label>
-            <span className="text-muted-foreground text-[11px]">
-              Hỗ trợ đọc furigana trong ngoặc: 日本語（にほんご）
-            </span>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <Field>
+              <FieldLabel htmlFor="text-tags" className="text-xs font-semibold">
+                Gán nhãn chung
+              </FieldLabel>
+              <Input
+                id="text-tags"
+                value={tags}
+                onChange={(e) => setTags(e.target.value)}
+                placeholder="quizlet, n5"
+              />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="text-desc" className="text-xs font-semibold">
+                Mô tả (tuỳ chọn)
+              </FieldLabel>
+              <Input
+                id="text-desc"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Bộ thẻ nhập từ văn bản..."
+              />
+            </Field>
           </div>
-          <Textarea
-            rows={8}
-            value={content}
-            onChange={(e) => handleContentChange(e.target.value)}
-            placeholder={`犬	Con chó\n猫	Con mèo\n本（ほん） - Quyển sách\n車（くるま） - Xe ô tô`}
-            className="font-mono text-xs"
-          />
-        </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Field>
+              <FieldLabel
+                htmlFor="term-sep-select"
+                className="text-xs font-semibold"
+              >
+                Dấu phân cách giữa Từ & Nghĩa
+              </FieldLabel>
+              <Select
+                items={TERM_SEPARATOR_OPTIONS}
+                value={termSeparator}
+                onValueChange={(val) => val && handleTermSeparatorChange(val)}
+              >
+                <SelectTrigger id="term-sep-select" className="w-full">
+                  <SelectValue placeholder="Dấu phân cách giữa Từ & Nghĩa" />
+                </SelectTrigger>
+                <SelectContent>
+                  {TERM_SEPARATOR_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+
+            <Field>
+              <FieldLabel
+                htmlFor="card-sep-select"
+                className="text-xs font-semibold"
+              >
+                Dấu phân cách giữa các thẻ
+              </FieldLabel>
+              <Select
+                items={CARD_SEPARATOR_OPTIONS}
+                value={cardSeparator}
+                onValueChange={(val) => val && handleCardSeparatorChange(val)}
+              >
+                <SelectTrigger id="card-sep-select" className="w-full">
+                  <SelectValue placeholder="Dấu phân cách giữa các thẻ" />
+                </SelectTrigger>
+                <SelectContent>
+                  {CARD_SEPARATOR_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+          </div>
+
+          <Field>
+            <div className="flex items-center justify-between">
+              <FieldLabel
+                htmlFor="raw-text-content"
+                className="text-xs font-semibold"
+              >
+                Dán danh sách từ vựng vào đây:
+              </FieldLabel>
+              <span className="text-muted-foreground text-[11px]">
+                Hỗ trợ đọc furigana trong ngoặc: 日本語（にほんご）
+              </span>
+            </div>
+            <Textarea
+              id="raw-text-content"
+              rows={8}
+              value={content}
+              onChange={(e) => handleContentChange(e.target.value)}
+              placeholder={`犬\tCon chó\n猫\tCon mèo\n本（ほん） - Quyển sách\n車（くるま） - Xe ô tô`}
+              className="font-mono text-xs"
+            />
+          </Field>
+        </FieldGroup>
 
         {/* Text Preview Table */}
         {previewCards.length > 0 && (

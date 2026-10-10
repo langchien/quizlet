@@ -1,39 +1,62 @@
 "use client"
 
-import * as React from "react"
-import { useForm, type Resolver } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { toast } from "sonner"
-import { BookOpen } from "lucide-react"
+import { getFoldersFlatAction } from "@/actions/folders"
+import { createSetAction, updateSetAction } from "@/actions/sets"
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { Select } from "@/components/ui/select"
-import { Label } from "@/components/ui/label"
-import { CreateSetSchema, type CreateSetBody } from "@/schemas/set"
-import { createSetAction, updateSetAction } from "@/actions/sets"
-import { getFoldersFlatAction } from "@/actions/folders"
+import {
+  CreateSetSchema,
+  type CreateSetBody,
+  type SetResponse,
+} from "@/schemas/set"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { BookOpen, Loader2 } from "lucide-react"
+import * as React from "react"
+import { Controller, useForm, type Resolver } from "react-hook-form"
+import { toast } from "sonner"
+
+const LANGUAGE_OPTIONS = [
+  { value: "ja", label: "Tiếng Nhật (日本語)" },
+  { value: "vi", label: "Tiếng Việt" },
+  { value: "en", label: "Tiếng Anh (English)" },
+]
+
+export interface EditSetData {
+  id: string
+  name: string
+  description?: string | null
+  sourceLanguage?: string
+  targetLanguage?: string
+  folderId?: string | null
+}
 
 interface CreateSetModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onSuccess?: (newSet: unknown) => void
-  editSet?: {
-    id: string
-    name: string
-    description?: string | null
-    sourceLanguage?: string
-    targetLanguage?: string
-    folderId?: string | null
-  } | null
+  onSuccess?: (newSet: SetResponse) => void
+  editSet?: EditSetData | null
   defaultFolderId?: string | null
 }
 
@@ -47,12 +70,14 @@ export function CreateSetModal({
   const [folders, setFolders] = React.useState<
     Array<{ id: string; name: string }>
   >([])
+  const [loadingFolders, setLoadingFolders] = React.useState(false)
   const [isPending, startTransition] = React.useTransition()
 
   const isEditing = !!editSet
 
   const {
     register,
+    control,
     handleSubmit,
     reset,
     formState: { errors },
@@ -69,20 +94,32 @@ export function CreateSetModal({
     },
   })
 
-  // Load danh sách folders phẳng để hiển thị trong select
+  // Load danh sách folders khi mở modal
   React.useEffect(() => {
-    if (open) {
-      getFoldersFlatAction()
-        .then((res) => {
-          if (res.success && res.data) {
-            setFolders(res.data)
-          }
-        })
-        .catch((err) => console.error("Error fetching folders:", err))
+    if (!open) return
+
+    let isMounted = true
+    setLoadingFolders(true)
+
+    getFoldersFlatAction()
+      .then((res) => {
+        if (isMounted && res.success && res.data) {
+          setFolders(res.data)
+        }
+      })
+      .catch((err) => {
+        console.error("Lỗi tải danh sách thư mục:", err)
+      })
+      .finally(() => {
+        if (isMounted) setLoadingFolders(false)
+      })
+
+    return () => {
+      isMounted = false
     }
   }, [open])
 
-  // Fill form khi sửa hoặc mở
+  // Đồng bộ giá trị vào form khi mở modal hoặc thay đổi editSet
   React.useEffect(() => {
     if (open) {
       if (editSet) {
@@ -129,7 +166,9 @@ export function CreateSetModal({
             : "Đã tạo bộ thẻ mới thành công!"
         )
         onOpenChange(false)
-        onSuccess?.(res.data)
+        if (res.data) {
+          onSuccess?.(res.data as SetResponse)
+        }
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : "Đã xảy ra lỗi"
         toast.error(message)
@@ -137,15 +176,32 @@ export function CreateSetModal({
     })
   }
 
+  // Danh sách options thư mục
+  const folderOptions = React.useMemo(
+    () => [
+      {
+        value: "none",
+        label: loadingFolders
+          ? "Đang tải thư mục..."
+          : "-- Không thuộc thư mục nào (Gốc) --",
+      },
+      ...folders.map((f) => ({
+        value: f.id,
+        label: `📁 ${f.name}`,
+      })),
+    ],
+    [folders, loadingFolders]
+  )
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent size="lg">
         <DialogHeader>
           <div className="flex items-center gap-2">
             <div className="bg-primary/10 text-primary flex size-9 items-center justify-center rounded-xl">
               <BookOpen className="size-5" />
             </div>
-            <div>
+            <div className="flex flex-col gap-0.5">
               <DialogTitle>
                 {isEditing ? "Chỉnh sửa bộ thẻ" : "Tạo bộ thẻ mới"}
               </DialogTitle>
@@ -158,76 +214,136 @@ export function CreateSetModal({
           </div>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-2">
-          {/* Tên bộ thẻ */}
-          <div className="space-y-1.5">
-            <Label htmlFor="set-name" className="text-xs font-semibold">
-              Tên bộ thẻ <span className="text-destructive">*</span>
-            </Label>
-            <Input
-              id="set-name"
-              placeholder="VD: Từ vựng Minna no Nihongo Bài 1..."
-              {...register("name")}
-            />
-            {errors.name && (
-              <p className="text-destructive text-xs">{errors.name.message}</p>
-            )}
-          </div>
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col gap-4 pt-2"
+        >
+          <FieldGroup className="gap-4">
+            {/* Tên bộ thẻ */}
+            <Field data-invalid={!!errors.name}>
+              <FieldLabel htmlFor="set-name">
+                Tên bộ thẻ <span className="text-destructive">*</span>
+              </FieldLabel>
+              <Input
+                id="set-name"
+                disabled={isPending}
+                aria-invalid={!!errors.name}
+                placeholder="VD: Từ vựng Minna no Nihongo Bài 1..."
+                {...register("name")}
+              />
+              <FieldError errors={[errors.name]} />
+            </Field>
 
-          {/* Mô tả */}
-          <div className="space-y-1.5">
-            <Label htmlFor="set-desc" className="text-xs font-semibold">
-              Mô tả (tuỳ chọn)
-            </Label>
-            <Textarea
-              id="set-desc"
-              rows={3}
-              placeholder="Mô tả nội dung, mục tiêu bài học hoặc ghi chú..."
-              {...register("description")}
-            />
-            {errors.description && (
-              <p className="text-destructive text-xs">
-                {errors.description.message}
-              </p>
-            )}
-          </div>
+            {/* Mô tả */}
+            <Field data-invalid={!!errors.description}>
+              <FieldLabel htmlFor="set-desc">Mô tả (tuỳ chọn)</FieldLabel>
+              <Textarea
+                id="set-desc"
+                rows={3}
+                disabled={isPending}
+                aria-invalid={!!errors.description}
+                placeholder="Mô tả nội dung, mục tiêu bài học hoặc ghi chú..."
+                {...register("description")}
+              />
+              <FieldError errors={[errors.description]} />
+            </Field>
 
-          {/* Chọn thư mục */}
-          <div className="space-y-1.5">
-            <Label htmlFor="set-folder" className="text-xs font-semibold">
-              Thư mục chứa
-            </Label>
-            <Select id="set-folder" {...register("folderId")}>
-              <option value="none">-- Không thuộc thư mục nào (Gốc) --</option>
-              {folders.map((f) => (
-                <option key={f.id} value={f.id}>
-                  📁 {f.name}
-                </option>
-              ))}
-            </Select>
-          </div>
+            {/* Chọn thư mục */}
+            <Field data-invalid={!!errors.folderId}>
+              <FieldLabel htmlFor="set-folder">Thư mục chứa</FieldLabel>
+              <Controller
+                control={control}
+                name="folderId"
+                render={({ field }) => (
+                  <Select
+                    items={folderOptions}
+                    value={field.value || "none"}
+                    onValueChange={(val) => {
+                      field.onChange(val === "none" ? null : val)
+                    }}
+                    disabled={isPending || loadingFolders}
+                  >
+                    <SelectTrigger id="set-folder" className="w-full">
+                      <SelectValue placeholder="-- Không thuộc thư mục nào (Gốc) --" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {folderOptions.map((f) => (
+                        <SelectItem key={f.value} value={f.value}>
+                          {f.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              <FieldError errors={[errors.folderId]} />
+            </Field>
 
-          {/* Ngôn ngữ */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label className="text-xs font-semibold">Ngôn ngữ nguồn</Label>
-              <Select {...register("sourceLanguage")}>
-                <option value="ja">Tiếng Nhật (日本語)</option>
-                <option value="en">Tiếng Anh (English)</option>
-                <option value="vi">Tiếng Việt</option>
-              </Select>
+            {/* Ngôn ngữ */}
+            <div className="grid grid-cols-2 gap-3">
+              <Field data-invalid={!!errors.sourceLanguage}>
+                <FieldLabel htmlFor="source-lang">Ngôn ngữ nguồn</FieldLabel>
+                <Controller
+                  control={control}
+                  name="sourceLanguage"
+                  render={({ field }) => (
+                    <Select
+                      items={LANGUAGE_OPTIONS}
+                      value={field.value || "ja"}
+                      onValueChange={(val) => {
+                        if (val) field.onChange(val)
+                      }}
+                      disabled={isPending}
+                    >
+                      <SelectTrigger id="source-lang" className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {LANGUAGE_OPTIONS.map((opt) => (
+                          <SelectItem key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                <FieldError errors={[errors.sourceLanguage]} />
+              </Field>
+
+              <Field data-invalid={!!errors.targetLanguage}>
+                <FieldLabel htmlFor="target-lang">Ngôn ngữ đích</FieldLabel>
+                <Controller
+                  control={control}
+                  name="targetLanguage"
+                  render={({ field }) => (
+                    <Select
+                      items={LANGUAGE_OPTIONS}
+                      value={field.value || "vi"}
+                      onValueChange={(val) => {
+                        if (val) field.onChange(val)
+                      }}
+                      disabled={isPending}
+                    >
+                      <SelectTrigger id="target-lang" className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {LANGUAGE_OPTIONS.map((opt) => (
+                          <SelectItem key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                <FieldError errors={[errors.targetLanguage]} />
+              </Field>
             </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs font-semibold">Ngôn ngữ đích</Label>
-              <Select {...register("targetLanguage")}>
-                <option value="vi">Tiếng Việt</option>
-                <option value="en">Tiếng Anh (English)</option>
-                <option value="ja">Tiếng Nhật (日本語)</option>
-              </Select>
-            </div>
-          </div>
+          </FieldGroup>
 
-          <DialogFooter>
+          <DialogFooter className="pt-2">
             <Button
               type="button"
               variant="outline"
@@ -237,6 +353,7 @@ export function CreateSetModal({
               Huỷ
             </Button>
             <Button type="submit" disabled={isPending}>
+              {isPending && <Loader2 className="size-4 animate-spin" />}
               {isPending
                 ? "Đang lưu..."
                 : isEditing

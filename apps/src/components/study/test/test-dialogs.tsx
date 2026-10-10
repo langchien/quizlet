@@ -41,7 +41,7 @@ export function ConfirmSubmitDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="rounded-3xl sm:max-w-md">
+      <DialogContent size="md" className="rounded-3xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-lg font-bold">
             {!isAllAnswered ? (

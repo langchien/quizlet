@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { toast } from "sonner"
-import { GitMerge } from "lucide-react"
+import { GitMerge, Loader2 } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -12,8 +12,15 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { NativeSelect as Select } from "@/components/ui/native-select"
-import { Label } from "@/components/ui/label"
+import { Checkbox } from "@/components/ui/checkbox"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Field, FieldLabel, FieldGroup } from "@/components/ui/field"
 import { mergeSetsAction, getUserSetsAction } from "@/actions/sets"
 
 interface MergeSetsModalProps {
@@ -52,7 +59,7 @@ export function MergeSetsModal({
             setTargetSetId((prev) => prev || items[0].id)
           }
         })
-        .catch((err) => console.error("Error loading sets:", err))
+        .catch((err) => console.error("Lỗi tải danh sách bộ thẻ:", err))
 
       return () => {
         isMounted = false
@@ -104,15 +111,24 @@ export function MergeSetsModal({
 
   const availableSources = sets.filter((s) => s.id !== targetSetId)
 
+  const setOptions = React.useMemo(
+    () =>
+      sets.map((s) => ({
+        value: s.id,
+        label: `📚 ${s.name} (${s.cardCount} thẻ)`,
+      })),
+    [sets]
+  )
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent size="lg">
         <DialogHeader>
           <div className="flex items-center gap-2">
-            <div className="flex size-9 items-center justify-center rounded-xl bg-purple-500/10 text-purple-500">
+            <div className="bg-primary/10 text-primary flex size-9 items-center justify-center rounded-xl">
               <GitMerge className="size-5" />
             </div>
-            <div>
+            <div className="flex flex-col gap-0.5">
               <DialogTitle>Gộp nhiều bộ thẻ</DialogTitle>
               <DialogDescription>
                 Sao chép toàn bộ thẻ từ các bộ thẻ nguồn sang bộ thẻ đích.
@@ -121,83 +137,96 @@ export function MergeSetsModal({
           </div>
         </DialogHeader>
 
-        <div className="space-y-4 pt-2">
-          {/* Bộ thẻ đích */}
-          <div className="space-y-1.5">
-            <Label className="text-xs font-semibold">
-              1. Chọn bộ thẻ đích (sẽ nhận thêm thẻ)
-            </Label>
-            <Select
-              className="w-full"
-              value={targetSetId}
-              onChange={(e) => {
-                setTargetSetId(e.target.value)
-                setSelectedSourceIds((prev) =>
-                  prev.filter((id) => id !== e.target.value)
-                )
-              }}
-            >
-              {sets.map((s) => (
-                <option key={s.id} value={s.id}>
-                  📚 {s.name} ({s.cardCount} thẻ)
-                </option>
-              ))}
-            </Select>
-          </div>
-
-          {/* Chọn các bộ thẻ nguồn */}
-          <div className="space-y-1.5">
-            <Label className="text-xs font-semibold">
-              2. Chọn các bộ thẻ nguồn cần gộp vào ({selectedSourceIds.length}{" "}
-              đã chọn)
-            </Label>
-            <div className="border-border bg-muted/20 max-h-48 space-y-1 overflow-y-auto rounded-xl border p-2">
-              {availableSources.length === 0 ? (
-                <div className="text-muted-foreground py-4 text-center text-xs">
-                  Không có bộ thẻ nào khác để gộp.
-                </div>
-              ) : (
-                availableSources.map((s) => {
-                  const isChecked = selectedSourceIds.includes(s.id)
-                  return (
-                    <label
-                      key={s.id}
-                      className="hover:bg-muted flex cursor-pointer items-center justify-between rounded-lg p-2 text-xs transition-colors"
-                    >
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={isChecked}
-                          onChange={() => toggleSource(s.id)}
-                          className="border-border rounded"
-                        />
-                        <span className="text-foreground font-medium">
-                          {s.name}
-                        </span>
-                      </div>
-                      <span className="text-muted-foreground text-[11px]">
-                        {s.cardCount} thẻ
-                      </span>
-                    </label>
+        <div className="flex flex-col gap-4 pt-2">
+          <FieldGroup className="gap-4">
+            {/* Bộ thẻ đích */}
+            <Field>
+              <FieldLabel
+                htmlFor="target-set-select"
+                className="text-xs font-semibold"
+              >
+                1. Chọn bộ thẻ đích (sẽ nhận thêm thẻ)
+              </FieldLabel>
+              <Select
+                items={setOptions}
+                value={targetSetId}
+                onValueChange={(val) => {
+                  if (!val) return
+                  setTargetSetId(val)
+                  setSelectedSourceIds((prev) =>
+                    prev.filter((id) => id !== val)
                   )
-                })
-              )}
-            </div>
-          </div>
+                }}
+              >
+                <SelectTrigger id="target-set-select" className="w-full">
+                  <SelectValue placeholder="Chọn bộ thẻ đích (sẽ nhận thêm thẻ)..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {setOptions.map((s) => (
+                    <SelectItem key={s.value} value={s.value}>
+                      {s.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
 
-          {/* Tự động xoá nguồn */}
-          <label className="text-muted-foreground flex cursor-pointer items-center gap-2 pt-1 text-xs">
-            <input
-              type="checkbox"
-              checked={deleteSources}
-              onChange={(e) => setDeleteSources(e.target.checked)}
-              className="border-border rounded"
-            />
-            <span>Xoá các bộ thẻ nguồn sau khi gộp thành công</span>
-          </label>
+            {/* Chọn các bộ thẻ nguồn */}
+            <Field>
+              <FieldLabel className="text-xs font-semibold">
+                2. Chọn các bộ thẻ nguồn cần gộp vào ({selectedSourceIds.length}{" "}
+                đã chọn)
+              </FieldLabel>
+              <div className="border-border bg-muted/20 flex max-h-48 flex-col gap-1 overflow-y-auto rounded-xl border p-2">
+                {availableSources.length === 0 ? (
+                  <div className="text-muted-foreground py-4 text-center text-xs">
+                    Không có bộ thẻ nào khác để gộp.
+                  </div>
+                ) : (
+                  availableSources.map((s) => {
+                    const isChecked = selectedSourceIds.includes(s.id)
+                    return (
+                      <label
+                        key={s.id}
+                        className="hover:bg-muted flex cursor-pointer items-center justify-between rounded-lg p-2 text-xs transition-colors"
+                      >
+                        <div className="flex items-center gap-2">
+                          <Checkbox
+                            checked={isChecked}
+                            onCheckedChange={() => toggleSource(s.id)}
+                          />
+                          <span className="text-foreground font-medium">
+                            {s.name}
+                          </span>
+                        </div>
+                        <span className="text-muted-foreground text-[11px]">
+                          {s.cardCount} thẻ
+                        </span>
+                      </label>
+                    )
+                  })
+                )}
+              </div>
+            </Field>
+
+            {/* Tự động xoá nguồn */}
+            <div className="flex items-center gap-2 pt-1">
+              <Checkbox
+                id="delete-sources-check"
+                checked={deleteSources}
+                onCheckedChange={(checked) => setDeleteSources(!!checked)}
+              />
+              <FieldLabel
+                htmlFor="delete-sources-check"
+                className="text-muted-foreground cursor-pointer text-xs font-normal select-none"
+              >
+                Xoá các bộ thẻ nguồn sau khi gộp thành công
+              </FieldLabel>
+            </div>
+          </FieldGroup>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="pt-2">
           <Button
             type="button"
             variant="outline"
@@ -211,6 +240,7 @@ export function MergeSetsModal({
             onClick={handleMerge}
             disabled={isPending || selectedSourceIds.length === 0}
           >
+            {isPending && <Loader2 className="size-4 animate-spin" />}
             {isPending ? "Đang gộp..." : "Xác nhận gộp"}
           </Button>
         </DialogFooter>

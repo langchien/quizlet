@@ -118,7 +118,7 @@ export function CreateTagModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent size="md">
         <DialogHeader>
           <div className="flex items-center gap-2">
             <div
@@ -130,7 +130,7 @@ export function CreateTagModal({
             >
               <TagIcon className="size-5" />
             </div>
-            <div>
+            <div className="flex flex-col gap-0.5">
               <DialogTitle>
                 {isEditing ? "Chỉnh sửa nhãn" : "Tạo nhãn mới"}
               </DialogTitle>
@@ -141,9 +141,12 @@ export function CreateTagModal({
           </div>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-2">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col gap-4 pt-2"
+        >
           {/* Tên nhãn */}
-          <div className="space-y-1.5">
+          <div className="flex flex-col gap-1.5">
             <Label htmlFor="tag-name" className="text-xs font-semibold">
               Tên nhãn <span className="text-destructive">*</span>
             </Label>
@@ -158,7 +161,7 @@ export function CreateTagModal({
           </div>
 
           {/* Bảng màu */}
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <Label className="text-xs font-semibold">Màu sắc đại diện</Label>
             <div className="grid grid-cols-6 gap-2">
               {PRESET_COLORS.map((color) => (
