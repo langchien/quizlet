@@ -239,26 +239,51 @@ function parseWordType(val?: string | null): WordType | null {
 }
 
 /**
+ * Trích xuất database buffer SQLite từ file .apkg
+ * Ưu tiên file SQLite chuẩn (magic bytes 'SQLite format 3')
+ */
+async function getAnkiDatabaseBuffer(zip: JSZip): Promise<Buffer> {
+  const candidateNames = [
+    "collection.anki2",
+    "collection.anki21",
+    "collection.anki21b",
+  ]
+  const foundFiles: JSZip.JSZipObject[] = []
+
+  for (const name of candidateNames) {
+    const file = zip.file(name)
+    if (file) foundFiles.push(file)
+  }
+
+  if (foundFiles.length === 0) {
+    throw new Error(
+      "Không tìm thấy cơ sở dữ liệu Anki (collection.anki2) trong file .apkg"
+    )
+  }
+
+  // Quét các file tìm thấy để chọn file có header SQLite chuẩn
+  for (const file of foundFiles) {
+    const data = await file.async("nodebuffer")
+    if (
+      data.length >= 16 &&
+      data.subarray(0, 15).toString("utf8") === "SQLite format 3"
+    ) {
+      return data
+    }
+  }
+
+  // Fallback: nếu không tìm thấy header chuẩn, lấy file ứng viên đầu tiên
+  return await foundFiles[0].async("nodebuffer")
+}
+
+/**
  * Đọc file .apkg và trích xuất Decks, Models, Fields, Sample Cards để Preview
  */
 export async function previewAnkiPackage(
   zipBuffer: Buffer
 ): Promise<AnkiDeckPreview[]> {
   const zip = await JSZip.loadAsync(zipBuffer)
-
-  // Tìm file SQLite database
-  const dbFile =
-    zip.file("collection.anki21b") ||
-    zip.file("collection.anki21") ||
-    zip.file("collection.anki2")
-
-  if (!dbFile) {
-    throw new Error(
-      "Không tìm thấy cơ sở dữ liệu Anki (collection.anki2) trong file .apkg"
-    )
-  }
-
-  const dbData = await dbFile.async("nodebuffer")
+  const dbData = await getAnkiDatabaseBuffer(zip)
   const db = new Database(dbData)
 
   try {
@@ -391,15 +416,6 @@ export async function parseFullAnkiPackage(
 }> {
   const zip = await JSZip.loadAsync(zipBuffer)
 
-  const dbFile =
-    zip.file("collection.anki21b") ||
-    zip.file("collection.anki21") ||
-    zip.file("collection.anki2")
-
-  if (!dbFile) {
-    throw new Error("Không tìm thấy collection.anki2 trong file .apkg")
-  }
-
   // 1. Trích xuất Media map nếu có
   const mediaMap: Record<string, string> = {}
   const mediaFile = zip.file("media")
@@ -437,7 +453,7 @@ export async function parseFullAnkiPackage(
   }
 
   // 2. Mở SQLite Database
-  const dbData = await dbFile.async("nodebuffer")
+  const dbData = await getAnkiDatabaseBuffer(zip)
   const db = new Database(dbData)
 
   try {

@@ -50,9 +50,7 @@ export async function previewAnkiAction(formData: FormData) {
 /**
  * 6. Import bộ thẻ từ gói Anki (.apkg)
  */
-export async function importAnkiAction(
-  formData: FormData
-): Promise<
+export async function importAnkiAction(formData: FormData): Promise<
   ActionResponse<{
     setId: string
     setName: string
