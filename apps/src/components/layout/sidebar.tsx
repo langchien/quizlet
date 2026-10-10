@@ -1,15 +1,14 @@
 "use client"
 
-import * as React from "react"
-import { cn } from "@/lib/utils"
-import { useSidebarFolders } from "@/hooks/sidebar"
 import {
-  SidebarHeader,
-  SidebarNavMenu,
-  SidebarFolderTree,
   SidebarCreateButton,
   SidebarDeleteDialog,
+  SidebarFolderTree,
+  SidebarHeader,
+  SidebarNavMenu,
 } from "@/components/layout/sidebar-parts"
+import { useSidebarFolders } from "@/hooks/sidebar"
+import { cn } from "@/lib/utils"
 import type { SidebarProps } from "@/types/sidebar"
 
 export function Sidebar({

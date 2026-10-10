@@ -1,8 +1,9 @@
 "use client"
 
 import * as React from "react"
-import { Sidebar } from "@/components/layout/sidebar"
-import { Topbar } from "@/components/layout/topbar"
+import { AppSidebar } from "@/components/app-sidebar"
+import { SiteHeader } from "@/components/site-header"
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { CommandPalette } from "@/components/command-palette"
 import { CreateSetModal } from "@/components/modals/create-set-modal"
 import { CreateFolderModal } from "@/components/modals/create-folder-modal"
@@ -16,9 +17,6 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   const { fetchCurrentUser } = useAuthStore()
-
-  const [sidebarCollapsed, setSidebarCollapsed] = React.useState(false)
-  const [mobileSidebarOpen, setMobileSidebarOpen] = React.useState(false)
 
   // Modals state
   const [commandPaletteOpen, setCommandPaletteOpen] = React.useState(false)
@@ -85,64 +83,36 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="bg-background text-foreground selection:bg-primary/20 flex min-h-screen">
+    <div className="bg-background text-foreground selection:bg-primary/20 flex min-h-screen flex-col [--header-height:calc(--spacing(14))]">
       {/* Background radial gradient subtle effect */}
       <div className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:20px_20px] opacity-30 dark:bg-[radial-gradient(#1f2937_1px,transparent_1px)] dark:opacity-20" />
 
-      {/* Desktop Sidebar */}
-      <div className="hidden md:flex">
-        <Sidebar
-          collapsed={sidebarCollapsed}
-          onToggleCollapse={() => setSidebarCollapsed((prev) => !prev)}
-          onOpenCreateSet={handleOpenCreateSet}
-          onOpenCreateFolder={handleOpenCreateFolder}
-          onEditFolder={handleEditFolder}
-        />
-      </div>
-
-      {/* Mobile Drawer Backdrop & Sidebar */}
-      {mobileSidebarOpen && (
-        <div className="animate-in fade-in-0 fixed inset-0 z-40 flex duration-200 md:hidden">
-          <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-xs"
-            onClick={() => setMobileSidebarOpen(false)}
-          />
-          <div className="bg-card animate-in slide-in-from-left relative z-50 flex w-72 flex-col shadow-2xl duration-200">
-            <Sidebar
-              collapsed={false}
-              onToggleCollapse={() => setMobileSidebarOpen(false)}
-              onOpenCreateSet={(folderId) => {
-                setMobileSidebarOpen(false)
-                handleOpenCreateSet(folderId)
-              }}
-              onOpenCreateFolder={(parentId) => {
-                setMobileSidebarOpen(false)
-                handleOpenCreateFolder(parentId)
-              }}
-              onEditFolder={(f) => {
-                setMobileSidebarOpen(false)
-                handleEditFolder(f)
-              }}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Main Content Area */}
-      <div className="flex min-w-0 flex-1 flex-col">
-        <Topbar
+      <SidebarProvider className="flex flex-col">
+        {/* Full-width sticky header on top */}
+        <SiteHeader
           onOpenSearch={() => setCommandPaletteOpen(true)}
           onOpenCreateSet={() => handleOpenCreateSet()}
           onOpenCreateFolder={() => handleOpenCreateFolder()}
           onOpenCreateTag={() => setCreateTagOpen(true)}
-          onToggleMobileSidebar={() => setMobileSidebarOpen((prev) => !prev)}
           onOpenShortcuts={() => setShortcutsCheatsheetOpen(true)}
         />
 
-        <main className="mx-auto w-full max-w-7xl flex-1 p-4 sm:p-6 md:p-8">
-          {children}
-        </main>
-      </div>
+        {/* Sidebar + Main Content Area */}
+        <div className="flex flex-1">
+          <AppSidebar
+            onOpenCreateSet={handleOpenCreateSet}
+            onOpenCreateFolder={handleOpenCreateFolder}
+            onEditFolder={handleEditFolder}
+            onOpenShortcuts={() => setShortcutsCheatsheetOpen(true)}
+          />
+
+          <SidebarInset>
+            <div className="mx-auto w-full max-w-7xl flex-1 p-4 sm:p-6 md:p-8">
+              {children}
+            </div>
+          </SidebarInset>
+        </div>
+      </SidebarProvider>
 
       {/* Modals & Dialogs */}
       <ShortcutsCheatsheetModal
@@ -162,7 +132,6 @@ export default function DashboardLayout({
         onOpenChange={setCreateSetOpen}
         defaultFolderId={targetFolderId}
         onSuccess={() => {
-          // Trigger refresh if needed
           window.dispatchEvent(new CustomEvent("refresh-library"))
         }}
       />

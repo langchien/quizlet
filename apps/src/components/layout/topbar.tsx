@@ -20,6 +20,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuItem,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuSeparator,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu"
@@ -105,19 +106,21 @@ export function Topbar({
             <span className="hidden sm:inline">Tạo mới</span>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuLabel>Tạo nội dung mới</DropdownMenuLabel>
-            <DropdownMenuItem onClick={onOpenCreateSet} className="gap-2">
-              <BookOpen className="text-primary size-4" />
-              <span>Bộ thẻ mới</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={onOpenCreateFolder} className="gap-2">
-              <FolderPlus className="size-4 text-blue-500" />
-              <span>Thư mục mới</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={onOpenCreateTag} className="gap-2">
-              <Tag className="size-4 text-purple-500" />
-              <span>Nhãn phân loại mới</span>
-            </DropdownMenuItem>
+            <DropdownMenuGroup>
+              <DropdownMenuLabel>Tạo nội dung mới</DropdownMenuLabel>
+              <DropdownMenuItem onClick={onOpenCreateSet} className="gap-2">
+                <BookOpen className="text-primary size-4" />
+                <span>Bộ thẻ mới</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onOpenCreateFolder} className="gap-2">
+                <FolderPlus className="size-4 text-blue-500" />
+                <span>Thư mục mới</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onOpenCreateTag} className="gap-2">
+                <Tag className="size-4 text-purple-500" />
+                <span>Nhãn phân loại mới</span>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
 
